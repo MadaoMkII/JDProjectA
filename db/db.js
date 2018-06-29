@@ -28,7 +28,7 @@ db.on('error', (error) => {
 
 db.on('close', (info) => {
     console.log('Disconnected');
-    logger.warn('Db has disconnected: ' + info);
+    logger.warn('Db has dissconnected: ' + info);
     mongoose.connect(config.url, {server: {auto_reconnect: true}});
 });
 module.exports.mongoose = mongoose;
