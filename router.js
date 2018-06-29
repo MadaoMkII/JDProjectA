@@ -15,9 +15,9 @@ const urlencoded_body_parser = bodyParser.urlencoded({extended: true});
 
 let app = express();
 
-const DOMAIN = 'http://www.aboluochinese.com';
-
-app.options(DOMAIN, cors());
+// const DOMAIN = 'http://www.?????.com';
+//
+// app.options(DOMAIN, cors());
 app.use(json_body_parser);
 app.use(urlencoded_body_parser);
 app.use(session({
@@ -31,7 +31,7 @@ app.use(passport.session());
 app.use(function (req, res, next) {
 
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', DOMAIN);
+    //res.setHeader('Access-Control-Allow-Origin', DOMAIN);
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
