@@ -1,0 +1,34 @@
+{
+  "name": "ABLproject",
+  "version": "0.0.0",
+  "description": "ABLproject order managerment.",
+  "keywords": [
+    "ABL"
+  ],
+  "author": "老司机",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MadaoMkII/NaProject.git"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "babel-preset-env": ">= 0.1.4",
+    "body-parser": "^1.13.3",
+    "connect-ensure-login": "^0.1.1",
+    "cookie-parser": "^1.3.5",
+    "cors": "^2.8.4",
+    "dateformat": "^3.0.2",
+    "ejs": "^2.3.3",
+    "express": "^4.13.3",
+    "express-session": "^1.11.3",
+    "log4js": "^2.4.1",
+    "mongoose": "^4.13.6",
+    "mongoose-auto-increment": "5.0.1",
+    "morgan": "^1.6.1",
+    "nodemailer": "4.4.1",
+    "npm": "^5.6.0",
+    "package.json": "^2.0.1",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0"
+  }
+}
