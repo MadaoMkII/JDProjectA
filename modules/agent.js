@@ -50,33 +50,32 @@ agentSchema.statics.addNewAgent = (userinfo) => {
             return err;
         }
     });
-
-    agentSchema.statics.getAllAgent = function (callback) {
-        agentModel.find({'role': {$eq: 'Agent'}}, 'username country role stationname receiverate publishrate createtimestamp',
-            (err, agents) => {
-                if (err) {
-                    logger.error('Error location : Class: agent, function: addAgent. ');
-                    logger.error(err);
-                    return err;
-                }
-                if (agents) return callback(null, agents);
-                return callback(err, {'Massage': 'Can not find anything'});
-            })
-    };
-
-    agentSchema.statics.isDuplicationName = function (data, callback) {
-        agentModel.find({$or: [{'username': data.username, 'stationname': data.stationname}]}, (err, agents) => {
+};
+agentSchema.statics.getAllAgent = function (callback) {
+    agentModel.find({'role': {$eq: 'Agent'}}, 'username country role stationname receiverate publishrate createtimestamp',
+        (err, agents) => {
             if (err) {
                 logger.error('Error location : Class: agent, function: addAgent. ');
                 logger.error(err);
                 return err;
             }
-            if (agents) {
-                return callback(null, agents);
-            }
-            return callback(err, false);
+            if (agents) return callback(null, agents);
+            return callback(err, {'Massage': 'Can not find anything'});
         })
-    }
+};
+
+agentSchema.statics.isDuplicationName = function (data, callback) {
+    agentModel.find({$or: [{'username': data.username, 'stationname': data.stationname}]}, (err, agents) => {
+        if (err) {
+            logger.error('Error location : Class: agent, function: addAgent. ');
+            logger.error(err);
+            return err;
+        }
+        if (agents) {
+            return callback(null, agents);
+        }
+        return callback(err, false);
+    })
 };
 
 let agentModel = mongoose.model('Agent', agentSchema);

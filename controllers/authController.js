@@ -14,7 +14,7 @@ exports.logoutUser = (req, res) => {
 exports.loginUser = (req, res, next) => {
     passport.authenticate('local', (err, user) => {
         if (req.user) {
-            logger.debug(req.user + ' has been logout for new loggin');
+            logger.debug(req.user + ' has been logout for new login');
             req.logout();
         }
         if (err) {
@@ -37,8 +37,13 @@ exports.loginUser = (req, res, next) => {
                 logger.error('Error location : Class: authController, function: loginUser. ' + err);
                 return next(err);
             }
-            return res.status(200).json({success: true, role: user.role, station:user.stationname, message: 'Authentication succeeded'});
-        });
+            return res.status(200).json({
+                success: true,
+                role: user.role,
+                station: user.stationname,
+                message: 'Authentication succeeded'
+            });
+        }, null);
     })(req, res, next);
 };
 //tool function translates Privilege to amount
@@ -54,6 +59,9 @@ let getPrivilege = (privilegeName) => {
         case 'Agent':
             privilege = 10;
             break;
+        case 'All':
+            privilege = 0;
+            break;
         default:
             privilege = -1;
 
@@ -61,7 +69,7 @@ let getPrivilege = (privilegeName) => {
     return privilege;
 };
 //check if user has been login though passport
-//check if the requst has enough privilege for a certain API
+//check if the request has enough privilege for a certain API
 exports.isAuthenticated = (privilegeName) => {
 
     return function (req, res, next) {
@@ -73,7 +81,7 @@ exports.isAuthenticated = (privilegeName) => {
             return next();
         } else {
             return res.status(401).json(
-                {success: false, message: 'Authentication faild, need login first'}
+                {success: false, message: 'Authentication failed, need login first'}
             );
         }
     }
