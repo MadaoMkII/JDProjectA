@@ -10,14 +10,14 @@ passport.serializeUser(function (user, callback) {
 });
 
 passport.deserializeUser(function (username, callback) {
-    userAccountModel.findOne({'username': username}, function (err, user) {
+        userAccountModel.findOne({'username': username}, function (err, user) {
             callback(err, user);
         });
     }
 );
 passport.use(new LocalStrategy('local', (username, password, callback) => {
         let resultPassowrd = require('crypto').createHash('md5').update(password + config.saltword).digest('hex');
-    userAccountModel.findOne({'username': username, 'password': resultPassowrd}, (err, data) => {
+        userAccountModel.findOne({'username': username, 'password': resultPassowrd}, (err, data) => {
 
             if (err) {
                 logger.error('passport: passport.use ' + err);

@@ -1,5 +1,6 @@
 const config = require('../config/develop');
 const agentModel = require('../modules/agent').agentModel;
+const userModel = require('../modules/userAccount').userAccountModel;
 const logger = require('../logging/logger');
 
 exports.addAdmin = (req, res) => {
@@ -33,7 +34,32 @@ exports.addAdmin = (req, res) => {
         return res.status(200).json(userInfo);
     });
 };
+exports.userSignUp = (req, res) => {
 
+    let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
+    let userInfo = {
+        username: req.body.username,
+        password: result,
+        role: 'User'
+    };
+    new userModel(userInfo).save((err) => {
+        if (err) {
+            logger.info(req.body);
+            logger.error('Error location : Class: userController, function: addAgent. ' + err);
+            logger.error('Response code:503, message: Error Happened , please check input data');
+
+            if (err.toString().includes('duplicate')) {
+                return res.status(406).json({
+                    success: false,
+                    message: 'Duplication Username . The Username‘s name :' + userInfo.username
+                });
+            } else {
+                return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
+            }
+        }
+        return res.status(200).json(userInfo);
+    });
+};
 exports.addAgent = (req, res) => {
 
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');

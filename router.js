@@ -43,11 +43,11 @@ app.use(function (req, res, next) {
     // to the API (e.g. in case you use sessions)
     res.setHeader('Access-Control-Allow-Credentials', true);
 
-    if(req.method === 'OPTIONS'){
-    	res.sendStatus(200);
-    }else{
-    // Pass to next layer of middleware
-    next();
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        // Pass to next layer of middleware
+        next();
     }
 });
 
@@ -95,6 +95,8 @@ app.delete('/orderform/deleteorderform', isAuthenticated('Admin'), orderformCont
 app.post('/orderform/checkOrder/paycheckorder', isAuthenticated('Admin'), orderformController.payAmount);//done
 app.post('/orderform/checkOrder/updatecheckorder', isAuthenticated('Admin'), orderformController.updatePayment);//done
 app.delete('/orderform/checkOrder/deletecheckorder', isAuthenticated('Admin'), orderformController.deletePayment);//done
+
+app.post('/signup', userController.userSignUp);
 
 app.post('/login', loginUser.loginUser);
 app.post('/logout', loginUser.logoutUser);
