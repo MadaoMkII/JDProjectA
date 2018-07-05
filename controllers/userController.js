@@ -42,7 +42,6 @@ exports.userSignUp = (req, res) => {
         password: result,
         role: 'User',
         tel_number: req.body.tel_number,
-        last_login_time: Date.now()
     };
     new userModel(userInfo).save((err) => {
         if (err) {
@@ -51,9 +50,11 @@ exports.userSignUp = (req, res) => {
             logger.error('Response code:503, message: Error Happened , please check input data');
 
             if (err.toString().includes('duplicate')) {
+
+
                 return res.status(406).json({
                     success: false,
-                    message: 'Duplication Username . The Username‘s name :' + userInfo.username
+                    message: 'Duplication Username or Tel. The Username‘s name :' + userInfo.username
                 });
             } else {
                 return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
@@ -61,7 +62,11 @@ exports.userSignUp = (req, res) => {
         }
         return res.status(200).json({
             "error_code": 0,
-            "data": {userInfo}
+            "data": {
+                username: userInfo.username,
+                role: userInfo.role,
+                tel_number: req.body.tel_number
+            }
         });
     });
 };

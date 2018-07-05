@@ -13,7 +13,11 @@ let userAccountSchema = new mongoose.Schema({
         type: String
     },
     role: String,
-    tel_number: String,
+    tel_number: {
+        required: true,
+        type: String,
+        unique: true
+    },
     last_login_time: Date
 }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
 
