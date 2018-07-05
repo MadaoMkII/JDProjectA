@@ -38,10 +38,12 @@ exports.loginUser = (req, res, next) => {
                 return next(err);
             }
             return res.status(200).json({
-                success: true,
-                role: user.role,
-                station: user.stationname,
-                message: 'Authentication succeeded'
+                "error_code": 0,
+                "data": {
+                    "username": user.username,
+                    "role": user.role,
+                    "last_login_time": user.last_login_time
+                }
             });
         }, null);
     })(req, res, next);

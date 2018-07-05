@@ -12,7 +12,9 @@ let userAccountSchema = new mongoose.Schema({
         required: true,
         type: String
     },
-    role: String
+    role: String,
+    tel_number: String,
+    last_login_time: Date
 }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
 
 

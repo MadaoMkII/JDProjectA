@@ -40,7 +40,9 @@ exports.userSignUp = (req, res) => {
     let userInfo = {
         username: req.body.username,
         password: result,
-        role: 'User'
+        role: 'User',
+        tel_number: req.body.tel_number,
+        last_login_time: Date.now()
     };
     new userModel(userInfo).save((err) => {
         if (err) {
@@ -57,7 +59,10 @@ exports.userSignUp = (req, res) => {
                 return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
             }
         }
-        return res.status(200).json(userInfo);
+        return res.status(200).json({
+            "error_code": 0,
+            "data": {userInfo}
+        });
     });
 };
 exports.addAgent = (req, res) => {
@@ -93,7 +98,7 @@ exports.addAgent = (req, res) => {
 };
 
 exports.getMyRegisterAgents = (req, res) => {
-	
+
     agentModel.find({registerby: req.user.stationname}, {password: 0}, (err, agents) => {
 
         if (err) {
@@ -114,10 +119,10 @@ exports.getArea = (req, res) => {
 };
 
 exports.getAllStationsName = (req, res) => {
-	agentModel.find( {}, {stationname: 1}, (err, agents) => {
+    agentModel.find({}, {stationname: 1}, (err, agents) => {
         if (err) {
-        	logger.error('Error Location: Class : userController, function : getAllStationsName. ' + err);
-        	
+            logger.error('Error Location: Class : userController, function : getAllStationsName. ' + err);
+
             return res.status(404).json({'succeed': false, 'massage': 'Can not find anything'});
         }
         return res.status(200).json(agents);
@@ -128,14 +133,14 @@ exports.updatepassword = (req, res) => {
     let hashedPassword =
         require('crypto').createHash('md5').update(req.body['newpassword'] + config.saltword).digest('hex');
     let hashedCurrentPassword = require('crypto').createHash('md5').update(req.body['currentpassword'] + config.saltword).digest('hex');
-    agentModel.findOne({'username': req.user.username},{password:1}, (err, data) => {
+    agentModel.findOne({'username': req.user.username}, {password: 1}, (err, data) => {
         if (err) {
             logger.error('user controller updatepassword: ' + err);
             return res.status(404).json({succeed: false, message: 'Error When Trying To Verify User'});
         }
         if (!data) return res.status(404).json({succeed: false, message: 'Can Not Find user'});
-        if(hashedCurrentPassword !== data.password){
-        	return res.status(404).json({succeed: false, message: 'Current Password Is Not Correct!'});
+        if (hashedCurrentPassword !== data.password) {
+            return res.status(404).json({succeed: false, message: 'Current Password Is Not Correct!'});
         }
         agentModel.update({username: req.user.username}, {$set: {password: hashedPassword}}, (err) => {
             if (err) {
