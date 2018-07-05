@@ -61,7 +61,7 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 
-app.get('/checkhealth', isAuthenticated('Agent'), function (req, res) {
+app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
     if (req.user) {
         return res.status(200).json({
             success: true,

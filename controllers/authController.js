@@ -1,6 +1,6 @@
 const passport = require('passport');
 const logger = require('../logging/logger');
-
+const userModel = require('../modules/userAccount').userAccountModel;
 exports.logoutUser = (req, res) => {
     if (req.user) {
         logger.debug(req.user + ' has been logout for new loggin');
@@ -37,6 +37,15 @@ exports.loginUser = (req, res, next) => {
                 logger.error('Error location : Class: authController, function: loginUser. ' + err);
                 return next(err);
             }
+            let nowTime = Date.now();
+            userModel.update({username: req.user.username}, {$set: {last_login_time: nowTime}}, (err) => {
+                if (err) {
+                    console.log({succeed: false, message: 'Can not find anything'});
+                    //return res.status(404).json({succeed: false, message: 'Can not find anything'});
+                }
+
+                //return res.status(200).json({succeed: true, message: 'Please relogin'});
+            })
             return res.status(200).json({
                 "error_code": 0,
                 "data": {
@@ -47,7 +56,7 @@ exports.loginUser = (req, res, next) => {
             });
         }, null);
     })(req, res, next);
-};
+}
 //tool function translates Privilege to amount
 let getPrivilege = (privilegeName) => {
     let privilege = 0;
