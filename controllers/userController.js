@@ -2,38 +2,36 @@ const config = require('../config/develop');
 const agentModel = require('../modules/agent').agentModel;
 const userModel = require('../modules/userAccount').userAccountModel;
 const logger = require('../logging/logger');
+const redis = require("redis"),
+    redisClient = redis.createClient();
+// exports.addAdmin = (req, res) => {
+//
+//     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
+//     let userInfo = {
+//         username: req.body.username,
+//         password: result,
+//         country: req.user.country,
+//         role: 'Admin'
+//     };
+//     new agentModel(userInfo).save((err) => {
+//         if (err) {
+//             logger.info(req.body);
+//             logger.error('Error location : Class: userController, function: addAgent. ' + err);
+//             logger.error('Response code:503, message: Error Happened , please check input data');
+//
+//             if (err.toString().includes('duplicate')) {
+//                 return res.status(406).json({
+//                     success: false,
+//                     message: 'Duplication Username or StationName. The Statian name is :' + userInfo.stationname
+//                 });
+//             } else {
+//                 return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
+//             }
+//         }
+//         return res.status(200).json(userInfo);
+//     });
+// };
 
-exports.addAdmin = (req, res) => {
-
-    let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
-    let userInfo = {
-        username: req.body.username,
-        password: result,
-        country: req.user.country,
-        role: 'Admin',
-        registerby: req.user.stationname,
-        stationname: req.body.stationname,
-        receiverate: req.body.receiverate,
-        publishrate: req.body.publishrate
-    };
-    new agentModel(userInfo).save((err) => {
-        if (err) {
-            logger.info(req.body);
-            logger.error('Error location : Class: userController, function: addAgent. ' + err);
-            logger.error('Response code:503, message: Error Happened , please check input data');
-
-            if (err.toString().includes('duplicate')) {
-                return res.status(406).json({
-                    success: false,
-                    message: 'Duplication Username or StationName. The Statian name is :' + userInfo.stationname
-                });
-            } else {
-                return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
-            }
-        }
-        return res.status(200).json(userInfo);
-    });
-};
 exports.userSignUp = (req, res) => {
 
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
@@ -43,32 +41,39 @@ exports.userSignUp = (req, res) => {
         role: 'User',
         tel_number: req.body.tel_number,
     };
-    new userModel(userInfo).save((err) => {
-        if (err) {
-            logger.info(req.body);
-            logger.error('Error location : Class: userController, function: addAgent. ' + err);
-            logger.error('Response code:503, message: Error Happened , please check input data');
+    redisClient.exists("registerNumber:" + userInfo.tel_number, function (err, result) {
+        if (result !== 1) {
+            return res.json({"error_code": 0, error_massage: "没电话认证呢"});
+        } else {
+            new userModel(userInfo).save((err) => {
+                if (err) {
+                    logger.info(req.body);
+                    logger.error('Error location : Class: userController, function: addAgent. ' + err);
+                    logger.error('Response code:503, message: Error Happened , please check input data');
 
-            if (err.toString().includes('duplicate')) {
+                    if (err.toString().includes('duplicate')) {
 
 
-                return res.status(406).json({
-                    success: false,
-                    message: 'Duplication Username or Tel. The Username‘s name :' + userInfo.username
+                        return res.status(406).json({
+                            success: false,
+                            message: 'Duplication Username or Tel. The Username‘s name : ' + userInfo.username
+                        });
+                    } else {
+                        return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
+                    }
+                }
+                return res.status(200).json({
+                    "error_code": 0,
+                    "data": {
+                        username: userInfo.username,
+                        role: userInfo.role,
+                        tel_number: req.body.tel_number
+                    }
                 });
-            } else {
-                return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
-            }
+            });
         }
-        return res.status(200).json({
-            "error_code": 0,
-            "data": {
-                username: userInfo.username,
-                role: userInfo.role,
-                tel_number: req.body.tel_number
-            }
-        });
-    });
+    })
+
 };
 exports.addAgent = (req, res) => {
 

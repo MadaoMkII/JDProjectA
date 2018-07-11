@@ -6,6 +6,7 @@ const mailController = require('./controllers/mailController');
 const orderformController = require('./controllers/orderformController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
+const massagechecker = require('./controllers/massageController');
 
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -75,12 +76,14 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
         });
     }
 });
-app.get('/user/allstationsname', isAuthenticated('Agent'), userController.getAllStationsName);
+
+app.post('/msg/send_massage', massagechecker.smsSend);
+app.post('/msg/check_massage', massagechecker.check_code);
 
 app.post('/sendemail', isAuthenticated('Admin'), mailController.sendEmail);//done
 app.post('/user/addagent', isAuthenticated('Admin'), userController.addAgent);//done
 app.post('/user/addsuperadmin', userController.addSuperAdmin);//done
-app.post('/user/addadmin', isAuthenticated('Super_Admin'), userController.addAdmin);//done
+
 app.post('/user/updatepassword', isAuthenticated('Agent'), userController.updatepassword);//done
 
 app.get('/user/mystations', isAuthenticated('Admin'), userController.getMyRegisterAgents);//done
