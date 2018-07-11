@@ -43,7 +43,7 @@ exports.userSignUp = (req, res) => {
     };
     redisClient.exists("registerNumber:" + userInfo.tel_number, function (err, result) {
         if (result !== 1) {
-            return res.json({"error_code": 0, error_massage: "没电话认证呢"});
+            return res.status(403).json({"error_code": 0, error_massage: "Not yet verified"});
         } else {
             new userModel(userInfo).save((err) => {
                 if (err) {

@@ -74,7 +74,9 @@ exports.check_code = function (req, res) {
 
         if (err) return res.status(500).json({error_msg: "Internal Server Error", error_code: "500"});
         //服务器不存在校验码或已被删除
-        if (!result) return res.status(204).json({error_msg: "No verification code", error_code: "204"});
+        if (!result) {
+            return res.status(404).json({error_msg: "No verification code", error_code: "404"});
+        }
 
         if (parseInt(code) === parseInt(result)) {
             return res.status(200).json({error_msg: "Ok", error_code: "0"});
