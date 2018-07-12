@@ -5,9 +5,9 @@ exports.logoutUser = (req, res) => {
     if (req.user) {
         logger.debug(req.user + ' has been logout for new loggin');
         req.logout();
-        return res.status(200).json({success: true, message: 'logout succeeded'});
+        return res.status(200).json({error_code: 0, error_msg: 'logout succeeded'});
     } else {
-        return res.status(406).json({success: false, message: 'need login first'});
+        return res.status(406).json({error_code: 406, error_msg: 'need login first'});
     }
 };
 
@@ -21,14 +21,14 @@ exports.loginUser = (req, res, next) => {
             logger.trace(req.body);
             logger.error('Error location : Class: authController, function: loginUser. ' + err);
             logger.error('Response code:401, message: Login faild');
-            return res.status(401).json({success: false, message: 'Login faild'});// will generate a 500 error
+            return res.status(401).json({error_code: 401, error_msg: 'Login faild'});// will generate a 500 error
         }
         // Generate a JSON response reflecting authentication status
         if (!user) {
             logger.error('Error location : Class: authController, function: loginUser. ' + err);
             logger.error('Response code:401, message: Authentication faild, please check username and password');
             return res.status(401).json({
-                success: false, message:
+                error_code: 401, error_msg:
                     'Authentication failed, please check username and password'
             });
         }
@@ -37,15 +37,15 @@ exports.loginUser = (req, res, next) => {
                 logger.error('Error location : Class: authController, function: loginUser. ' + err);
                 return next(err);
             }
-            let nowTime = Date.now();
-            userModel.update({username: req.user.username}, {$set: {last_login_time: nowTime}}, (err) => {
+
+            userModel.update({username: req.user.username}, {$set: {last_login_time: Date.now()}}, (err) => {
                 if (err) {
 
-                    return res.status(404).json({succeed: false, message: 'Can not find anything'});
+                    return res.status(404).json({error_code: 404, error_msg: 'Can not find anything'});
                 }
 
                 //return res.status(200).json({succeed: true, message: 'Please relogin'});
-            })
+            });
             return res.status(200).json({
                 "error_code": 0,
                 "data": {
@@ -56,7 +56,7 @@ exports.loginUser = (req, res, next) => {
             });
         }, null);
     })(req, res, next);
-}
+};
 //tool function translates Privilege to amount
 let getPrivilege = (privilegeName) => {
     let privilege = 0;
@@ -90,12 +90,12 @@ exports.isAuthenticated = (privilegeName) => {
 
         if (req.user) {
             if (req.user.role !== null && getPrivilege(req.user.role) < getPrivilege(privilegeName)) {
-                return res.status(403).json({success: false, message: 'Insufficient privilege'})
+                return res.status(403).json({error_code: 403, error_msg: 'Insufficient privilege'})
             }
             return next();
         } else {
             return res.status(401).json(
-                {success: false, message: 'Authentication failed, need login first'}
+                {error_code: 401, error_msg: 'Authentication failed, need login first'}
             );
         }
     }

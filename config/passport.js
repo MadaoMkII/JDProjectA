@@ -33,9 +33,7 @@ passport.use(new LocalStrategy('local', (username, password, callback) => {
             }
         }
 
-
-        let resultPassword = require('crypto').createHash('md5').update(password + config.saltword).digest('hex');
-        command['password'] = resultPassword;
+        command['password'] = require('crypto').createHash('md5').update(password + config.saltword).digest('hex');
 
         userAccountModel.findOne(command, (err, data) => {
 

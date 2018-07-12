@@ -1,7 +1,7 @@
 const redis = require("redis"),
     redisClient = redis.createClient();
 const userAccountModel = require('../modules/userAccount').userAccountModel;
-const regex = /^(09)[0-9]{8}$/;
+//const regex = /^(09)[0-9]{8}$/;
 const MessageXSend = require('../lib/SUBMAIL/messageXSend');
 const message = new MessageXSend();
 
@@ -44,7 +44,7 @@ exports.smsSend = (req, res) => {
                         let multi = redisClient.multi();
                         //限制访问频率60秒
                         multi.set('registerNumber:' + tel, verity_code, 'EX', 1000)
-                            .exec(function (err, replies) {
+                            .exec(function (err) {
                                 if (err) {
                                     return res.status(503).json({
                                         error_msg: "Internal Service Error",

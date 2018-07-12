@@ -1,5 +1,4 @@
 const logger = require('../logging/logger');
-const userModel = require('../modules/userAccount').userAccountModel;
 const nodemailer = require('nodemailer');
 const config = require('../config/develop');
 const redis = require("redis"),
@@ -25,7 +24,7 @@ transporter.verify((error, success) => {
 });
 
 
-let sendEmail = (emailAddress, massage, res) => {
+let sendEmail = (emailAddress, massage) => {
 
     let mailOptions = {
         from: '邮箱验证提醒系统<baodan@usaboluo.com>', // sender address
@@ -46,7 +45,6 @@ let sendEmail = (emailAddress, massage, res) => {
         // Preview only available when sending through an Ethereal account
         console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
 
-        return res.status(200).send({success: true, message: 'Successed Saved'});
     });
 };
 
@@ -55,11 +53,11 @@ exports.sendConfirmationEmail = (req, res) => {
     let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
 
 
-    userAccountModel.findOne({email_address: email_address},{email_address:1}).exec().then((err, user) => {
+    userAccountModel.findOne({email_address: email_address}, {email_address: 1}).exec().then((err, user) => {
         if (user) {
-            return res.status(208).json({
-                error_msg: "This email_address has already been registered yet",
-                error_code: "208"
+            return res.status(404).json({
+                error_msg: "This email_address has been registered yet",
+                error_code: "404"
             });
         }
 
@@ -71,10 +69,8 @@ exports.sendConfirmationEmail = (req, res) => {
                 return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
             } else {
 
-
                 if (!err) {
-
-                    sendEmail(email_address, `注册码是${verity_code}`, res);
+                    sendEmail(email_address, `注册码是${verity_code}`);
                     //发送成功
                     let multi = redisClient.multi();
                     //限制访问频率60秒
@@ -86,16 +82,69 @@ exports.sendConfirmationEmail = (req, res) => {
                                     error_code: "503"
                                 });
                             } else {
-                                return res.json({error_msg: "Already sent verification code", error_code: "0"});
+                                return res.json({error_msg: "Success sent verification code", error_code: "0"});
                             }
-
                         });
                 }
             }
         })
     });
+};
 
 
+exports.getBackFromEmail = (req, res) => {
+    let email_address = req.body.email_address;
+
+    userAccountModel.findOne({email_address: email_address}, {email_address: 1}, (err, user) => {
+        if (user) {
+
+            redisClient.exists("tempPassword:" + email_address, function (err, result) {
+                if (err) {
+                    return res.status(503).json({error_msg: "Internal Service Error", error_code: "503"});
+                }
+                if (result === 1) {
+                    return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
+                } else {
+                    if (!err) {
+                        let randomString = Math.random().toString(36).slice(-10);
+                        let hashedPassword =
+                            require('crypto').createHash('md5').update(randomString + config.saltword).digest('hex');
+                        sendEmail(email_address, `临时密码是${randomString}`);
+
+                        userAccountModel.update({email_address: email_address}, {$set: {password: hashedPassword}},
+                            (err) => {
+                                if (err) {
+                                    return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
+                                }
+                                //发送成功
+                                //限制访问频率60秒
+                                redisClient.multi().set('tempPassword:' + email_address, randomString, 'EX', 1800)
+                                    .exec(function (err) {
+                                        if (err) {
+                                            return res.status(503).json({
+                                                error_msg: "Internal Service Error",
+                                                error_code: "503"
+                                            });
+                                        } else {
+                                            return res.json({
+                                                error_msg: "Success sent verification code",
+                                                error_code: "0"
+                                            });
+                                        }
+                                    });
+                            });
+
+                    }
+                }
+            });
+        } else {
+            return res.status(208).json({
+                error_msg: "This email_address has not been registered yet",
+                error_code: "208"
+            });
+        }
+
+    });
 };
 
 exports.checkConfirmationEmail = (req, res) => {
@@ -112,7 +161,7 @@ exports.checkConfirmationEmail = (req, res) => {
 
         if (parseInt(code) === parseInt(result)) {
 
-            userModel.update({tel_number: tel_number}, {$set: {email_address: email_address}}, function (err, doc) {
+            userAccountModel.update({tel_number: tel_number}, {$set: {email_address: email_address}}, function (err) {
                 if (err) {
                     return res.status(404).json({error_msg: "Bad happened", error_code: "404"});
                 }

@@ -110,27 +110,27 @@ exports.update_password = (req, res) => {
     userModel.findOne({'username': req.user.username}, {password: 1}, (err, data) => {
         if (err) {
             logger.error('user controller updatepassword: ' + err);
-            return res.status(404).json({succeed: false, message: 'Error When Trying To Verify User'});
+            return res.status(500).json({error_code: 500, error_massage: 'Error When Trying To Verify User'});
         }
-        if (!data) return res.status(404).json({succeed: false, message: 'Can Not Find user'});
+        if (!data) return res.status(404).json({error_code: 404, error_massage: 'Can Not Find user'});
         if (hashedCurrentPassword !== data.password) {
-            return res.status(404).json({succeed: false, message: 'Current Password Is Not Correct!'});
+            return res.status(406).json({error_code: 406, error_massage: 'Current Password Is Not Correct!'});
         }
         userModel.update({username: req.user.username}, {$set: {password: hashedPassword}}, (err) => {
             if (err) {
-                return res.status(404).json({succeed: false, message: 'Can not find anything'});
+                return res.status(404).json({error_code: 404, error_massage: 'Can not find anything'});
             }
             req.logOut();
-            return res.status(200).json({succeed: true, message: 'Please relogin'});
+            return res.status(200).json({error_code: 200, error_massage: 'Please re-login'});
         });
     });
 
 };
 
-exports.changePhoneNumber = function (req, res) {
+exports.updatePhoneNumber = (req, res) => {
     let code = req.body.code;
     let tel = req.body.tel;
-    redis.createClient().get("registerNumber:" + tel, function (err, result) {
+    redis.createClient().get("registerNumber:" + tel, (err, result) => {
 
         if (err) return res.status(500).json({error_msg: "Internal Server Error", error_code: "500"});
         //服务器不存在校验码或已被删除
@@ -152,14 +152,12 @@ exports.changePhoneNumber = function (req, res) {
                     } else {
                         userModel.update({username: req.user.username}, {$set: {tel_number: tel}}, (err) => {
                             if (err) {
-                                return res.status(404).json({succeed: false, message: 'Can not find anything'});
+                                return res.status(404).json({error_code: 404, error_massage: 'Can not find anything'});
                             }
                             req.logOut();
-                            return res.status(200).json({succeed: true, message: 'Please relogin'});
+                            return res.status(200).json({error_code: 0, error_massage: 'Please relogin'});
                         });
-
                     }
-
                 });
 
         } else {
@@ -168,33 +166,25 @@ exports.changePhoneNumber = function (req, res) {
     });
 };
 
-exports.addSuperAdmin = (req, res) => {
+exports.getUserInfo = (req, res) => {
 
-    let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
-    let userInfo = {
-        username: req.body.username,
-        password: result,
-        country: 'All',
-        role: 'Super_Admin',
-        stationname: req.body.stationname,
-        receiverate: 1.0,
-        publishrate: 1.0
-    };
-    new agentModel(userInfo).save((err) => {
+    userModel.findOne({username: req.user.username}, {
+        username: 1,
+        role: 1,
+        tel_number: 1,
+        email_address: 1,
+        referrer: 1,
+        _id: 0
+    }, (err, info) => {
+
         if (err) {
-            logger.info(req.body);
-            logger.error('Error location : Class: userController, function: addAgent. ' + err);
-            logger.error('Response code:503, message: Error Happened , please check input data');
 
-            if (err.toString().includes('duplicate')) {
-                return res.status(406).json({
-                    success: false,
-                    message: 'Duplication Username or StationName. The station name is :' + userInfo.stationname
-                });
-            } else {
-                return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
-            }
+            return res.status(500).json({error_code: 500, error_massage: 'Error When Trying To Verify User'});
         }
-        return res.status(200).json(userInfo);
+        if (!info) return res.status(404).json({error_code: 404, error_massage: 'Can Not Find user'});
+
+        return res.status(200).json({data: info, error_code: 0});
     });
+
+
 };

@@ -1,9 +1,8 @@
 const express = require('express');
-const cors = require('cors');
+//const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
 const mailController = require('./controllers/mailController');
-const orderformController = require('./controllers/orderformController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
 const massagechecker = require('./controllers/massageController');
@@ -79,23 +78,16 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
 
 app.post('/msg/send_massage', massagechecker.smsSend);
 app.post('/msg/check_massage', massagechecker.check_code);
-app.post('/user/changePhoneNumber', userController.changePhoneNumber);
+
 app.post('/mail/send_mail', mailController.sendConfirmationEmail);
 app.post('/mail/check_mail', mailController.checkConfirmationEmail);
-app.post('/sendemail', mailController.sendConfirmationEmail);//done
+app.post('/mail/getbackmail', mailController.getBackFromEmail);
 
+//app.post('/sendemail', mailController.sendConfirmationEmail);//done
+app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.updatePhoneNumber);
 app.post('/user/addReferrer', isAuthenticated('User'), userController.add_referrer);//done
-
-
-app.post('/orderform/addorderform', isAuthenticated('Agent'), orderformController.addOrderForm);//DONE
-app.get('/orderform/getorderform/:option', isAuthenticated('Agent'), orderformController.getOrderform);
-app.post('/orderform/updateorderform', isAuthenticated('Admin'), orderformController.updateOrderForm);//done
-app.delete('/orderform/deleteorderform', isAuthenticated('Admin'), orderformController.deleteOrderForm);//done
-
-
-app.post('/orderform/checkOrder/paycheckorder', isAuthenticated('Admin'), orderformController.payAmount);//done
-app.post('/orderform/checkOrder/updatecheckorder', isAuthenticated('Admin'), orderformController.updatePayment);//done
-app.delete('/orderform/checkOrder/deletecheckorder', isAuthenticated('Admin'), orderformController.deletePayment);//done
+app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
+app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
 
 app.post('/signup', userController.userSignUp);
 
