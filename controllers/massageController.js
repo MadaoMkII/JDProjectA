@@ -1,7 +1,7 @@
 const redis = require("redis"),
     redisClient = redis.createClient();
 const userAccountModel = require('../modules/userAccount').userAccountModel;
-const regex = "/^(09)[0-9]{8}$/";
+const regex = /^(09)[0-9]{8}$/;
 const MessageXSend = require('../lib/SUBMAIL/messageXSend');
 const message = new MessageXSend();
 
@@ -32,13 +32,13 @@ exports.smsSend = (req, res) => {
             if (result === 1) {
                 return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
             } else {
-                console.log(tel);
+
                 message.set_to(tel);
                 message.set_project('S2ID91');
                 message.add_var('code', verity_code);
                 message.add_var('time', '60sec');
                 message.xsend(() => {
-                    console.log("!!!!!!!!!!!!!");
+
                     if (!err) {
                         //发送成功
                         let multi = redisClient.multi();
@@ -51,7 +51,7 @@ exports.smsSend = (req, res) => {
                                         error_code: "503"
                                     });
                                 } else {
-                                    console.log({error_msg: "Already sent", error_code: replies});
+
                                     return res.json({error_msg: "Already sent verification code", error_code: "0"});
                                 }
 
@@ -60,7 +60,7 @@ exports.smsSend = (req, res) => {
                 })
             }
         });
-    })
+    });
 };
 /**
  * 检验验证码
@@ -79,7 +79,23 @@ exports.check_code = function (req, res) {
         }
 
         if (parseInt(code) === parseInt(result)) {
-            return res.status(200).json({error_msg: "Ok", error_code: "0"});
+
+
+            let multi = redisClient.multi();
+            //限制访问频率60秒
+            multi.set('registerNumber:' + tel, "OK", 'EX', 3600)
+                .exec(function (err) {
+                    if (err) {
+                        return res.status(503).json({
+                            error_msg: "Internal Service Error",
+                            error_code: "503"
+                        });
+                    } else {
+                        return res.status(200).json({error_msg: "Massage has been confirmed", error_code: "0"});
+                    }
+
+                });
+
         } else {
             return res.status(404).json({error_msg: "No verification code found", error_code: "404"});
         }

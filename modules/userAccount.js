@@ -18,6 +18,11 @@ let userAccountSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
+    email_address: {
+        type: String,
+        unique: true
+    },
+    referrer: String,
     last_login_time: Date
 }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
 

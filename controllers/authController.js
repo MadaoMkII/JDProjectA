@@ -29,7 +29,7 @@ exports.loginUser = (req, res, next) => {
             logger.error('Response code:401, message: Authentication faild, please check username and password');
             return res.status(401).json({
                 success: false, message:
-                    'Authentication faild, please check username and password'
+                    'Authentication failed, please check username and password'
             });
         }
         req.login(user, (err) => {
@@ -40,8 +40,8 @@ exports.loginUser = (req, res, next) => {
             let nowTime = Date.now();
             userModel.update({username: req.user.username}, {$set: {last_login_time: nowTime}}, (err) => {
                 if (err) {
-                    console.log({succeed: false, message: 'Can not find anything'});
-                    //return res.status(404).json({succeed: false, message: 'Can not find anything'});
+
+                    return res.status(404).json({succeed: false, message: 'Can not find anything'});
                 }
 
                 //return res.status(200).json({succeed: true, message: 'Please relogin'});
@@ -68,6 +68,9 @@ let getPrivilege = (privilegeName) => {
             privilege = 50;
             break;
         case 'Agent':
+            privilege = 10;
+            break;
+        case 'User':
             privilege = 10;
             break;
         case 'All':

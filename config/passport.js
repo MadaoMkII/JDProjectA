@@ -16,8 +16,28 @@ passport.deserializeUser(function (username, callback) {
     }
 );
 passport.use(new LocalStrategy('local', (username, password, callback) => {
-        let resultPassowrd = require('crypto').createHash('md5').update(password + config.saltword).digest('hex');
-        userAccountModel.findOne({'username': username, 'password': resultPassowrd}, (err, data) => {
+
+        let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+        let phone_reg = /^(09)[0-9]{8}$/;
+        let command = {};
+        if (username) {
+
+            if (email_reg.test(username)) {
+                command['email_address'] = username;
+
+            } else if (phone_reg.test(username)) {
+                command['tel_number'] = username;
+
+            } else {
+                command['username'] = username;
+            }
+        }
+
+
+        let resultPassword = require('crypto').createHash('md5').update(password + config.saltword).digest('hex');
+        command['password'] = resultPassword;
+
+        userAccountModel.findOne(command, (err, data) => {
 
             if (err) {
                 logger.error('passport: passport.use ' + err);

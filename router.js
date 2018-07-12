@@ -79,15 +79,13 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
 
 app.post('/msg/send_massage', massagechecker.smsSend);
 app.post('/msg/check_massage', massagechecker.check_code);
+app.post('/user/changePhoneNumber', userController.changePhoneNumber);
+app.post('/mail/send_mail', mailController.sendConfirmationEmail);
+app.post('/mail/check_mail', mailController.checkConfirmationEmail);
+app.post('/sendemail', mailController.sendConfirmationEmail);//done
 
-app.post('/sendemail', isAuthenticated('Admin'), mailController.sendEmail);//done
-app.post('/user/addagent', isAuthenticated('Admin'), userController.addAgent);//done
-app.post('/user/addsuperadmin', userController.addSuperAdmin);//done
+app.post('/user/addReferrer', isAuthenticated('User'), userController.add_referrer);//done
 
-app.post('/user/updatepassword', isAuthenticated('Agent'), userController.updatepassword);//done
-
-app.get('/user/mystations', isAuthenticated('Admin'), userController.getMyRegisterAgents);//done
-app.get('/user/:country', isAuthenticated('Super_Admin'), userController.getArea);//done
 
 app.post('/orderform/addorderform', isAuthenticated('Agent'), orderformController.addOrderForm);//DONE
 app.get('/orderform/getorderform/:option', isAuthenticated('Agent'), orderformController.getOrderform);
