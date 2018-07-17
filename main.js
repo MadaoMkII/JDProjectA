@@ -15,15 +15,15 @@
 //        "verity_code", verity_code, "count", 0).INCRBYFLOAT("code:" + "123",5).exec(function (err, replies) {
 //         if (!err) return console.log({errMsg: "ok", errCode: 0});
 //     });
-    // //发送成功
-    // redisClient.multi()
-    // //限制访问频率60秒
-    // .set('key', 'value!', 'EX', 10).
-    //     hset("code:" + "123", "code","!bvs")
-    //     .hset("code:" + "123","count",0)
-    //     .exec(function (err, replies) {
-    //         if (!err)return console.log({errMsg: "ok", errCode: 0});
-    //     });
+// //发送成功
+// redisClient.multi()
+// //限制访问频率60秒
+// .set('key', 'value!', 'EX', 10).
+//     hset("code:" + "123", "code","!bvs")
+//     .hset("code:" + "123","count",0)
+//     .exec(function (err, replies) {
+//         if (!err)return console.log({errMsg: "ok", errCode: 0});
+//     });
 // console.log(123===parseInt("123"));
 //     multi.exec(function (err, replies) {
 //         console.log(replies); // 101, 2
@@ -43,5 +43,16 @@
 // message.xsend(()=>{
 //     console.log("!!!!!!!!!!!!!");
 // });
-    var randomstring = Math.random().toString(36).slice(-11);
-    console.log(randomstring);
+// var randomstring = Math.random().toString(36).slice(-11);
+// console.log(randomstring);
+
+
+function f(obj) {
+    obj.name = "NINI";
+    obj = new Object();
+    obj.name = "Greg";
+}
+
+let person = {};
+f(person);
+console.log((Math.random() * Date.now()*10).toFixed(0));

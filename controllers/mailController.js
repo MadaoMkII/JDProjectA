@@ -34,7 +34,7 @@ let sendEmail = (emailAddress, massage) => {
         html: '<b>' + "邮箱验证" + '</b>  <td id="QQMAILSTATIONERY" ' +
         'style="background:url(https://rescdn.qqmail.com/zh_CN/htmledition/images/xinzhi/bg/b_01.jpg);' +
         ' min-height:550px; padding:100px 55px 200px; ">' +
-        '<div>' + massage + '</div></td>' // html body
+        '<div>' + massage + '${massage}</div></td>' // html body
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

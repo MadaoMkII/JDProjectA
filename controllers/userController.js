@@ -39,7 +39,7 @@ exports.userSignUp = (req, res) => {
         password: result,
         role: 'User',
         tel_number: req.body.tel_number,
-        email_address: 'none'
+        email_address: req.body.email
     };
 
     redis.createClient().get("registerNumber:" + userInfo.tel_number, function (err, result) {

@@ -23,6 +23,12 @@ let userAccountSchema = new mongoose.Schema({
         unique: true
     },
     referrer: String,
+    Rcoins: Number,
+    alipayAccounts: [mongoose.Schema.Types.Mixed],
+    bankAccounts: [mongoose.Schema.Types.Mixed],
+    wechatAccounts: [mongoose.Schema.Types.Mixed],
+    myBills: [mongoose.Schema.Types.ObjectId],
+
     last_login_time: Date
 }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
 

@@ -20,7 +20,7 @@ exports.smsSend = (req, res) => {
     userAccountModel.findOne({tel: tel}).exec().then((err, user) => {
         if (user) {
             return res.status(208).json({
-                error_msg: "This tel_number has already been registered yet",
+                error_msg: "This tel number has already been registered yet",
                 error_code: "208"
             });
         }
@@ -97,7 +97,7 @@ exports.check_code = function (req, res) {
                 });
 
         } else {
-            return res.status(404).json({error_msg: "No verification code found", error_code: "404"});
+            return res.status(404).json({error_msg: "No verification code", error_code: "404"});
         }
     });
 };
