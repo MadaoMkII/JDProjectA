@@ -1,12 +1,12 @@
 const express = require('express');
-//const cors = require('cors');
+const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
 const mailController = require('./controllers/mailController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
-const massagechecker = require('./controllers/massageController');
-
+const massageChecker = require('./controllers/massageController');
+const billStatement = require('./controllers/billStatementController');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 
@@ -76,8 +76,8 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
     }
 });
 
-app.post('/msg/send_massage', massagechecker.smsSend);
-app.post('/msg/check_massage', massagechecker.check_code);
+app.post('/msg/send_massage', massageChecker.smsSend);
+app.post('/msg/check_massage', massageChecker.check_code);
 
 app.post('/mail/send_mail', mailController.sendConfirmationEmail);
 app.post('/mail/check_mail', mailController.checkConfirmationEmail);
@@ -88,6 +88,10 @@ app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.upda
 app.post('/user/addReferrer', isAuthenticated('User'), userController.add_referrer);//done
 app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
+
+
+app.post('/bill/addBill', isAuthenticated('User'), billStatement.addOrderForm);
+app.get('/bill/getBills', isAuthenticated('User'), billStatement.getBills);
 
 app.post('/signup', userController.userSignUp);
 

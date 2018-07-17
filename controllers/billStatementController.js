@@ -17,22 +17,24 @@ exports.getBills = (req, res) => {
         }
     );
 };
+
+
 exports.addOrderForm = addOrderForm = (req, res) => {
     let billStatement = new billStatementModel();
-
 
     billStatement.typeState = req.body.typeState;
     billStatement.dealState = req.body.dealState;
     billStatement.sendPic = req.body.sendPic;
     billStatement.payFreight = req.body.payFreight;
+
     let randomNumber = (Math.random() * Date.now() * 10).toFixed(0);
     billStatement.orderID = 'DF' + randomNumber;
+
     billStatement.userTelNumber = req.user.tel_number;
     billStatement.orderAmount = req.body.orderAmount;
     billStatement.rate = req.body.rate;
     billStatement.NtdAmount = req.body.NtdAmount;
     billStatement.dealDate = req.body.dealDate;
-
 
     billStatement.save((err) => {
         if (err) {
