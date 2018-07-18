@@ -8,9 +8,9 @@ exports.getBills = (req, res) => {
     billStatementModel.find({userTelNumber: req.user.tel_number}, (err, result) => {
             if (err) {
                 logger.info(req.body);
-                logger.error('Error location : Class: orderformController, function: updateOrderForm. ' + err);
-                logger.error('Response code:406, message: Not Successed Saved');
-                return res.status(406).send({success: false, message: 'Not Successed Saved'});
+                logger.error('Error location : Class: billStatementModel, function: updateOrderForm. ' + err);
+                logger.error('Response code:406, message: Not Succeeded Saved');
+                return res.status(406).send({error_code: 0, error_msg: 'Not Succeeded Saved'});
             } else {
                 return res.status(200).send({error_code: 0, data: result});
             }
@@ -35,18 +35,15 @@ exports.addOrderForm = addOrderForm = (req, res) => {
     billStatement.rate = req.body.rate;
     billStatement.NtdAmount = req.body.NtdAmount;
     billStatement.dealDate = req.body.dealDate;
-
     billStatement.save((err) => {
         if (err) {
             logger.info(req.body);
             logger.error('Error location : Class: billStatement, function: billStatement. ' + err);
-            logger.error('Response code:503, message: Error Happened , please check input data');
-            res.status(503).send({
-                success: false,
-                message: 'Error Happened , please check input data!'
-            });
+            logger.error('Response code:406, message: Error Happened , please check input data');
+
+            res.status(503).send({error_msg: `${err.message}`, error_code: "406"});
         } else {
-            res.status(200).send({success: true, message: billStatement});
+            res.status(200).send({error_msg: `OK`, error_code: "0"});
         }
     });
 
