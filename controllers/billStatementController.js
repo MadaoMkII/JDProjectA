@@ -5,7 +5,11 @@ const logger = require('../logging/logger');
 
 exports.getBills = (req, res) => {
 
-    billStatementModel.find({userTelNumber: req.user.tel_number}, (err, result) => {
+    billStatementModel.find({userTelNumber: req.user.tel_number}, {
+            __v: 0,
+            billStatementId: 0,
+            _id: 0
+        }, {}, (err, result) => {
             if (err) {
                 logger.info(req.body);
                 logger.error('Error location : Class: billStatementModel, function: updateOrderForm. ' + err);
@@ -19,7 +23,7 @@ exports.getBills = (req, res) => {
 };
 
 
-exports.addOrderForm = addOrderForm = (req, res) => {
+exports.addBillStatement = (req, res) => {
     let billStatement = new billStatementModel();
 
     billStatement.typeState = req.body.typeState;
