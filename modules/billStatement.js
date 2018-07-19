@@ -17,7 +17,7 @@ const billStatementSchema = new mongoose.Schema({
     orderAmount: {type: Number, required: true},		//订单金额
     rate: {type: Number, required: true},		//汇率
     NtdAmount: {type: Number, required: true},		//应付台币
-    dealDate: {type: Date, required: true},	//完成时间
+    dealDate: {type: Number, required: true},	//完成时间
 });
 
 

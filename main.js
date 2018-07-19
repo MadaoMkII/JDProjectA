@@ -55,4 +55,4 @@ function f(obj) {
 
 let person = {};
 f(person);
-console.log((Math.random() * Date.now()*10).toFixed(0));
+console.log( new Date().getTime());

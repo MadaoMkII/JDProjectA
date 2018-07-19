@@ -90,6 +90,7 @@ app.post('/user/updatePassword', isAuthenticated('User'), userController.update_
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
 
 
+app.delete('/bill/delBill', isAuthenticated('User'), billStatement.deleteBills);
 app.post('/bill/addBill', isAuthenticated('User'), billStatement.addBillStatement);
 app.get('/bill/getBills', isAuthenticated('User'), billStatement.getBills);
 

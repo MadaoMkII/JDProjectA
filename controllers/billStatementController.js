@@ -3,6 +3,23 @@ const billStatementModel = require('../modules/billStatement').billStatementMode
 const logger = require('../logging/logger');
 
 
+exports.deleteBills = (req, res) => {
+
+    billStatementModel.remove({userTelNumber: req.user.tel_number}, (err) => {
+            console.log(err)
+            if (err) {
+                logger.info(req.body);
+                logger.error('Error location : Class: billStatementModel, function: updateOrderForm. ' + err);
+                logger.error('Response code:406, message: Not Succeeded Saved');
+                return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
+            } else {
+                return res.status(200).send({error_code: 0, error_msg: 'OK'});
+            }
+        }
+    );
+};
+
+
 exports.getBills = (req, res) => {
 
     billStatementModel.find({userTelNumber: req.user.tel_number}, {
@@ -10,11 +27,12 @@ exports.getBills = (req, res) => {
             billStatementId: 0,
             _id: 0
         }, {}, (err, result) => {
+            console.log(err)
             if (err) {
                 logger.info(req.body);
                 logger.error('Error location : Class: billStatementModel, function: updateOrderForm. ' + err);
                 logger.error('Response code:406, message: Not Succeeded Saved');
-                return res.status(406).send({error_code: 0, error_msg: 'Not Succeeded Saved'});
+                return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
             } else {
                 return res.status(200).send({error_code: 0, data: result});
             }
@@ -38,7 +56,7 @@ exports.addBillStatement = (req, res) => {
     billStatement.orderAmount = req.body.orderAmount;
     billStatement.rate = req.body.rate;
     billStatement.NtdAmount = req.body.NtdAmount;
-    billStatement.dealDate = req.body.dealDate;
+    billStatement.dealDate = new Date(req.body.dealDate).getTime();
     billStatement.save((err) => {
         if (err) {
             logger.info(req.body);
