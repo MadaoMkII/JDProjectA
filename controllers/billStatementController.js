@@ -34,7 +34,7 @@ exports.getBills = (req, res) => {
                 logger.error('Response code:406, message: Not Succeeded Saved');
                 return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
             } else {
-                return res.status(200).send({error_code: 0, data: result});
+                return res.status(200).send({error_code: 0, data: result,nofdata:result.length});
             }
         }
     );
