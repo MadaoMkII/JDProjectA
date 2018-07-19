@@ -1,12 +1,11 @@
 const billStatementModel = require('../modules/billStatement').billStatementModel;
-//const userAccountModel = require('../modules/userAccount').userAccountModel;
 const logger = require('../logging/logger');
 
 
 exports.deleteBills = (req, res) => {
 
     billStatementModel.remove({userTelNumber: req.user.tel_number}, (err) => {
-            console.log(err)
+
             if (err) {
                 logger.info(req.body);
                 logger.error('Error location : Class: billStatementModel, function: updateOrderForm. ' + err);
@@ -22,19 +21,38 @@ exports.deleteBills = (req, res) => {
 
 exports.getBills = (req, res) => {
 
-    billStatementModel.find({userTelNumber: req.user.tel_number}, {
+
+    let command = {};
+
+    command['userTelNumber'] = {$eq: req.user.tel_number};
+    if (req.body.dealState) {
+        command['dealState'] = {$eq: req.body.dealState};
+    }
+    let operator = {};
+    if (req.body['order'] && req.body['sortBy']) {
+        operator.sort = {};
+        operator.sort[req.body['sortBy']] = parseInt(req.body['order']);
+    }
+
+    if (req.body['page'] && req.body['unit']) {
+        operator.skip = req.body['page'] * req.body['unit'];
+        operator.limit = parseInt(req.body['unit']);
+    }
+console.log(operator)
+
+    billStatementModel.find(command, {
             __v: 0,
             billStatementId: 0,
             _id: 0
-        }, {}, (err, result) => {
-            console.log(err)
+        }, operator, (err, result) => {
+
             if (err) {
                 logger.info(req.body);
                 logger.error('Error location : Class: billStatementModel, function: updateOrderForm. ' + err);
                 logger.error('Response code:406, message: Not Succeeded Saved');
                 return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
             } else {
-                return res.status(200).send({error_code: 0, data: result,nofdata:result.length});
+                return res.status(200).send({error_code: 0, data: result, nofdata: result.length});
             }
         }
     );
