@@ -28,6 +28,7 @@ exports.getBills = (req, res) => {
     if (req.body.dealState) {
         command['dealState'] = {$eq: req.body.dealState};
     }
+
     let operator = {};
     if (req.body['order'] && req.body['sortBy']) {
         operator.sort = {};
@@ -38,24 +39,28 @@ exports.getBills = (req, res) => {
         operator.skip = req.body['page'] * req.body['unit'];
         operator.limit = parseInt(req.body['unit']);
     }
-    console.log(operator)
-
-    billStatementModel.find(command, {
-            __v: 0,
-            billStatementId: 0,
-            _id: 0
-        }, operator, (err, result) => {
-
-            if (err) {
-                logger.info(req.body);
-                logger.error('Error location : Class: billStatementModel, function: updateOrderForm. ' + err);
-                logger.error('Response code:406, message: Not Succeeded Saved');
-                return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
-            } else {
-                return res.status(200).send({error_code: 0, data: result, nofdata: result.length});
-            }
+    billStatementModel.count({}, (err, countNumber) => {
+        if (err) {
+            return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
         }
-    );
+        billStatementModel.find(command, {
+                __v: 0,
+                billStatementId: 0,
+                _id: 0
+            }, operator, (err, result) => {
+
+                if (err) {
+                    logger.info(req.body);
+                    logger.error('Error location : Class: billStatementModel, function: updateOrderForm. ' + err);
+                    logger.error('Response code:406, message: Not Succeeded Saved');
+                    return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
+                } else {
+                    return res.status(200).send({error_code: 0, data: result, nofdata: countNumber});
+                }
+            }
+        );
+    });
+
 };
 
 
