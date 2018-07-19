@@ -34,11 +34,11 @@ exports.getBills = (req, res) => {
         operator.sort[req.body['sortBy']] = parseInt(req.body['order']);
     }
 
-    if (req.body['page'] && req.body['unit']) {
+    if (req.body['page'] !== null && req.body['unit'] !== null) {
         operator.skip = req.body['page'] * req.body['unit'];
         operator.limit = parseInt(req.body['unit']);
     }
-console.log(operator)
+    console.log(operator)
 
     billStatementModel.find(command, {
             __v: 0,
