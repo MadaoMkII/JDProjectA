@@ -49,7 +49,7 @@ exports.loginUser = (req, res, next) => {
             return res.status(200).json({
                 "error_code": 0,
                 "data": {
-                    "username": user.username,
+                    "TEL": user.tel_number,
                     "role": user.role,
                     "last_login_time": user.last_login_time
                 }

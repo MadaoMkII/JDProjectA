@@ -21,7 +21,7 @@ const redis = require("redis");
 //             if (err.toString().includes('duplicate')) {
 //                 return res.status(406).json({
 //                     success: false,
-//                     message: 'Duplication Username or StationName. The Statian name is :' + userInfo.stationname
+//                     message: 'Duplication tel_number or StationName. The Statian name is :' + userInfo.stationname
 //                 });
 //             } else {
 //                 return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
@@ -55,7 +55,7 @@ exports.userSignUp = (req, res) => {
 
                         return res.status(406).json({
                             success: false,
-                            message: 'Duplication Username or Tel. The Username‘s name : ' + userInfo.username
+                            message: 'Duplication tel_number. The tel_number is : ' + userInfo.tel_number
                         });
                     } else {
                         return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
@@ -166,8 +166,7 @@ exports.updatePhoneNumber = (req, res) => {
 
 exports.getUserInfo = (req, res) => {
 
-    userModel.findOne({username: req.user.username}, {
-        username: 1,
+    userModel.findOne({tel_number: req.user.tel_number}, {
         role: 1,
         tel_number: 1,
         email_address: 1,

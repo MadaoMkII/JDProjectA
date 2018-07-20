@@ -30,9 +30,7 @@ passport.use(new LocalStrategy('local', (username, password, callback) => {
             } else if (phone_reg.test(username)) {
                 command['tel_number'] = username;
 
-            } else {
-                command['username'] = username;
-            }
+            } //TODO ERROR HANDLE
         }
 
         command['password'] = require('crypto').createHash('md5').update(password + config.saltword).digest('hex');
