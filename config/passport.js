@@ -6,11 +6,13 @@ const LocalStrategy = require('passport-local').Strategy;
 
 
 passport.serializeUser(function (user, callback) {
-    callback(null, user.username);
+
+    callback(null, user.tel_number);
 });
 
 passport.deserializeUser(function (username, callback) {
-        userAccountModel.findOne({'username': username}, function (err, user) {
+
+        userAccountModel.findOne({tel_number: username}, function (err, user) {
             callback(err, user);
         });
     }

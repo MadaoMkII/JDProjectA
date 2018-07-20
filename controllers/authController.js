@@ -38,7 +38,7 @@ exports.loginUser = (req, res, next) => {
                 return next(err);
             }
 
-            userModel.update({username: req.user.username}, {$set: {last_login_time: Date.now()}}, (err) => {
+            userModel.update({tel_number: req.user.tel_number}, {$set: {last_login_time: Date.now()}}, (err) => {
                 if (err) {
 
                     return res.status(404).json({error_code: 404, error_msg: 'Can not find anything'});
