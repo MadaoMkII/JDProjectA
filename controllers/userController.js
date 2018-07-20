@@ -35,7 +35,6 @@ exports.userSignUp = (req, res) => {
 
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
     let userInfo = {
-        username: req.body.username,
         password: result,
         role: 'User',
         tel_number: req.body.tel_number,
@@ -65,7 +64,6 @@ exports.userSignUp = (req, res) => {
                 return res.status(200).json({
                     "error_code": 0,
                     "data": {
-                        username: userInfo.username,
                         role: userInfo.role,
                         tel_number: req.body.tel_number
                     }
@@ -79,7 +77,7 @@ exports.userSignUp = (req, res) => {
 };
 exports.add_referrer = (req, res) => {
 
-    userModel.findOne({username: req.user.username}, {password: 0}, (err, data) => {
+    userModel.findOne({tel_number: req.user.tel_number}, {password: 0}, (err, data) => {
 
         if (err) {
             return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
@@ -90,7 +88,7 @@ exports.add_referrer = (req, res) => {
             if (data.referrer) {
                 return res.status(400).json({"error_code": 400, error_massage: "Already has a referrer"});
             }
-            userModel.update({username: req.user.username}, {$set: {referrer: req.body.referrer}}, (err) => {
+            userModel.update({tel_number: req.user.tel_number}, {$set: {referrer: req.body.referrer}}, (err) => {
                 if (err) {
                     return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
                 }
@@ -107,7 +105,7 @@ exports.update_password = (req, res) => {
     let hashedPassword =
         require('crypto').createHash('md5').update(req.body['newpassword'] + config.saltword).digest('hex');
     let hashedCurrentPassword = require('crypto').createHash('md5').update(req.body['currentpassword'] + config.saltword).digest('hex');
-    userModel.findOne({'username': req.user.username}, {password: 1}, (err, data) => {
+    userModel.findOne({'tel_number': req.user.tel_number}, {password: 1}, (err, data) => {
         if (err) {
             logger.error('user controller updatepassword: ' + err);
             return res.status(500).json({error_code: 500, error_massage: 'Error When Trying To Verify User'});
@@ -116,7 +114,7 @@ exports.update_password = (req, res) => {
         if (hashedCurrentPassword !== data.password) {
             return res.status(406).json({error_code: 406, error_massage: 'Current Password Is Not Correct!'});
         }
-        userModel.update({username: req.user.username}, {$set: {password: hashedPassword}}, (err) => {
+        userModel.update({tel_number: req.user.tel_number}, {$set: {password: hashedPassword}}, (err) => {
             if (err) {
                 return res.status(404).json({error_code: 404, error_massage: 'Can not find anything'});
             }
@@ -150,7 +148,7 @@ exports.updatePhoneNumber = (req, res) => {
                             error_code: "503"
                         });
                     } else {
-                        userModel.update({username: req.user.username}, {$set: {tel_number: tel}}, (err) => {
+                        userModel.update({tel_number: req.user.tel_number}, {$set: {tel_number: tel}}, (err) => {
                             if (err) {
                                 return res.status(404).json({error_code: 404, error_massage: 'Can not find anything'});
                             }

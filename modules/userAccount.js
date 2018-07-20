@@ -2,12 +2,7 @@ const mongoose = require('../db/db').mongoose;
 const logger = require('../logging/logger');
 
 let userAccountSchema = new mongoose.Schema({
-    username: {
-        required: true,
-        type: String,
-        index: true,
-        unique: true
-    },
+
     password: {
         required: true,
         type: String

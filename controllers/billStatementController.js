@@ -39,7 +39,7 @@ exports.getBills = (req, res) => {
         operator.skip = req.body['page'] * req.body['unit'];
         operator.limit = parseInt(req.body['unit']);
     }
-    billStatementModel.count({}, (err, countNumber) => {
+    billStatementModel.count({tel_number: req.user.tel_number}, (err, countNumber) => {
         if (err) {
             return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
         }
