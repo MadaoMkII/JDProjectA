@@ -34,7 +34,7 @@ let sendEmail = (emailAddress, massage) => {
         html: '<b>' + "邮箱验证" + '</b>  <td id="QQMAILSTATIONERY" ' +
         'style="background:url(https://rescdn.qqmail.com/zh_CN/htmledition/images/xinzhi/bg/b_01.jpg);' +
         ' min-height:550px; padding:100px 55px 200px; ">' +
-        '<div>' + massage + '${massage}</div></td>' // html body
+        `<div>${massage}</div></td>` // html body
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -82,7 +82,7 @@ exports.sendConfirmationEmail = (req, res) => {
                                     error_code: "503"
                                 });
                             } else {
-                                return res.json({error_msg: "Success sent verification code", error_code: "0"});
+                                return res.json({error_msg: "OK", error_code: "0", verity_code: verity_code});
                             }
                         });
                 }

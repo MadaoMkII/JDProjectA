@@ -52,7 +52,11 @@ exports.smsSend = (req, res) => {
                                     });
                                 } else {
 
-                                    return res.json({error_msg: "Already sent verification code", error_code: "0"});
+                                    return res.json({
+                                        error_msg: "OK",
+                                        error_code: "0",
+                                        verificationCode: verity_code
+                                    });
                                 }
 
                             });
