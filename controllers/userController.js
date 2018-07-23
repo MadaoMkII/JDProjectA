@@ -79,12 +79,12 @@ exports.userSignUp = (req, res) => {
 
 exports.updateReferenceAccount = (req, res) => {
 
-    let addObject = {};
+    let addObject = {}, updateQuery = {}, updateObject = {};
     const inputType = `${req.body[`inputType`]}Accounts`;
-
     switch (inputType) {
         case 'aliPayAccounts': {
             addObject[inputType] = {
+                _id: req.body.accountId,
                 accountName: req.body.accountName,
                 accountTelNumber: req.body.accountTelNumber
             };
@@ -108,15 +108,14 @@ exports.updateReferenceAccount = (req, res) => {
 
     }
 
-
-    userModel.update({tel_number: req.user.tel_number}, {
-        $push: addObject
-    }, (err) => {
+    updateQuery[`${inputType}._id`] = req.body[`accountId`];
+    updateObject[`${inputType}.$`] = addObject['aliPayAccounts'];
+    userModel.findOneAndUpdate(updateQuery, {$set: updateObject}, (err) => {
         if (err) {
             return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
         } else {
 
-            return res.status(200).json({"error_code": 0, error_massage: "OK"});
+            return res.status(200).json({"error_code": 0, error_massage: 'OK'});
         }
     });
 };
@@ -179,28 +178,39 @@ exports.updateGeneralData = (req, res) => {
 
     userModel.findOne({tel_number: req.user.tel_number}, {password: 0}, (err, data) => {
 
-        if (err) {
+            if (err) {
 
-            return res.status(500).json({"error_code": 500, error_massage: "Bad happened1111"});
-        }
-
-        if (data) {
-
-            if (data.referrer && command['referrer']) {
-                return res.status(400).json({"error_code": 400, error_massage: "Already has a referrer"});
+                return res.status(500).json({"error_code": 500, error_massage: "Error when trying to update DB"});
             }
-            userModel.update({tel_number: req.user.tel_number}, {$set: command}, (err) => {
-                if (err) {
 
-                    return res.status(500).json({"error_code": 500, error_massage: "Bad happened2"});
+            if (data) {
+
+                if (data.referrer && command['referrer']) {
+                    return res.status(400).json({"error_code": 400, error_massage: "This user already has a referrer"});
                 }
+                userModel.update({tel_number: req.user.tel_number}, {$set: command}, (err) => {
+                    if (err) {
 
-                return res.status(200).json({"error_code": 0, error_massage: "OK"});
-            });
+                        return res.status(500).json({"error_code": 500, error_massage: "Error when trying to update DB"});
+                    }
+                    userModel.findOneAndUpdate({email_address: req.user.email_address}, {$inc: {numberOfReferrers: 1}}).exec().then((data) => {
+
+                        if (!data) {
+                            return res.status(406).json({"error_code": 406, error_massage: "Can not find Referrer"});
+                        }
+
+                        return res.status(200).json({"error_code": 0, error_massage: "OK"});
+
+                    }).catch(error => {
+                        console.error(`Error: ${ error }\n${ error.stack }`);
+
+                    });
+
+                })
+            }
 
         }
-
-    });
+    );
 };
 
 exports.update_password = (req, res) => {
@@ -270,6 +280,7 @@ exports.getUserInfo = (req, res) => {
 
     userModel.findOne({tel_number: req.user.tel_number}, {
         _id: 0,
+        password: 0,
         __v: 0
     }).populate({
         path: 'myBills', select: 'typeStr typeState dealState sendPic payFreight orderID userTelNumber' +

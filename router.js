@@ -89,7 +89,7 @@ app.post('/user/updateGeneral', isAuthenticated('User'), userController.updateGe
 app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
 app.post('/user/addReferenceAccount', isAuthenticated('User'), userController.addReferenceAccount);
-
+app.post('/user/updateReferenceAccount', isAuthenticated('User'), userController.updateReferenceAccount);
 app.delete('/bill/delBill', isAuthenticated('User'), billStatement.deleteBills);
 app.post('/bill/addBill', isAuthenticated('User'), billStatement.addBillStatement);
 app.post('/bill/getBills', isAuthenticated('User'), billStatement.getBills);

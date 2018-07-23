@@ -44,10 +44,13 @@ let userAccountSchema = new mongoose.Schema({
     isAuthenticated: {type: Boolean, default: false},
     isCStoreOpened: {type: Boolean, default: false},
     Rcoins: {type: Number, default: 0},
+    returnCoins: {type: Number, default: 0},
+    growthPoints: {type: Number, default: 0},
+    numberOfReferrers: {type: Number, default: 0},
     aliPayAccounts: [aliPayAccount],
     bankAccounts: [bankAccount],
     wechatAccounts: [wechatAccount],
-    myBills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'billStatement' }],
+    myBills: [{type: mongoose.Schema.Types.ObjectId, ref: 'billStatement'}],
     VIPLevel: {type: Number, default: 0},
     last_login_time: Date
 }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
