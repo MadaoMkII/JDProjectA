@@ -1,5 +1,27 @@
 const mongoose = require('../db/db').mongoose;
-const logger = require('../logging/logger');
+
+
+const aliPayAccount = new mongoose.Schema(
+    {
+        accountName: {type: String, required: true},
+        accountTelNumber: String,
+        isAuthenticated: {type: Boolean, default: false}
+    }
+);
+
+const wechatAccount = new mongoose.Schema(
+    {
+        accountName: String,
+        accountTelNumber: String
+
+    }
+);
+const bankAccount = new mongoose.Schema(
+    {
+        accountName: {type: String, required: true},
+        accountTelNumber: String
+    }
+);
 
 let userAccountSchema = new mongoose.Schema({
 
@@ -18,28 +40,28 @@ let userAccountSchema = new mongoose.Schema({
         unique: true
     },
     referrer: String,
-    Rcoins: Number,
-    alipayAccounts: [mongoose.Schema.Types.Mixed],
-    bankAccounts: [mongoose.Schema.Types.Mixed],
-    wechatAccounts: [mongoose.Schema.Types.Mixed],
-    myBills: [mongoose.Schema.Types.ObjectId],
-
+    nickName: String,
+    isAuthenticated: {type: Boolean, default: false},
+    isCStoreOpened: {type: Boolean, default: false},
+    Rcoins: {type: Number, default: 0},
+    aliPayAccounts: [aliPayAccount],
+    bankAccounts: [bankAccount],
+    wechatAccounts: [wechatAccount],
+    myBills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'billStatement' }],
+    VIPLevel: {type: Number, default: 0},
     last_login_time: Date
 }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
 
-
-userAccountSchema.statics.addNewUserAccount = (userInfo) => {
-    let userAccountEntity = new userAccountModel(userInfo);
-    userAccountEntity.save((err) => {
-        if (err) {
-            logger.error('Error location : Class: agent, function: addAgent. ');
-            logger.error(err);
-            return err;
-        }
-    });
-};
-
-
+// userAccountSchema.set('toJSON', {
+//     virtuals: true,
+//     transform: (doc, ret, options) => {
+//         delete ret.__v;
+//         ret.id = ret._id.toString();
+//         delete ret._id;
+//     },
+// });
+// let item = (await MyCollection.findOne({/* search */}).exec()).toJSON();
+// if (item.id === 'someString') return item;
 let userAccountModel = mongoose.model('userAccount', userAccountSchema);
 exports.userAccountModel = userAccountModel;
 

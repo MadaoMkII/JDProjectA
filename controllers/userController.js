@@ -37,6 +37,7 @@ exports.userSignUp = (req, res) => {
     let userInfo = {
         password: result,
         role: 'User',
+        Rcoins: 0,
         tel_number: req.body.tel_number,
         email_address: req.body.email
     };
@@ -75,22 +76,123 @@ exports.userSignUp = (req, res) => {
     })
 
 };
-exports.add_referrer = (req, res) => {
+
+exports.updateReferenceAccount = (req, res) => {
+
+    let addObject = {};
+    const inputType = `${req.body[`inputType`]}Accounts`;
+
+    switch (inputType) {
+        case 'aliPayAccounts': {
+            addObject[inputType] = {
+                accountName: req.body.accountName,
+                accountTelNumber: req.body.accountTelNumber
+            };
+            break;
+        }
+        case 'wechatAccounts': {//TODO暂时先这样
+            addObject[inputType] = {
+                accountName: req.body.accountName,
+                accountTelNumber: req.body.accountTelNumber
+            };
+            break;
+        }
+
+        case 'bankAccounts': {//TODO暂时先这样
+            addObject[inputType] = {
+                accountName: req.body.accountName,
+                accountTelNumber: req.body.accountTelNumber
+            };
+            break;
+        }
+
+    }
+
+
+    userModel.update({tel_number: req.user.tel_number}, {
+        $push: addObject
+    }, (err) => {
+        if (err) {
+            return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
+        } else {
+
+            return res.status(200).json({"error_code": 0, error_massage: "OK"});
+        }
+    });
+};
+exports.addReferenceAccount = (req, res) => {
+
+    let addObject = {};
+    const inputType = `${req.body[`inputType`]}Accounts`;
+
+    switch (inputType) {
+        case 'aliPayAccounts': {
+            addObject[inputType] = {
+                accountName: req.body.accountName,
+                accountTelNumber: req.body.accountTelNumber
+            };
+            break;
+        }
+        case 'wechatAccounts': {//TODO暂时先这样
+            addObject[inputType] = {
+                accountName: req.body.accountName,
+                accountTelNumber: req.body.accountTelNumber
+            };
+            break;
+        }
+
+        case 'bankAccounts': {//TODO暂时先这样
+            addObject[inputType] = {
+                accountName: req.body.accountName,
+                accountTelNumber: req.body.accountTelNumber
+            };
+            break;
+        }
+
+    }
+
+    userModel.update({tel_number: req.user.tel_number}, {
+        $push: addObject
+    }, (err) => {
+        if (err) {
+
+            return res.status(500).json({"error_code": 500, error_massage: "Bad happened!"});
+        } else {
+
+            return res.status(200).json({"error_code": 0, error_massage: "OK"});
+        }
+    });
+};
+
+
+exports.updateGeneralData = (req, res) => {
+
+
+    let command = {};
+    if (req.body.referrer) {
+        command['referrer'] = req.body.referrer;
+    }
+    if (req.body.nickName) {
+        command['nickName'] = req.body.nickName;
+    }
+
 
     userModel.findOne({tel_number: req.user.tel_number}, {password: 0}, (err, data) => {
 
         if (err) {
-            return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
+
+            return res.status(500).json({"error_code": 500, error_massage: "Bad happened1111"});
         }
 
         if (data) {
 
-            if (data.referrer) {
+            if (data.referrer && command['referrer']) {
                 return res.status(400).json({"error_code": 400, error_massage: "Already has a referrer"});
             }
-            userModel.update({tel_number: req.user.tel_number}, {$set: {referrer: req.body.referrer}}, (err) => {
+            userModel.update({tel_number: req.user.tel_number}, {$set: command}, (err) => {
                 if (err) {
-                    return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
+
+                    return res.status(500).json({"error_code": 500, error_massage: "Bad happened2"});
                 }
 
                 return res.status(200).json({"error_code": 0, error_massage: "OK"});
@@ -141,7 +243,7 @@ exports.updatePhoneNumber = (req, res) => {
             let multi = redis.createClient().multi();
             //限制访问频率60秒
             multi.set('registerNumber:' + tel, "OK", 'EX', 3600)
-                .exec(function (err) {
+                .exec((err) => {
                     if (err) {
                         return res.status(503).json({
                             error_msg: "Internal Service Error",
@@ -167,20 +269,19 @@ exports.updatePhoneNumber = (req, res) => {
 exports.getUserInfo = (req, res) => {
 
     userModel.findOne({tel_number: req.user.tel_number}, {
-        role: 1,
-        tel_number: 1,
-        email_address: 1,
-        referrer: 1,
-        _id: 0
-    }, (err, info) => {
+        _id: 0,
+        __v: 0
+    }).populate({
+        path: 'myBills', select: 'typeStr typeState dealState sendPic payFreight orderID userTelNumber' +
+        ' orderAmount rate NtdAmount dealDate'
+    }).exec().then((info) => {
 
-        if (err) {
-
-            return res.status(500).json({error_code: 500, error_massage: 'Error When Trying To Verify User'});
-        }
         if (!info) return res.status(404).json({error_code: 404, error_massage: 'Can Not Find user'});
-
         return res.status(200).json({data: info, error_code: 0});
+    }).catch((err) => {
+        console.log(err);
+        return res.status(500).json({error_code: 500, error_massage: 'Error When Trying To Verify User'});
+
     });
 
 

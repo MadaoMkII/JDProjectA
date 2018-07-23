@@ -1,6 +1,7 @@
 const billStatementModel = require('../modules/billStatement').billStatementModel;
+const userModel = require('../modules/userAccount').userAccountModel;
 const logger = require('../logging/logger');
-
+const mongoose = require('../db/db').mongoose;
 
 exports.deleteBills = (req, res) => {
 
@@ -74,7 +75,7 @@ exports.addBillStatement = (req, res) => {
 
     let randomNumber = (Math.random() * Date.now() * 10).toFixed(0);
     billStatement.orderID = 'DF' + randomNumber;
-
+    billStatement._id = new mongoose.Types.ObjectId();
     billStatement.userTelNumber = req.user.tel_number;
     billStatement.orderAmount = req.body.orderAmount;
     billStatement.rate = req.body.rate;
@@ -88,7 +89,19 @@ exports.addBillStatement = (req, res) => {
 
             res.status(503).send({error_msg: `${err.message}`, error_code: "406"});
         } else {
-            res.status(200).send({error_msg: `OK`, error_code: "0"});
+
+            userModel.update({tel_number: req.user.tel_number}, {$push: {myBills: billStatement._id}},
+                (err) => {
+
+                    if (err) {
+                        res.status(503).send({error_msg: `Saved has error`, error_code: "500"});
+                    } else {
+
+                        return res.status(200).send({error_msg: `OK`, error_code: "0"});
+                    }
+                });
+
+
         }
     });
 

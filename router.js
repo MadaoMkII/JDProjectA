@@ -85,10 +85,10 @@ app.post('/mail/getbackmail', mailController.getBackFromEmail);
 
 //app.post('/sendemail', mailController.sendConfirmationEmail);//done
 app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.updatePhoneNumber);
-app.post('/user/addReferrer', isAuthenticated('User'), userController.add_referrer);//done
+app.post('/user/updateGeneral', isAuthenticated('User'), userController.updateGeneralData);//done
 app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
-
+app.post('/user/addReferenceAccount', isAuthenticated('User'), userController.addReferenceAccount);
 
 app.delete('/bill/delBill', isAuthenticated('User'), billStatement.deleteBills);
 app.post('/bill/addBill', isAuthenticated('User'), billStatement.addBillStatement);
