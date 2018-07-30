@@ -282,10 +282,13 @@ exports.getUserInfo = (req, res) => {
         _id: 0,
         password: 0,
         __v: 0
-    }).populate({
-        path: 'myBills', select: 'typeStr typeState dealState sendPic payFreight orderID userTelNumber' +
+
+    }).select("-aliPayAccounts._id").populate({
+        path: 'myBills', select: '-_id typeStr typeState dealState sendPic payFreight orderID userTelNumber' +
         ' orderAmount rate NtdAmount dealDate'
     }).exec().then((info) => {
+
+
 
         if (!info) return res.status(404).json({error_code: 404, error_massage: 'Can Not Find user'});
         return res.status(200).json({data: info, error_code: 0});

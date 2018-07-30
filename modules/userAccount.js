@@ -3,6 +3,7 @@ const mongoose = require('../db/db').mongoose;
 
 const aliPayAccount = new mongoose.Schema(
     {
+        realName: {type: String, required: true},
         accountName: {type: String, required: true},
         accountTelNumber: String,
         isAuthenticated: {type: Boolean, default: false}
@@ -11,13 +12,15 @@ const aliPayAccount = new mongoose.Schema(
 
 const wechatAccount = new mongoose.Schema(
     {
-        accountName: String,
+        realName: {type: String, required: true},
+        accountName: {type: String, required: true},
         accountTelNumber: String
 
     }
 );
 const bankAccount = new mongoose.Schema(
     {
+        realName: {type: String, required: true},
         accountName: {type: String, required: true},
         accountTelNumber: String
     }
@@ -40,7 +43,7 @@ let userAccountSchema = new mongoose.Schema({
         unique: true
     },
     referrer: String,
-    nickName: String,
+    nickName: {type: Boolean, default: '无名氏'},
     isAuthenticated: {type: Boolean, default: false},
     isCStoreOpened: {type: Boolean, default: false},
     Rcoins: {type: Number, default: 0},

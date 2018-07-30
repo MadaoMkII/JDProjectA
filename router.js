@@ -1,7 +1,9 @@
 const express = require('express');
+const mongoose = require('./db/db').mongoose;
 const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
+const thirdPayment = require('./controllers/thirdPayment');
 const mailController = require('./controllers/mailController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
@@ -50,7 +52,26 @@ app.use(function (req, res, next) {
         next();
     }
 });
+// In middleware
+app.use(function (req, res, next) {
 
+    // action after response
+    let afterResponse = function () {
+        console.log({req: req}, "End request")
+        // any other clean ups
+        mongoose.connection.close(function () {
+            console.log('Mongoose connection disconnected');
+        });
+    }
+
+    // hooks to execute after response
+    res.on('finish', afterResponse);
+    res.on('close', afterResponse);
+
+    // do more stuff
+
+    next();
+});
 // Configure the Basic strategy for use by Passport.
 //
 // The Basic strategy requires a `verify` function which receives the
@@ -90,9 +111,14 @@ app.post('/user/updatePassword', isAuthenticated('User'), userController.update_
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
 app.post('/user/addReferenceAccount', isAuthenticated('User'), userController.addReferenceAccount);
 app.post('/user/updateReferenceAccount', isAuthenticated('User'), userController.updateReferenceAccount);
+
+
 app.delete('/bill/delBill', isAuthenticated('User'), billStatement.deleteBills);
-app.post('/bill/addBill', isAuthenticated('User'), billStatement.addBillStatement);
 app.post('/bill/getBills', isAuthenticated('User'), billStatement.getBills);
+
+
+app.post('/bill/addCZBill', thirdPayment.addCZBill);
+app.post('/bill/createTBBill', isAuthenticated('User'), thirdPayment.addTBDFBill);
 
 app.post('/signup', userController.userSignUp);
 

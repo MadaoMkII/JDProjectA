@@ -1,4 +1,4 @@
-const billStatementModel = require('../modules/billStatement').billStatementModel;
+const billStatementModel = require('../modules/payingBill').payingBillModel;
 const userModel = require('../modules/userAccount').userAccountModel;
 const logger = require('../logging/logger');
 const mongoose = require('../db/db').mongoose;
