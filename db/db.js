@@ -2,9 +2,15 @@ const mongoose = require('mongoose');
 const logger = require('../logging/logger');
 const config = require('../config/develop');
 const autoIncrement = require('mongoose-auto-increment');
+const mongodbUri = config.url;
+const options = {
+    useMongoClient: true,
+    keepAlive: true
+};
 
-mongoose.connect(config.url, {useMongoClient: true});
-const db = mongoose.connection;
+
+const db = mongoose.connect(mongodbUri, options);
+
 autoIncrement.initialize(db);
 mongoose.Promise = global.Promise;
 
@@ -29,6 +35,7 @@ db.on('error', (error) => {
 db.on('close', (info) => {
     console.log('Disconnected');
     logger.warn('Db has dissconnected: ' + info);
-    mongoose.connect(config.url, {server: {auto_reconnect: true}});
 });
+
+
 module.exports.mongoose = mongoose;
