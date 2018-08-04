@@ -8,9 +8,21 @@ const mailController = require('./controllers/mailController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
 const massageChecker = require('./controllers/massageController');
+const picController = require('./controllers/picController');
 const billStatement = require('./controllers/billStatementController');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+
+
+const storage = require('./db/db').storage;
+const multer = require('multer');
+
+
+
+
+const upload = multer({ storage });
+
+
 
 const json_body_parser = bodyParser.json();
 const urlencoded_body_parser = bodyParser.urlencoded({extended: true});
@@ -57,12 +69,12 @@ app.use(function (req, res, next) {
 
     // action after response
     let afterResponse = function () {
-        console.log({req: req}, "End request")
+
         // any other clean ups
-        mongoose.connection.close(function () {
-            console.log('Mongoose connection disconnected');
-        });
-    }
+        // mongoose.connection.close(function () {
+        //     console.log('Mongoose connection disconnected');
+        // });
+    };
 
     // hooks to execute after response
     res.on('finish', afterResponse);
@@ -82,6 +94,15 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 
+
+
+
+
+app.post('/upload', upload.single('file'), (req, res) => {
+    // res.json({ file: req.file });
+    res.redirect('/');
+});
+
 app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
     if (req.user) {
         return res.status(200).json({
@@ -96,7 +117,7 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
         });
     }
 });
-
+// app.post('/upload', picController.upload);
 app.post('/msg/send_massage', massageChecker.smsSend);
 app.post('/msg/check_massage', massageChecker.check_code);
 
@@ -114,7 +135,7 @@ app.post('/user/updateReferenceAccount', isAuthenticated('User'), userController
 
 
 app.delete('/bill/delBill', isAuthenticated('User'), billStatement.deleteBills);
-app.post('/bill/getBills', isAuthenticated('User'), billStatement.getBills);
+app.post('/bill/getBills', isAuthenticated('User'), thirdPayment.getBills);
 
 
 app.post('/bill/addCZBill', thirdPayment.addCZBill);

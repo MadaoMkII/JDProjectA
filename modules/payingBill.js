@@ -55,6 +55,9 @@ payingBillSchema.set('toJSON', {
 
             }
             ret.dealDate = doc.dealDate.getTime();
+            if (doc.typeStr === 'CZ') {
+                delete ret.TBStuffInfo;
+            }
 
         }
     }

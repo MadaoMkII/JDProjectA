@@ -1,7 +1,5 @@
 const payingBillModel = require('../modules/payingBill').payingBillModel;
 const logger = require('../logging/logger');
-const url = require('url');
-const mongoose = require('../db/db').mongoose
 const userModel = require('../modules/userAccount').userAccountModel;
 const managerConfigsModel = require('../modules/managerConfigFeatures').managerConfigsModel;
 
@@ -118,6 +116,43 @@ exports.addPayBills = (req, res) => {
             }
         }
     );
+};
+
+exports.getBills = async (req, res) => {
+    try {
+        let command = {};
+
+
+        if (req.body.dealState) {
+            command['dealState'] = {$eq: req.body.dealState};
+        }
+
+        let operator = {};
+        if (req.body['order'] && req.body['sortBy']) {
+            operator.sort = {};
+            operator.sort[req.body['sortBy']] = parseInt(req.body['order']);
+        }
+
+        if (req.body['page'] !== null && req.body['unit'] !== null) {
+            operator.skip = req.body['page'] * req.body['unit'];
+            operator.limit = parseInt(req.body['unit']);
+        }
+
+        let personalInfo = await userModel.findOne({tel_number: req.user.tel_number});
+        command['userID'] = {$eq: personalInfo._id};
+        let billResult = await payingBillModel.find(command, {
+            __v: 0,
+            billStatementId: 0,
+            _id: 0
+        }, operator);
+        let billCount = await payingBillModel.count({userID: personalInfo._id});
+
+        return res.status(200).send({error_code: 503, error_msg: billResult, nofdata: billCount});
+
+    } catch (err) {
+        return res.status(503).send({error_code: 503, error_msg: err});
+    }
+
 };
 
 // let searchPayBills = async (query) => {
