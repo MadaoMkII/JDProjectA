@@ -1,7 +1,7 @@
 const express = require('express');
 
 let app = express();
-
+app.use(express.static('public'));
 const DOMAIN = 'http://localhost:80';
 // Add headers
 app.use(function (req, res, next) {
