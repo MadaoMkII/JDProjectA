@@ -1,0 +1,95 @@
+*{font-family: "微软雅黑";}
+.nomargin{margin: 0;}
+.nopadding{padding: 0;}
+/*body{background: #f5f5f5;}*/
+.font12{font-size: 1rem;}
+.gray{color: #ccc;}
+.bar{background: #f1f1f1;}
+a:hover{text-decoration: none;}
+a:visited{text-decoration: none;}
+a:link{text-decoration: none;}
+.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover{background: none;}
+
+/*幫助中心樣式*/
+.help .title{color: #333;font-weight: bold;margin-left: 15px;line-height: 34px;}
+.help .title img{margin-right: 10px;margin-top: 10px;width: 14px;}
+.help .box{border: 0.5px solid #ccc;width: 100%;float: left;margin-top: 15px;}
+.help .box a{color: #00a6ff;font-size: 10px;line-height: 30px;}
+.help .box a:hover{color: #ff8806;}
+
+/*訂單列表樣式*/
+.orderList .bar a{line-height: 34px;font-size: 12px;color: #fff;}
+.orderList .bar img{width: 18px;margin-top: 8px;margin-right: 10px;}
+.orderList .box{border-radius: 5px;border: 0.5px solid #ccc;}
+.orderList .box .title{color: #333;font-weight: bold;line-height: 34px;}
+.orderList .box .orderListTable tr{border-bottom: 0.5px solid #ccc;}
+.orderList .box .orderListTable th,td{text-align: center;font-size: 12px;padding: 10px 0;}
+.orderList .box .orderListTable td a{font-size: 10px;color: #2c3e50;}
+.orderList .box .orderListTable td a:hover{color: #ffab4f;}
+.orderList .box .orderListTable .success{color: #08bf69;}
+.orderList .box .orderListTable .failed{color: #e00000;}
+.orderList .ask{line-height: 24px;font-size: 12px;text-align: left;}
+.orderList .ask:hover{color: #ff8806;}
+
+/*登錄註冊樣式*/
+.login .loginBox{background: url(../images/background.png) no-repeat;background-size: 100%;}
+.login .loginBox .card{background: #00a6ff;}
+.login .loginBox .card .forgetPass{font-size: 10px;color: #666;}
+.login .loginBox .card .forgetPass:hover{color: #ff8806;}
+.login .mobileLoginBox{height: 100%;overflow-y: hidden;}
+.login .mobileLoginBox .card{background: #00a6ff;}
+.login .mobileLoginBox .card .forgetPass{font-size: 10px;color: #666;}
+.login .mobileLoginBox .card .forgetPass:hover{color: #ff8806;}
+.login .mobileLoginBox input::-webkit-input-placeholder{color:#fff;}
+.login .mobileLoginBox input::-moz-placeholder{   /* Mozilla Firefox 19+ */color:#fff;}
+.login .mobileLoginBox input:-moz-placeholder{    /* Mozilla Firefox 4 to 18 */color:#fff;}
+.login .mobileLoginBox input:-ms-input-placeholder{  /* Internet Explorer 10-11 */ color:#fff;}
+
+/*個人中心樣式*/
+.center .bar a{line-height: 34px;font-size: 12px;color: #fff;}
+.center .bar img{width: 18px;margin-top: 8px;margin-right: 10px;}
+.center .userInfoBox a:hover{color: #ffab4f;}
+.center .userInfoBox .adopt{background: #08bf69;border-radius: 5px;padding: 5px 10px;margin-left: 15px;}
+.center .userInfoBox .fail{background: #ccc;border-radius: 5px;padding: 5px 10px;margin-left: 15px;}
+
+/*代購樣式*/ 
+.purchase .bar a{line-height: 34px;font-size: 12px;color: #fff;}
+.purchase .bar img{width: 18px;margin-top: 8px;margin-right: 10px;}
+.purchase .action{background: #00a6ff;color: #fff;width: 30px;height: 30px;font-size: 14px;line-height: 30px;border-radius: 50%;margin-top: 5px;}
+.purchase .actionTxt{color: #333;margin: 0 5px;line-height: 40px;}
+.purchase .unaction{background: #fff;color: #999;width: 30px;height: 30px;font-size: 14px;line-height: 30px;border-radius: 50%;margin-top: 5px;border: 0.5px solid #999;}
+.purchase .unactionTxt{color: #999;margin: 0 5px;line-height: 40px;}
+
+/*代付樣式*/
+.supersede .bar a{line-height: 34px;font-size: 12px;color: #fff;}
+.supersede .bar img{width: 18px;margin-top: 8px;margin-right: 10px;}
+.supersede .action{background: #00a6ff;color: #fff;width: 30px;height: 30px;font-size: 14px;line-height: 30px;border-radius: 50%;margin-top: 5px;}
+.supersede .actionTxt{color: #333;margin: 0 5px;line-height: 40px;}
+.supersede .unaction{background: #fff;color: #999;width: 30px;height: 30px;font-size: 14px;line-height: 30px;border-radius: 50%;margin-top: 5px;border: 0.5px solid #999;}
+.supersede .unactionTxt{color: #999;margin: 0 5px;line-height: 40px;}
+.supersede .box a{color: #00a6ff;font-size: 12px;line-height: 30px;}
+.supersede .box a:hover{color: #ff8806;}
+
+/*R幣儲值*/ 
+.RBrecharge .bar a{line-height: 34px;font-size: 12px;color: #fff;}
+.RBrecharge .bar img{width: 18px;margin-top: 8px;margin-right: 10px;}
+.RBrecharge .action{background: #00a6ff;color: #fff;width: 30px;height: 30px;font-size: 14px;line-height: 30px;border-radius: 50%;margin-top: 5px;}
+.RBrecharge .actionTxt{color: #333;margin: 0 5px;line-height: 40px;}
+.RBrecharge .unaction{background: #fff;color: #999;width: 30px;height: 30px;font-size: 14px;line-height: 30px;border-radius: 50%;margin-top: 5px;border: 0.5px solid #999;}
+.RBrecharge .unactionTxt{color: #999;margin: 0 5px;line-height: 40px;}
+
+/*支付寶儲值*/ 
+.aliRecharge .bar a{line-height: 34px;font-size: 12px;color: #fff;}
+.aliRecharge .bar img{width: 18px;margin-top: 8px;margin-right: 10px;}
+.aliRecharge .action{background: #00a6ff;color: #fff;width: 30px;height: 30px;font-size: 14px;line-height: 30px;border-radius: 50%;margin-top: 5px;}
+.aliRecharge .actionTxt{color: #333;margin: 0 5px;line-height: 40px;}
+.aliRecharge .unaction{background: #fff;color: #999;width: 30px;height: 30px;font-size: 14px;line-height: 30px;border-radius: 50%;margin-top: 5px;border: 0.5px solid #999;}
+.aliRecharge .unactionTxt{color: #999;margin: 0 5px;line-height: 40px;}
+
+/*微信儲值*/ 
+.wechatRecharge .bar a{line-height: 34px;font-size: 12px;color: #fff;}
+.wechatRecharge .bar img{width: 18px;margin-top: 8px;margin-right: 10px;}
+.wechatRecharge .action{background: #00a6ff;color: #fff;width: 30px;height: 30px;font-size: 14px;line-height: 30px;border-radius: 50%;margin-top: 5px;}
+.wechatRecharge .actionTxt{color: #333;margin: 0 5px;line-height: 40px;}
+.wechatRecharge .unaction{background: #fff;color: #999;width: 30px;height: 30px;font-size: 14px;line-height: 30px;border-radius: 50%;margin-top: 5px;border: 0.5px solid #999;}
+.wechatRecharge .unactionTxt{color: #999;margin: 0 5px;line-height: 40px;}
