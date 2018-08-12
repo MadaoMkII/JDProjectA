@@ -6,30 +6,31 @@ const crypto = require('crypto');
 const GridFsStorage = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const path = require('path');
+const multer = require('multer');
 
 const mongodbUri = config.url;
 const options = {
-
-    auto_reconnect: true,
     poolSize: 6,
     useMongoClient: true,
     keepAlive: true
 };
 
 
-const db = mongoose.connect(mongodbUri, options);
-
+// const db = mongoose.connect(mongodbUri, options);
+const db = mongoose.createConnection(mongodbUri);
 autoIncrement.initialize(db);
 mongoose.Promise = global.Promise;
+let gfs = Grid(db.db, mongoose.mongo);
+gfs.collection('uploads');
 
 db.once('open', () => {
     logger.info('Connected with DB');
     logger.trace('Host:' + db.host
         + ' port: ' + db.host, ' user: '
         + db.user);
+
     console.log('Connected with DB');
-    let gfs = Grid(mongoose.connection.db, mongoose.mongo);
-    gfs.collection('uploads');
+
 });
 
 db.on('error', (error) => {
@@ -55,10 +56,10 @@ const storage = new GridFsStorage({
                 if (err) {
                     return reject(err);
                 }
-                const filename = buf.toString('hex') + path.extname(file.originalname);
+                const filename = buf.toString() + path.extname(file.originalname);
                 const fileInfo = {
                     filename: filename,
-                    bucketName: 'uploads'
+                    bucketName: 'images'
                 };
                 resolve(fileInfo);
             });
@@ -68,3 +69,4 @@ const storage = new GridFsStorage({
 
 module.exports.storage = storage;
 module.exports.mongoose = mongoose;
+module.exports.gfs = gfs;

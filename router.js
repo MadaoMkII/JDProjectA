@@ -1,5 +1,4 @@
 const express = require('express');
-const mongoose = require('./db/db').mongoose;
 const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
@@ -8,21 +7,15 @@ const mailController = require('./controllers/mailController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
 const massageChecker = require('./controllers/massageController');
-const picController = require('./controllers/picController');
+//const picController = require('./controllers/picController');
 const billStatement = require('./controllers/billStatementController');
+const picController = require('./controllers/picController');
+
 const bodyParser = require('body-parser');
 const session = require('express-session');
 
-
-const storage = require('./db/db').storage;
-const multer = require('multer');
-
-
-
-
-const upload = multer({ storage });
-
-
+const upload = require('./db/db').upload;
+const gfs = require('./db/db').gfs;
 
 const json_body_parser = bodyParser.json();
 const urlencoded_body_parser = bodyParser.urlencoded({extended: true});
@@ -40,7 +33,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.set('view engine', 'ejs');
 // Add headers
 app.use(function (req, res, next) {
 
@@ -95,13 +88,25 @@ app.use(function (req, res, next) {
 // Configure Express application.
 
 
-
-
-
-app.post('/upload', upload.single('file'), (req, res) => {
-    // res.json({ file: req.file });
-    res.redirect('/');
+// @route GET /files/:filename
+// @desc  Display single file object
+app.get('/files/:filename', (req, res) => {
+    gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
+        // Check if file
+        if (!file || file.length === 0) {
+            return res.status(404).json({
+                err: 'No file exists'
+            });
+        }
+        // File exists
+        return res.json(file);
+    });
 });
+
+app.get('/index',picController.getImgs);
+app.get('/image/:filename',picController.findImgById);
+
+
 
 app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
     if (req.user) {
