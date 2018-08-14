@@ -1,46 +1,30 @@
 const config = require('../config/develop');
-const express = require('express');
-const bodyParser = require('body-parser');
-const path = require('path');
 const crypto = require('crypto');
-const mongoose = require('mongoose');
 const multer = require('multer');
 const GridFsStorage = require('multer-gridfs-storage');
-const Grid = require('gridfs-stream');
 const gfs = require('../db/db').gfs;
 
 const storage = new GridFsStorage({
     url: config.url,
     file: (req, file) => {
-        return new Promise((resolve, reject) => {
-            crypto.randomBytes(16, (err, buf) => {
-                if (err) {
-                    return reject(err);
-                }
-                const filename = buf.toString() + path.extname(file.originalname);
+
+        return new Promise((resolve) => {
+            crypto.randomBytes(16, (err) => {
+
+                const filename = (Math.random() * Date.now() * 10).toFixed(0);
                 const fileInfo = {
                     filename: filename,
                     bucketName: 'images'
                 };
+
                 resolve(fileInfo);
+
             });
         });
     }
 });
-const upload = multer({storage});
+const upload = multer({storage, limits: {fileSize: 10000000},}).single('file');
 
-
-// @route POST /upload
-// @desc  Uploads file to DB
-// app.post('/upload', upload.single('file'), (req, res) => {
-//     // res.json({ file: req.file });
-//     res.redirect('/');
-// });
-// exports.uploadImg = (req, res)=>{
-//
-//     res.redirect('/');
-//
-// };
 exports.getImgs = (req, res) => {
     gfs.files.find().toArray((err, files) => {
         // Check if files
@@ -53,6 +37,39 @@ exports.getImgs = (req, res) => {
             });
             res.render('index', {files: files});
         }
+    });
+};
+
+
+exports.deleteImgs = (req, res) => {
+    gfs.remove({_id: req.params.id, root: 'images'}, (err, gridStore) => {
+        if (err) {
+            return res.status(404).json({err: err});
+        }
+
+        res.redirect('/index');
+    });
+};
+
+
+// @route POST /upload
+// @desc  Uploads file to DB
+exports.uploadImg = (req, res) => {
+
+    upload(req, res, (err) => {
+        console.log(req.body)
+        if (err&&err.code === `LIMIT_FILE_SIZE`) {
+            // An error occurred when uploading
+           return res.status(406).json({
+                error_msg: "File is too big",
+                error_code: "406"
+            });
+
+        }else {
+
+            return res.json({file: req.file});
+        }
+
     });
 };
 
@@ -78,3 +95,4 @@ exports.findImgById = (req, res) => {
         }
     })
 };
+

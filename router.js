@@ -7,15 +7,11 @@ const mailController = require('./controllers/mailController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
 const massageChecker = require('./controllers/massageController');
-//const picController = require('./controllers/picController');
 const billStatement = require('./controllers/billStatementController');
 const picController = require('./controllers/picController');
-
 const bodyParser = require('body-parser');
 const session = require('express-session');
 
-const upload = require('./db/db').upload;
-const gfs = require('./db/db').gfs;
 
 const json_body_parser = bodyParser.json();
 const urlencoded_body_parser = bodyParser.urlencoded({extended: true});
@@ -87,26 +83,10 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 
-
-// @route GET /files/:filename
-// @desc  Display single file object
-app.get('/files/:filename', (req, res) => {
-    gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
-        // Check if file
-        if (!file || file.length === 0) {
-            return res.status(404).json({
-                err: 'No file exists'
-            });
-        }
-        // File exists
-        return res.json(file);
-    });
-});
-
-app.get('/index',picController.getImgs);
-app.get('/image/:filename',picController.findImgById);
-
-
+app.get('/index', picController.getImgs);
+app.get('/image/:filename', picController.findImgById);
+app.post('/upload', picController.uploadImg);
+app.post('/image/:id', picController.deleteImgs);
 
 app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
     if (req.user) {
