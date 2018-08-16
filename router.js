@@ -18,7 +18,7 @@ const urlencoded_body_parser = bodyParser.urlencoded({extended: true});
 
 let app = express();
 
-const DOMAIN = 'http://localhost:8080';
+const DOMAIN = 'http://www.yubaopay.com.tw';
 //
 app.options(DOMAIN, cors());
 app.use(json_body_parser);
@@ -27,6 +27,7 @@ app.use(session({
     secret: 'abc', resave: true,
     saveUninitialized: true
 }));
+app.use(express.static('public'));
 app.use(passport.initialize());
 app.use(passport.session());
 app.set('view engine', 'ejs');
