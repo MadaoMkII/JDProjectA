@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const logger = require('../logging/logger');
 const config = require('../config/develop');
 const autoIncrement = require('mongoose-auto-increment');
-const Grid = require('gridfs-stream');
 
 
 const mongodbUri = config.url;
@@ -12,27 +11,27 @@ const options = {
     keepAlive: true
 };
 
+const connection = mongoose.connection;
+mongoose.connect(mongodbUri, options);
+if (connection !== "undefined") {
+    console.log(connection.readyState.toString());
+    connection.once("open", () => {
+        console.log('Host:' + db.host
+            + ' port: ' + db.host, ' user: '
+            + db.user + ' pass: ' + db.pass +
+            ' name: ' + db.name);
+        console.log("Connection Open");
+    });
+} else {
 
-// const db = mongoose.connect(mongodbUri, options);
-const db = mongoose.createConnection(mongodbUri);
-autoIncrement.initialize(db);
-mongoose.Promise = global.Promise;
-let gfs = Grid(db.db, mongoose.mongo);
-gfs.collection('images');
+    console.log('Sorry not connected');
+}
 
-db.once('open', () => {
-    logger.info('Connected with DB');
-    logger.trace('Host:' + db.host
-        + ' port: ' + db.host, ' user: '
-        + db.user);
-
-    console.log('Connected with DB');
-
-});
+let db = mongoose.connection;
 
 db.on('error', (error) => {
     logger.error(error);
-    logger.trace('Host:' + db.host
+    console.trace('Host:' + db.host
         + ' port: ' + db.host, ' user: '
         + db.user + ' pass: ' + db.pass +
         ' name: ' + db.name);
@@ -44,6 +43,6 @@ db.on('close', (info) => {
     console.log('Disconnected');
     logger.warn('Db has dissconnected: ' + info);
 });
-
+autoIncrement.initialize(mongoose.connection);
+mongoose.Promise = global.Promise;
 module.exports.mongoose = mongoose;
-module.exports.gfs = gfs;

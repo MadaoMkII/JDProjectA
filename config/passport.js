@@ -20,8 +20,10 @@ passport.deserializeUser(function (username, callback) {
 passport.use(new LocalStrategy('local', (username, password, callback) => {
 
         let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
-        let phone_reg = /^(09)[0-9]{8}$/;
+        let phone_reg = /^1(3|4|5|7|8)\d{9}$/;
+        ///^(09)[0-9]{8}$/;
         let command = {};
+
         if (username) {
 
             if (email_reg.test(username)) {
@@ -30,7 +32,10 @@ passport.use(new LocalStrategy('local', (username, password, callback) => {
             } else if (phone_reg.test(username)) {
                 command['tel_number'] = username;
 
-            } //TODO ERROR HANDLE
+            } else{
+
+                return callback(null, false);
+            }
         }
 
         command['password'] = require('crypto').createHash('md5').update(password + config.saltword).digest('hex');
