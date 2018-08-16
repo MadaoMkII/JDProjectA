@@ -132,5 +132,5 @@ app.post('/signup', userController.userSignUp);
 app.post('/login', loginUser.loginUser);
 app.post('/logout', loginUser.logoutUser);
 
-app.listen(3000);
+app.listen(80);
 console.log("Begin Server");
