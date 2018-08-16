@@ -30,7 +30,7 @@ exports.smsSend = (req, res) => {
                 return res.status(503).json({error_msg: "Internal Service Error", error_code: "503"});
             }
             if (result === 1) {
-                return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
+                return res.status(405).json({error_msg: "Too many tries at this moment", error_code: "405"});
             } else {
 
                 message.set_to(tel);
