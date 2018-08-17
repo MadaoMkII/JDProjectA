@@ -30,7 +30,7 @@ app.use(session({
 app.use(express.static('public'));
 app.use(passport.initialize());
 app.use(passport.session());
-//app.set('view engine', 'ejs');
+app.set('view engine', 'ejs');
 // Add headers
 app.use(function (req, res, next) {
 
@@ -132,5 +132,5 @@ app.post('/signup', userController.userSignUp);
 app.post('/login', loginUser.loginUser);
 app.post('/logout', loginUser.logoutUser);
 
-app.listen(3000);
+app.listen(80);
 console.log("Begin Server");
