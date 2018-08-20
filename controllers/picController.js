@@ -17,12 +17,14 @@ mongoose.connection.once("open", () => {
 });
 const storage = new GridFsStorage({
     url: config.url,
-    file: (req, file) => {
-
+    //file: (req, file) => {
+    file: () => {
         return new Promise((resolve) => {
             crypto.randomBytes(16, (err) => {
-
-                const filename = (Math.random() * Date.now() * 10).toFixed(0);
+                if (err) {
+                    throw err;
+                }
+                const filename = (Math.random() * Date.now() * 10).toFixed(0) + '.jpg';
                 const fileInfo = {
                     filename: filename,
                     bucketName: 'images'
@@ -35,7 +37,7 @@ const storage = new GridFsStorage({
     }
 });
 const upload = multer({storage, limits: {fileSize: 10000000},}).single('file');
-
+const uploadArray = multer({storage, limits: {fileSize: 10000000},}).array('files');
 exports.getImgs = (req, res) => {
     gridfs.files.find().toArray((err, files) => {
         // Check if files
@@ -51,9 +53,25 @@ exports.getImgs = (req, res) => {
     });
 };
 
+exports.uploadImgArray = (req, res, callback) => {
 
+    uploadArray(req, res, (err) => {
+
+        if (err && err.code === `LIMIT_FILE_SIZE`) {
+            // An error occurred when uploading
+            return res.status(406).json({
+                error_msg: "File is too big",
+                error_code: "406"
+            });
+
+        } else {
+            callback();
+        }
+
+    });
+};
 exports.deleteImgs = (req, res) => {
-    gridfs.remove({_id: req.params.id, root: 'images'}, (err, gridStore) => {
+    gridfs.remove({_id: req.params.id, root: 'images'}, (err) => {
         if (err) {
             return res.status(404).json({err: err});
         }
@@ -65,10 +83,15 @@ exports.deleteImgs = (req, res) => {
 
 // @route POST /upload
 // @desc  Uploads file to DB
-exports.uploadImg = (req, res) => {
-
+exports.uploadImg = (req, res, callback) => {
+    if (req.file === null) {
+        return res.status(404).json({
+            error_msg: "File is empty",
+            error_code: "404"
+        });
+    }
     upload(req, res, (err) => {
-        console.log(req.body)
+
         if (err && err.code === `LIMIT_FILE_SIZE`) {
             // An error occurred when uploading
             return res.status(406).json({
@@ -77,8 +100,7 @@ exports.uploadImg = (req, res) => {
             });
 
         } else {
-
-            return res.json({file: req.file});
+            callback();
         }
 
     });

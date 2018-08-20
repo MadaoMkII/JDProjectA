@@ -9,6 +9,7 @@ const loginUser = require('./controllers/authController');
 const massageChecker = require('./controllers/massageController');
 const billStatement = require('./controllers/billStatementController');
 const picController = require('./controllers/picController');
+const advertisingController = require('./controllers/advertisingController');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 
@@ -86,7 +87,7 @@ app.use(function (req, res, next) {
 
 app.get('/index', picController.getImgs);
 app.get('/image/:filename', picController.findImgById);
-app.post('/upload', picController.uploadImg);
+app.post('/upload', advertisingController.addces);
 app.post('/image/:id', picController.deleteImgs);
 
 app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
