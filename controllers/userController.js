@@ -1,6 +1,7 @@
 const config = require('../config/develop');
 const userModel = require('../modules/userAccount').userAccountModel;
 const logger = require('../logging/logger');
+const uuidv1 = require('uuid/v1');
 const redis = require("redis");
 
 // exports.addAdmin = (req, res) => {
@@ -34,7 +35,9 @@ const redis = require("redis");
 exports.userSignUp = (req, res) => {
 
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
+    let uuid = uuidv1();
     let userInfo = {
+        uuid: uuid,
         password: result,
         role: 'User',
         Rcoins: 0,
@@ -287,7 +290,6 @@ exports.getUserInfo = (req, res) => {
         path: 'myBills', select: '-_id typeStr typeState dealState sendPic payFreight orderID userTelNumber' +
         ' orderAmount rate NtdAmount dealDate'
     }).exec().then((info) => {
-
 
 
         if (!info) return res.status(404).json({error_code: 404, error_massage: 'Can Not Find user'});

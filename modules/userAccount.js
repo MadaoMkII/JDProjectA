@@ -27,7 +27,7 @@ const bankAccount = new mongoose.Schema(
 );
 
 let userAccountSchema = new mongoose.Schema({
-
+    uuid: {type: String},
     password: {
         required: true,
         type: String

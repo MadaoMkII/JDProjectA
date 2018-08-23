@@ -14,9 +14,9 @@ const options = {
 const connection = mongoose.connection;
 mongoose.connect(mongodbUri, options);
 if (connection !== "undefined") {
-    console.log(connection.readyState.toString());
+    //console.log(connection.readyState.toString());
     connection.once("open", () => {
-        console.log('Host:' + db.host
+        logger.log('Host:' + db.host
             + ' port: ' + db.host, ' user: '
             + db.user + ' pass: ' + db.pass +
             ' name: ' + db.name);
@@ -31,7 +31,7 @@ let db = mongoose.connection;
 
 db.on('error', (error) => {
     logger.error(error);
-    console.trace('Host:' + db.host
+    logger.trace('Host:' + db.host
         + ' port: ' + db.host, ' user: '
         + db.user + ' pass: ' + db.pass +
         ' name: ' + db.name);

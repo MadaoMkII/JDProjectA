@@ -70,13 +70,13 @@ exports.uploadImgArray = (req, res, callback) => {
 
     });
 };
-exports.deleteImgs = (req, res) => {
-    gridfs.remove({_id: req.params.id, root: 'images'}, (err) => {
+exports.deleteImgs = (req, res, callback) => {
+
+    gridfs.remove({filename: req.params.filename, root: 'images'}, (err) => {
         if (err) {
             return res.status(404).json({err: err});
         }
-
-        res.redirect('/index');
+        callback();
     });
 };
 

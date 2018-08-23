@@ -1,6 +1,6 @@
 const appealFormModel = require('../modules/appealForm').appealFormModel;
 const picController = require('../controllers/picController');
-const logger = require('../logging/logger');
+//const logger = require('../logging/logger');
 
 exports.addAppealForm = (req, res) => {
 
@@ -20,7 +20,6 @@ exports.addAppealForm = (req, res) => {
                 appealFormObject.imagesFilename.push(img.filename);
             }
 
-            console.log(appealFormObject)
             return res.json({error_msg: `401`, error_code: "GOOD！"});
 
         }

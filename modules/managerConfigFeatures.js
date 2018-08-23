@@ -3,8 +3,11 @@ const mongoose = require('../db/db').mongoose;
 
 const managerConfigs = new mongoose.Schema(
     {
-        rate: Number,
-        aliPayAccounts: [String]
+        RcoinRate: [{beginAmount: Number, detailRate: Number}],
+        PaymentPlatformRate: [{beginAmount: Number, detailRate: Number}],
+        aliPayAccounts: [String],
+        threshold: {platform: Number, alipay: Number, wechat: Number},
+        feeRate: Number
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 

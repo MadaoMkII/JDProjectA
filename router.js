@@ -10,6 +10,10 @@ const massageChecker = require('./controllers/massageController');
 const billStatement = require('./controllers/billStatementController');
 const picController = require('./controllers/picController');
 const advertisingController = require('./controllers/advertisingController');
+const appealFormController = require('./controllers/appealFormController');
+const manageSettingController = require('./controllers/manageSettingController');
+
+
 const bodyParser = require('body-parser');
 const session = require('express-session');
 
@@ -36,7 +40,7 @@ app.set('view engine', 'ejs');
 app.use(function (req, res, next) {
 
     // Website you wish to allow to connect
-   res.setHeader('Access-Control-Allow-Origin', DOMAIN);
+    res.setHeader('Access-Control-Allow-Origin', DOMAIN);
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -87,9 +91,10 @@ app.use(function (req, res, next) {
 
 app.get('/index', picController.getImgs);
 app.get('/image/:filename', picController.findImgById);
-app.post('/upload', advertisingController.addces);
-app.post('/image/:id', picController.deleteImgs);
-
+app.post('/upload', appealFormController.addAppealForm);
+app.post('/image/:filename', picController.deleteImgs);
+app.post('/setSetting', manageSettingController.setSetting);
+app.get('/getSetting', manageSettingController.getSetting);
 app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
     if (req.user) {
         return res.status(200).json({
