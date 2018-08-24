@@ -22,8 +22,8 @@ exports.setSetting = async (req, res) => {
     let billResult = await findCurrentSetting();
     let managerConfigsObject = new managerConfigsModel();
     console.log(billResult)
-    managerConfigsObject.RcoinRate = req.body.RcoinRate ? req.body.RcoinRate : billResult.RcoinRate;
 
+    managerConfigsObject.RcoinRate = req.body.RcoinRate ? req.body.RcoinRate : billResult.RcoinRate;
     managerConfigsObject.RcoinRate.sort(compare('beginAmount'));
 
 
@@ -59,7 +59,6 @@ let findCurrentSetting = async () => {
     let billResult;
     billResult = await managerConfigsModel.findOne(null, {
         __v: 0,
-        billStatementId: 0,
         _id: 0
     }, operator);
 
@@ -68,9 +67,9 @@ let findCurrentSetting = async () => {
 
 exports.getSetting = async (req, res) => {
     try {
-
-        let billResult = await findCurrentSetting();
-        return res.status(200).send({error_code: 0, error_msg: 'NO', data: billResult});
+        let result = await findCurrentSetting();
+        console.log(result.RcoinRate[0].beginAmount)
+        return res.status(200).send({error_code: 0, error_msg: 'NO', data: result});
     } catch (err) {
         console.log(err);
         return res.status(400).send({error_code: 400, error_msg: 'NO'});
@@ -81,5 +80,4 @@ exports.getSetting = async (req, res) => {
 };
 
 
-
-
+exports.findCurrentSetting = findCurrentSetting;

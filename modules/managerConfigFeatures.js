@@ -11,8 +11,5 @@ const managerConfigs = new mongoose.Schema(
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 
-
 const managerConfigsModel = mongoose.model('managerConfigs', managerConfigs);
-
-
-module.exports.managerConfigsModel = managerConfigsModel;
+exports.managerConfigsModel = managerConfigsModel;

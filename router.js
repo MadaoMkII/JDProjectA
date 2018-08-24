@@ -10,6 +10,7 @@ const massageChecker = require('./controllers/massageController');
 const billStatement = require('./controllers/billStatementController');
 const picController = require('./controllers/picController');
 const advertisingController = require('./controllers/advertisingController');
+const rechargeController = require('./controllers/rechargeController');
 const appealFormController = require('./controllers/appealFormController');
 const manageSettingController = require('./controllers/manageSettingController');
 
@@ -100,7 +101,7 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
         return res.status(200).json({
             success: true,
             message: 'Login successful! ' + 'Your role is : ' + req.user.role +
-            '  Your username is : ' + req.user.username
+                '  Your username is : ' + req.user.username
         });
     } else {
         return res.status(200).json({
@@ -109,6 +110,9 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
         });
     }
 });
+app.post('/getSetting', manageSettingController.getSetting);
+app.post('/setSetting', manageSettingController.setSetting);
+app.post('/ceshi', rechargeController.addChargeBills);
 // app.post('/upload', picController.upload);
 app.post('/msg/send_massage', massageChecker.smsSend);
 app.post('/msg/check_massage', massageChecker.check_code);
