@@ -9,8 +9,7 @@ const aliPayAccount = new mongoose.Schema(
         isAuthenticated: {type: Boolean, default: false}
     }
 );
-
-const wechatAccount = new mongoose.Schema(
+    const wechatAccount = new mongoose.Schema(
     {
         realName: {type: String, required: true},
         accountName: {type: String, required: true},

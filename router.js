@@ -112,7 +112,8 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
 });
 app.post('/getSetting', manageSettingController.getSetting);
 app.post('/setSetting', manageSettingController.setSetting);
-app.post('/ceshi', rechargeController.addChargeBills);
+app.post('/ceshi', rechargeController.addRcoinChargeBills);
+app.post('/ceshi2', rechargeController.addChargeBills);
 // app.post('/upload', picController.upload);
 app.post('/msg/send_massage', massageChecker.smsSend);
 app.post('/msg/check_massage', massageChecker.check_code);

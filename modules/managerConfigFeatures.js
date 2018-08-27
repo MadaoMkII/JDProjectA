@@ -6,7 +6,7 @@ const managerConfigs = new mongoose.Schema(
         RcoinRate: [{beginAmount: Number, detailRate: Number}],
         PaymentPlatformRate: [{beginAmount: Number, detailRate: Number}],
         aliPayAccounts: [String],
-        threshold: {platform: Number, alipay: Number, wechat: Number},
+        threshold: {platformRcoin: Number, alipay: Number, wechat: Number},
         feeRate: Number
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
