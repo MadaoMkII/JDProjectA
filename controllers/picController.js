@@ -48,7 +48,7 @@ exports.getImgs = (req, res) => {
                 file.isImage = file.contentType === 'image/jpeg' ||
                     file.contentType === 'image/png';
             });
-            res.render('index', {files: files});
+            res.render('../views/index.ejs', {files: files});
         }
     });
 };
