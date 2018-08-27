@@ -36,10 +36,10 @@ const dgBillSchema = new mongoose.Schema(
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
 
 
-const dgBillModel = mongoose.model('dgBill', dgBillSchema);
 
 
-dgBillModel.set('toJSON', {
+
+dgBillSchema.set('toJSON', {
         virtuals: true,
         transform: function (doc, ret) {
             delete ret.uuid;
@@ -58,7 +58,7 @@ dgBillModel.set('toJSON', {
     }
 );
 
-dgBillModel.set('toObject', {
+dgBillSchema.set('toObject', {
     virtuals: true,
     transform: function (doc, ret) {
         // delete ret.userID;
@@ -77,5 +77,5 @@ dgBillModel.set('toObject', {
 //         return new Date((this.created_at.getTime() + 1000 * 60 * 30)).getTime();
 //     });
 
-
+const dgBillModel = mongoose.model('dgBill', dgBillSchema);
 module.exports.dgBillModel = dgBillModel;
