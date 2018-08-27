@@ -90,10 +90,13 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 
+app.get('/appeal', picController.getImgs);
+
+
 app.get('/index', picController.getImgs);
 app.get('/image/:filename', picController.findImgById);
 app.post('/upload', appealFormController.addAppealForm);
-app.post('/image/:filename', picController.deleteImgs);
+app.get('/delImage/:filename', picController.deleteImpsForController);
 app.post('/setSetting', manageSettingController.setSetting);
 app.get('/getSetting', manageSettingController.getSetting);
 app.get('/checkhealth', isAuthenticated('User'), function (req, res) {

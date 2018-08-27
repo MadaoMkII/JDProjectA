@@ -48,7 +48,7 @@ exports.getImgs = (req, res) => {
                 file.isImage = file.contentType === 'image/jpeg' ||
                     file.contentType === 'image/png';
             });
-            res.render('../views/index.ejs', {files: files});
+            res.render(`../views/${req.path}`, {files: files});
         }
     });
 };
@@ -70,6 +70,18 @@ exports.uploadImgArray = (req, res, callback) => {
 
     });
 };
+
+exports.deleteImpsForController = (req, res) => {
+console.log(req.params.filename)
+    gridfs.remove({filename: req.params.filename, root: 'images'}, (err) => {
+        if (err) {
+            return res.status(404).json({err: err});
+        }
+        return res.status(200).json({error_msg: `200`, error_code: "OK！"});
+    });
+};
+
+
 exports.deleteImgs = (req, res, callback) => {
 
     gridfs.remove({filename: req.params.filename, root: 'images'}, (err) => {

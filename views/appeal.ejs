@@ -21,23 +21,33 @@
     <div class="row">
         <div class="col-md-6 m-auto">
             <h1 class="text-center display-4 my-4">Mongo File Uploads</h1>
-            <form action="/upload" method="POST" enctype="multipart/form-data">
+            <form action="/addAppealForm" method="POST" enctype="multipart/form-data">
                 <div class="custom-file mb-3">
                     <input type="file" name="files" id="files" class="custom-file-input">
                     <label for="files" class="custom-file-label">Choose File</label>
                 </div>
                 <div class="custom-file mb-3">
                     <input type="file" name="files" id="files" class="custom-file-input">
-                    <label for="files" class="custom-file-label">Choose File1</label>
+                    <label for="files" class="custom-file-label">Choose File_2</label>
                 </div>
                 <div class="custom">
-                    <input type="text" name="link" id="link"><br>
-                    <label for="link" class="custom">link</label>
+                    <input type="text" name="L1_Issue" id="L1_Issue"><br>
+                    <label for="L1_Issue" class="custom">L1_Issue</label>
 
                 </div>
                 <div class="custom">
-                    <input type="text" name="referrer" id="referrer"><br>
-                    <label for="referrer" class="custom">referrer</label>
+                    <input type="text" name="L2_Issue" id="L2_Issue"><br>
+                    <label for="L2_Issue" class="custom">L2_Issue</label>
+
+                </div>
+                <div class="custom">
+                    <input type="text" name="L3_Issue" id="L3_Issue"><br>
+                    <label for="L3_Issue" class="custom">L3_Issue</label>
+
+                </div>
+                <div class="custom">
+                    <input type="text" name="description" id="description"><br>
+                    <label for="description" class="custom">description</label>
                 </div>
                 <input type="submit" value="Submit" class="btn btn-primary btn-block">
             </form>
@@ -50,7 +60,7 @@
                 <% } else { %>
                 <%= file.filename %>
                 <% } %>
-                <form method="DELETE" action="/delImage/<%= file.filename %>?_method=DELETE">
+                <form method="DELETE" action="/image/<%= file.filename %>?_method=DELETE">
                     <button class="btn btn-danger btn-block mt-4">Delete</button>
                 </form>
             </div>
