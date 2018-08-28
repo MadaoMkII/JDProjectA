@@ -100,6 +100,7 @@ exports.getAppealForm = (req, res) => {
             let afterRes = results;
 
             if (err) {
+                console.log(err)
                 return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
             }
             if (req.body['page'] !== undefined && req.body['unit'] !== undefined) {
