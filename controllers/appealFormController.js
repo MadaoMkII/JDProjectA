@@ -19,23 +19,21 @@ exports.addAppealForm = (req, res) => {
             for (let img of req.files) {
                 appealFormObject.imagesFilename.push(img.filename);
             }
-            for (let element in appealFormObject) {
-
-                if (!appealFormObject[element]) {
-                    return res.status(203).json({
-                        error_code: `203`,
-                        filenames: appealFormObject.imagesFilename,
-                        error_msg: "接口直接调用，无其它信息属性值输入"
-                    });
-                }
+            if (!appealFormObject.appealFormID || !appealFormObject.L1_Issue ||
+                !appealFormObject.L2_Issue || !appealFormObject.L3_Issue || !appealFormObject.description) {
+                return res.status(203).json({
+                    error_code: `203`,
+                    filenames: appealFormObject.imagesFilename,
+                    error_msg: "接口直接调用，无其它信息属性值输入"
+                });
             }
 
             appealFormObject.save((err) => {
-                console.log(err)
-                return res.status(503).json({error_msg: `503`, error_code: "Error input"});
+                if (err) {
+                    return res.status(503).json({error_msg: `503`, error_code: "Error input"});
+                }
+                return res.status(200).json({error_msg: `200`, error_code: "OK！", data: appealFormObject});
             });
-            return res.status(200).json({error_msg: `200`, error_code: "OK！", data: appealFormObject});
-
         }
     )
 };

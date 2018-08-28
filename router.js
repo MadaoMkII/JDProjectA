@@ -91,7 +91,7 @@ app.use(function (req, res, next) {
 // Configure Express application.
 
 app.get('/appeal', picController.getImgs);
-
+app.post('/addAppealForm', appealFormController.addAppealForm);
 
 app.get('/index', picController.getImgs);
 app.get('/image/:filename', picController.findImgById);
@@ -104,7 +104,7 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
         return res.status(200).json({
             success: true,
             message: 'Login successful! ' + 'Your role is : ' + req.user.role +
-                '  Your username is : ' + req.user.username
+            '  Your username is : ' + req.user.username
         });
     } else {
         return res.status(200).json({
