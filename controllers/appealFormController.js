@@ -1,7 +1,7 @@
 const appealFormModel = require('../modules/appealForm').appealFormModel;
 const picController = require('../controllers/picController');
 //const logger = require('../logging/logger');
-
+const uuidv1 = require('uuid/v1');
 exports.addAppealForm = (req, res) => {
 
     picController.uploadImgArray(req, res, () => {
@@ -9,14 +9,14 @@ exports.addAppealForm = (req, res) => {
             if (typeof (req.files) === 'undefined') {
                 return res.json({error_msg: `403`, error_code: "失败！"});
             }
-
+            let uuid = uuidv1();//测试用
             let appealFormObject = new appealFormModel();
             appealFormObject.appealFormID = 'AP' + (Math.random() * Date.now() * 10).toFixed(0);
             appealFormObject.L1_Issue = req.body.L1_Issue;
             appealFormObject.L2_Issue = req.body.L2_Issue;
             appealFormObject.L3_Issue = req.body.L3_Issue;
             appealFormObject.description = req.body.description;
-            //appealFormObject.userUUID = req.user.uuid;
+            appealFormObject.userUUID = uuid;
             for (let img of req.files) {
                 appealFormObject.imagesFilename.push(img.filename);
             }
@@ -92,8 +92,6 @@ exports.getAppealForm = (req, res) => {
         operator.sort[req.body['sortBy']] = parseInt(req.body['order']);
     }
 
-
-    console.log(command)
     appealFormModel.find(command, {
         __v: 0,
         _id: 0
