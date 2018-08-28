@@ -60,7 +60,7 @@
                 <% } else { %>
                 <%= file.filename %>
                 <% } %>
-                <form method="DELETE" action="/image/<%= file.filename %>?_method=DELETE">
+                <form method="DELETE" action="/delImage/<%= file.filename %>?_method=DELETE">
                     <button class="btn btn-danger btn-block mt-4">Delete</button>
                 </form>
             </div>
