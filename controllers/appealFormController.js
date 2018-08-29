@@ -132,9 +132,12 @@ exports.findAppealForm = (req, res) => {
                 return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
             }
             if ((!isEmpty(req.body['page'])) && (!isEmpty(req.body['unit']))) {
-                let begin = req.body['page'] * req.body['unit'],
-                    end = (req.body['page'] + 1) * req.body['unit'] >= results.length ?
-                        results.length : (req.body['page'] + 1) * req.body['unit'];
+                if (req.body['page'] - 1 < 0) {
+                    return res.status(400).send({error_code: 400, error_msg: 'Error page less than 1'});
+                }
+                let begin = (req.body['page']-1) * req.body['unit'],
+                    end = req.body['page'] * req.body['unit'] >= results.length ?
+                        results.length : (req.body['page']) * req.body['unit'];
                 afterRes = results.slice(begin, end);
             }
             return res.status(200).send({error_code: 0, data: afterRes, nofdata: countNumber});
