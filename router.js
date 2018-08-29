@@ -91,9 +91,14 @@ app.use(function (req, res, next) {
 // Configure Express application.
 
 app.get('/appeal', picController.getImgs);
+app.get('/adv', picController.getImgs);
 app.post('/addAppealForm', appealFormController.addAppealForm);
 app.post('/getAppealForm', appealFormController.getAppealForm);
 app.post('/setResponseAppealForm', appealFormController.setResponseAppealForm);
+
+app.post('/addAdvertising', advertisingController.addAdvertising);
+app.get('/getAdvertising', advertisingController.getAdvertising);
+app.post('/delAdvertising', advertisingController.delAdvertising);
 
 app.get('/index', picController.getImgs);
 app.get('/image/:filename', picController.findImgById);

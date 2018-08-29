@@ -48,9 +48,7 @@ exports.setResponseAppealForm = (req, res) => {
                 response: issue_response,
                 isSolved: true
             }
-        },
-
-        {new: true}, (err, data) => {
+        }, {new: true}, (err, data) => {
 
             if (err) {
                 return res.status(503).json({error_msg: `503`, error_code: "Error input"});

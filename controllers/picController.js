@@ -72,8 +72,15 @@ exports.uploadImgArray = (req, res, callback) => {
 };
 
 exports.deleteImpsForController = (req, res) => {
-console.log(req.params.filename)
-    gridfs.remove({filename: req.params.filename, root: 'images'}, (err) => {
+    let filename;
+    if (req.params.filename) {
+        filename = req.params.filename;
+    } else if (req.body.filename) {
+        filename = req.body.filename;
+    } else {
+        return res.status(404).json("filename is not here");
+    }
+    gridfs.remove({filename: filename, root: 'images'}, (err) => {
         if (err) {
             return res.status(404).json({err: err});
         }
@@ -83,8 +90,15 @@ console.log(req.params.filename)
 
 
 exports.deleteImgs = (req, res, callback) => {
-
-    gridfs.remove({filename: req.params.filename, root: 'images'}, (err) => {
+    let filename;
+    if (req.params.filename) {
+        filename = req.params.filename;
+    } else if (req.body.filename) {
+        filename = req.body.filename;
+    } else {
+        return res.status(404).json("filename is not here");
+    }
+    gridfs.remove({filename: filename, root: 'images'}, (err) => {
         if (err) {
             return res.status(404).json({err: err});
         }
