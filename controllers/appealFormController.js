@@ -39,6 +39,32 @@ exports.addAppealForm = (req, res) => {
     )
 };
 
+exports.setResponseAppealForm = (req, res) => {
+
+
+    let issue_response = req.body.response;
+    appealFormModel.findOneAndUpdate({appealFormID: req.body.appealFormID}, {
+            $set: {
+                response: issue_response,
+                isSolved: true
+            }
+        },
+
+        {new: true}, (err, data) => {
+
+            if (err) {
+                return res.status(503).json({error_msg: `503`, error_code: "Error input"});
+            }
+            if (!data) {
+                return res.status(404).json({error_msg: `404`, error_code: "Can not find this appeal！"})
+            }
+            return res.status(200).json({error_msg: `200`, error_code: "OK！", data: data});
+
+        }
+    )
+};
+
+
 exports.getAppealForm = (req, res) => {
 
 

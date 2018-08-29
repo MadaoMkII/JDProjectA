@@ -93,6 +93,7 @@ app.use(function (req, res, next) {
 app.get('/appeal', picController.getImgs);
 app.post('/addAppealForm', appealFormController.addAppealForm);
 app.post('/getAppealForm', appealFormController.getAppealForm);
+app.post('/setResponseAppealForm', appealFormController.setResponseAppealForm);
 
 app.get('/index', picController.getImgs);
 app.get('/image/:filename', picController.findImgById);
