@@ -62,56 +62,61 @@ exports.setResponseAppealForm = (req, res) => {
     )
 };
 
-
-exports.getAppealForm = (req, res) => {
-
+let isEmpty = function (obj) {
+    if (obj == null) return true;
+    if (obj.constructor.name === "Array" || obj.constructor.name === "String") return obj.length === 0;
+    for (let key in obj) {
+        if (obj.hasOwnProperty(key) && isEmpty(obj[key])) return true;
+    }
+    return false;
+};
+exports.findAppealForm = (req, res) => {
 
     let command = {};
 
-    if (req.body.isSolved) {
+    if (!isEmpty(req.body.isSolved)) {
         command['isSolved'] = {$eq: req.body.isSolved};
     }
-    if (req.body.L1_Issue) {
+    if (!isEmpty(req.body.L1_Issue)) {
         command['L1_Issue'] = {$eq: req.body.L1_Issue};
     }
-    if (req.body.L2_Issue) {
+    if (!isEmpty(req.body.L2_Issue)) {
         command['L2_Issue'] = {$eq: req.body.L2_Issue};
     }
-    if (req.body.L3_Issue) {
+    if (!isEmpty(req.body.L3_Issue)) {
         command['L3_Issue'] = {$eq: req.body.L3_Issue};
     }
 
-    if (req.body.appealFormID) {
+    if (!isEmpty(req.body.appealFormID)) {
         command['appealFormID'] = {$eq: req.body.appealFormID};
     }
-    if (req.body.userUUID) {
+    if (!isEmpty(req.body.userUUID)) {
         command['userUUID'] = {$eq: req.body.userUUID};
     }
 
 
-    if (req.body['createdAt']) {
+    if (!isEmpty(req.body['createdAt'])) {
         command['created_at'] = {};
-        if (req.body[`createdAt`]['beforeDate']) {
+        if (!isEmpty(req.body[`createdAt`]['beforeDate'])) {
             command['created_at'].$lte = new Date(req.body[`createdAt`]['beforeDate']);
         }
-        if (req.body[`createdAt`]['afterDate']) {
+        if (!isEmpty(req.body[`createdAt`]['afterDate'])) {
             command['created_at'].$gte = new Date(req.body[`createdAt`]['afterDate']);
         }
 
     }
-    if (req.body['updatedAt']) {
+    if (!isEmpty(req.body['updatedAt'])) {
         command['updated_at'] = {};
-        if (req.body[`updatedAt`]['beforeDate']) {
+        if (!isEmpty(req.body[`updatedAt`]['beforeDate'])) {
             command['updated_at'].$lte = new Date(req.body[`updatedAt`]['beforeDate']);
         }
-        if (req.body[`updatedAt`]['afterDate']) {
+        if (!isEmpty(req.body[`updatedAt`]['afterDate'])) {
             command['updated_at'].$gte = new Date(req.body[`updatedAt`]['afterDate']);
         }
-
     }
 
     let operator = {};
-    if (req.body['order'] && req.body['sortBy']) {
+    if ((!isEmpty(req.body['order']) && (!isEmpty(req.body['sortBy'])))) {
         operator.sort = {};
         operator.sort[req.body['sortBy']] = parseInt(req.body['order']);
     }
@@ -124,23 +129,18 @@ exports.getAppealForm = (req, res) => {
             let afterRes = results;
 
             if (err) {
-                console.log(err)
                 return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
             }
-            if (req.body['page'] !== undefined && req.body['unit'] !== undefined) {
+            if ((!isEmpty(req.body['page'])) && (!isEmpty(req.body['unit']))) {
                 let begin = req.body['page'] * req.body['unit'],
                     end = (req.body['page'] + 1) * req.body['unit'] >= results.length ?
                         results.length : (req.body['page'] + 1) * req.body['unit'];
                 afterRes = results.slice(begin, end);
-
             }
-
             return res.status(200).send({error_code: 0, data: afterRes, nofdata: countNumber});
-
         }
     );
 };
-
 
 exports.getThisUserAllAppealForm = (req, res) => {
 

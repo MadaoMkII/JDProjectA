@@ -93,7 +93,7 @@ app.use(function (req, res, next) {
 app.get('/appeal', picController.getImgs);
 app.get('/adv', picController.getImgs);
 app.post('/addAppealForm', appealFormController.addAppealForm);
-app.post('/getAppealForm', appealFormController.getAppealForm);
+app.post('/findAppealForm', appealFormController.findAppealForm);
 app.post('/setResponseAppealForm', appealFormController.setResponseAppealForm);
 
 app.post('/addAdvertising', advertisingController.addAdvertising);
@@ -154,4 +154,19 @@ app.post('/login', loginUser.loginUser);
 app.post('/logout', loginUser.logoutUser);
 
 app.listen(3000);
+
+
+process.on('uncaughtException', (err) => {
+    console.error(err);
+});
+
+process.on('unhandledRejection', (reason, p) => {
+    console.error(reason, p);
+});
+
+
+
+
+
+
 console.log("Begin Server");
