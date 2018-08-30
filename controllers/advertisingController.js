@@ -29,6 +29,8 @@ exports.addAdvertising = (req, res) => {
 
             let advertisingObject = new advertisingModel();
             advertisingObject.referer = req.body.referrer;
+            advertisingObject.L1_category = req.body.L1_category;
+            advertisingObject.L2_category = req.body.L2_category;
             advertisingObject.link = req.body.link.trim();
             advertisingObject.filename = req.file.filename;
             advertisingObject.topic = req.body.topic;
