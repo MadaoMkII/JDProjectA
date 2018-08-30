@@ -90,6 +90,10 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 
+
+app.post('/setConfig', manageSettingController.setSetting);
+app.get('/getAppealIssues', manageSettingController.getAppealTopics);
+
 app.get('/appeal', picController.getImgs);
 app.get('/adv', picController.getImgs);
 app.post('/addAppealForm', appealFormController.addAppealForm);

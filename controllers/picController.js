@@ -137,7 +137,8 @@ exports.findImgById = (req, res) => {
         // Check if file
         if (!file || file.length === 0) {
             return res.status(404).json({
-                err: 'No file exists'
+                error_status: 404,
+                error_msg: 'File not exist!'
             });
         }
         // Check if image
@@ -149,7 +150,8 @@ exports.findImgById = (req, res) => {
             readStream.pipe(res);
         } else {
             res.status(404).json({
-                err: 'Not an image'
+                error_status: 404,
+                error_msg: 'Not an image'
             });
         }
     })

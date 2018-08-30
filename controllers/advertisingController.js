@@ -1,6 +1,5 @@
 const advertisingModel = require('../modules/advertising').advertisingModel;
 const picController = require('../controllers/picController');
-const logger = require('../logging/logger');
 const uuidv1 = require('uuid/v1');
 
 exports.getAdvertising = (req, res) => {
@@ -31,6 +30,7 @@ exports.addAdvertising = (req, res) => {
             advertisingObject.referer = req.body.referrer;
             advertisingObject.link = req.body.link.trim();
             advertisingObject.filename = req.file.filename;
+            advertisingObject.topic = req.body.topic;
             advertisingObject.advertisingID = uuidv1();
             advertisingObject.save(err => {
                 if (err) {

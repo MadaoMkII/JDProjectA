@@ -21,7 +21,7 @@ exports.setSetting = async (req, res) => {
 
     let billResult = await findCurrentSetting();
     let managerConfigsObject = new managerConfigsModel();
-    console.log(billResult)
+    //console.log(billResult)
 
     managerConfigsObject.RcoinRate = req.body.RcoinRate ? req.body.RcoinRate : billResult.RcoinRate;
     managerConfigsObject.RcoinRate.sort(compare('beginAmount'));
@@ -37,9 +37,12 @@ exports.setSetting = async (req, res) => {
     managerConfigsObject.threshold.alipay = req.body.threshold.alipay ? req.body.threshold.alipay : billResult.threshold.alipay;
     managerConfigsObject.threshold.wechat = req.body.threshold.wechat ? req.body.threshold.wechat : billResult.threshold.wechat;
     managerConfigsObject.feeRate = req.body.feeRate;
+    managerConfigsObject.L1_Issue = req.body.L1_Issue;
+    managerConfigsObject.L2_Issue = req.body.L2_Issue;
+    managerConfigsObject.L3_Issue = req.body.L3_Issue;
 
-    console.log("\033[40;32m" + managerConfigsObject)
-    managerConfigsObject.save((err) => {
+    //console.log("\033[40;32m" + managerConfigsObject)
+     managerConfigsObject.save((err) => {
 
         if (err) {
             console.log(err);
@@ -49,12 +52,10 @@ exports.setSetting = async (req, res) => {
         }
 
     });
-
-
 };
 
 
-let findCurrentSetting = async () => {
+const findCurrentSetting = async () => {
     let operator = {sort: {created_at: -1}, limit: 1};
     let billResult;
     billResult = await managerConfigsModel.findOne(null, {
@@ -78,6 +79,22 @@ exports.getSetting = async (req, res) => {
 
 
 };
+exports.getAppealTopics = async (req, res) => {
+    try {
+        let result = await findCurrentSetting();
+        let responseResult ={};
+        responseResult.L1_Issue= result.L1_Issue;
+        responseResult.L2_Issue= result.L2_Issue;
+        responseResult.L3_Issue= result.L3_Issue;
 
+        return res.status(200).send({error_code: 0, error_msg: 'NO', data: responseResult});
+    } catch (err) {
+        console.log(err);
+        return res.status(400).send({error_code: 400, error_msg: 'Error happened'});
+
+    }
+
+
+};
 
 exports.findCurrentSetting = findCurrentSetting;

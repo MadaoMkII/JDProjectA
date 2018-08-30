@@ -6,7 +6,8 @@ const advertising = new mongoose.Schema(
         advertisingID: {type: String, required: true, unique: true},
         referer: {type: String, required: true},
         link: {type: String, required: true, unique: true},
-        filename: String
+        filename: String,
+        topic: String
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 advertising.set('toJSON', {
