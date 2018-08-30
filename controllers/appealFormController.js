@@ -1,5 +1,6 @@
 const appealFormModel = require('../modules/appealForm').appealFormModel;
 const picController = require('../controllers/picController');
+const isEmpty = require('../config/tools').isEmpty;
 //const logger = require('../logging/logger');
 const uuidv1 = require('uuid/v1');
 exports.addAppealForm = (req, res) => {
@@ -62,14 +63,7 @@ exports.setResponseAppealForm = (req, res) => {
     )
 };
 
-let isEmpty = function (obj) {
-    if (obj == null) return true;
-    if (obj.constructor.name === "Array" || obj.constructor.name === "String") return obj.length === 0;
-    for (let key in obj) {
-        if (obj.hasOwnProperty(key) && isEmpty(obj[key])) return true;
-    }
-    return false;
-};
+
 exports.findAppealForm = (req, res) => {
 
     let command = {};

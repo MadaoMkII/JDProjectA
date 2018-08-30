@@ -2,6 +2,7 @@ const advertisingModel = require('../modules/advertising').advertisingModel;
 const picController = require('../controllers/picController');
 const uuidv1 = require('uuid/v1');
 
+
 exports.getAdvertising = (req, res) => {
     let searchCommand = {};
     if (req.body.advertisingID) {

@@ -6,7 +6,7 @@ const managerConfigs = new mongoose.Schema(
         RcoinRate: [{beginAmount: Number, detailRate: Number}],
         PaymentPlatformRate: [{beginAmount: Number, detailRate: Number}],
         aliPayAccounts: [String],
-        threshold: {platformRcoin: Number, alipay: Number, wechat: Number},
+        threshold: {platform: Number, alipay: Number, wechat: Number},
         feeRate: Number,
         L1_Issue: [{type: mongoose.Schema.Types.Mixed}],
         L2_Issue: [{type: mongoose.Schema.Types.Mixed}],
