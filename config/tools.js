@@ -1,4 +1,4 @@
-exports.isEmpty = (obj) => {
+let isEmpty = (obj) => {
     if (obj == null) return true;
     if (obj.constructor.name === "Array" || obj.constructor.name === "String") return obj.length === 0;
     for (let key in obj) {
@@ -22,3 +22,4 @@ exports.compare = (pro) => {
     }
 };
 
+exports.isEmpty = isEmpty;
