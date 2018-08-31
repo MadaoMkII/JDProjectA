@@ -1,17 +1,18 @@
+
 const mongoose = require('../db/db').mongoose;
 
-
-const advertising = new mongoose.Schema(
+const announcement = new mongoose.Schema(
     {
         L1_category: String,
         L2_category: String,
         advertisingID: {type: String, required: true, unique: true},
         referer: {type: String, required: true},
         link: {type: String, required: true, unique: true},
-        filename: String
+        filename: String,
+        topic: String
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
-advertising.set('toJSON', {
+announcement.set('toJSON', {
         virtuals: true,
         transform: function (doc, ret) {
             delete ret.uuid;

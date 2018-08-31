@@ -1,14 +1,27 @@
 const advertisingModel = require('../modules/advertising').advertisingModel;
 const picController = require('../controllers/picController');
 const uuidv1 = require('uuid/v1');
+const isEmpty = require('../config/tools').isEmpty;
 
-
-exports.getAdvertising = (req, res) => {
+exports.findAdvertising = (req, res) => {
     let searchCommand = {};
-    if (req.body.advertisingID) {
+    if (!isEmpty(req.body.advertisingID)) {
 
         searchCommand.advertisingID = req.body.advertisingID;
     }
+    if (!isEmpty(req.body.L1_category)) {
+
+        searchCommand.L1_category = req.body.L1_category;
+    }
+    if (!isEmpty(req.body.L2_category)) {
+
+        searchCommand.L2_category = req.body.L2_category;
+    }
+    if (!isEmpty(req.body.referer)) {
+
+        searchCommand.referer = req.body.referer;
+    }
+
     advertisingModel.find(searchCommand, (err, data) => {
         if (err) {
             return res.json({error_msg: `400`, error_code: "advertising Error"});

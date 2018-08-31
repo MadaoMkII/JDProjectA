@@ -101,7 +101,7 @@ app.post('/findAppealForm', appealFormController.findAppealForm);
 app.post('/setResponseAppealForm', appealFormController.setResponseAppealForm);
 
 app.post('/addAdvertising', advertisingController.addAdvertising);
-app.get('/getAdvertising', advertisingController.getAdvertising);
+app.post('/findAdvertising', advertisingController.findAdvertising);
 app.post('/delAdvertising', advertisingController.delAdvertising);
 
 app.get('/index', picController.getImgs);
