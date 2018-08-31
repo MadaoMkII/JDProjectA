@@ -34,7 +34,6 @@ const redis = require("redis");
 
 exports.userSignUp = (req, res) => {
 
-    let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
     let uuid = uuidv1();
     let userInfo = {
         uuid: uuid,

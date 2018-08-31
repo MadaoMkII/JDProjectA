@@ -50,7 +50,6 @@ exports.setResponseAppealForm = (req, res) => {
                 isSolved: true
             }
         }, {new: true}, (err, data) => {
-
             if (err) {
                 return res.status(503).json({error_msg: `503`, error_code: "Error input"});
             }
@@ -129,7 +128,7 @@ exports.findAppealForm = (req, res) => {
                 if (req.body['page'] - 1 < 0) {
                     return res.status(400).send({error_code: 400, error_msg: 'Error page less than 1'});
                 }
-                let begin = (req.body['page']-1) * req.body['unit'],
+                let begin = (req.body['page'] - 1) * req.body['unit'],
                     end = req.body['page'] * req.body['unit'] >= results.length ?
                         results.length : (req.body['page']) * req.body['unit'];
                 afterRes = results.slice(begin, end);

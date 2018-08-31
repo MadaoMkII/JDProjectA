@@ -1,13 +1,12 @@
-
 const mongoose = require('../db/db').mongoose;
 
 const announcement = new mongoose.Schema(
     {
-        model: String,
+        model_name: String,
         announcementID: {type: String, required: true, unique: true},
         content: {type: String, required: true},
         link: {type: String, required: true, unique: true},
-        topic: String
+        announcementTopic: String
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 announcement.set('toJSON', {

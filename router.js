@@ -13,7 +13,7 @@ const advertisingController = require('./controllers/advertisingController');
 const rechargeController = require('./controllers/rechargeController');
 const appealFormController = require('./controllers/appealFormController');
 const manageSettingController = require('./controllers/manageSettingController');
-
+const announcementController = require('./controllers/annuouncementController');
 
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -89,7 +89,10 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-
+app.post('/addAnnouncement', announcementController.addAdvertising);
+app.post('/findAnnouncement', announcementController.findAnnouncement);
+app.post('/updateAnnouncement', announcementController.updateAnnouncement);
+app.post('/delAnnouncement', announcementController.delAnnouncement);
 
 app.post('/setConfig', manageSettingController.setSetting);
 app.get('/getAppealIssues', manageSettingController.getAppealTopics);
@@ -115,7 +118,7 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
         return res.status(200).json({
             success: true,
             message: 'Login successful! ' + 'Your role is : ' + req.user.role +
-            '  Your username is : ' + req.user.username
+                '  Your username is : ' + req.user.username
         });
     } else {
         return res.status(200).json({
@@ -167,10 +170,6 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (reason, p) => {
     console.error(reason, p);
 });
-
-
-
-
 
 
 console.log("Begin Server");

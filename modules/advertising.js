@@ -5,6 +5,7 @@ const advertising = new mongoose.Schema(
     {
         L1_category: String,
         L2_category: String,
+        item_name: String,
         advertisingID: {type: String, required: true, unique: true},
         referer: {type: String, required: true},
         link: {type: String, required: true, unique: true},
