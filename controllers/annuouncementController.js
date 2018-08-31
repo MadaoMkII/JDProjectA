@@ -10,6 +10,9 @@ exports.findAnnouncement = (req, res) => {
     if (!isEmpty(req.body.announcementID)) {
         searchCommand.announcementID = req.body.announcementID;
     }
+    if (!isEmpty(req.body.link)) {
+        searchCommand.link = req.body.link;
+    }
     if (!isEmpty(req.body.announcementTopic)) {
 
         searchCommand.announcementTopic = req.body.announcementTopic;
@@ -59,7 +62,6 @@ exports.addAdvertising = (req, res) => {
     announcementObject.announcementTopic = req.body.announcementTopic;
     announcementObject.announcementID = uuidv1();
 
-    console.log(announcementObject)
     announcementObject.save(err => {
         if (err) {
             console.log(err)
