@@ -3,12 +3,10 @@ const mongoose = require('../db/db').mongoose;
 
 const announcement = new mongoose.Schema(
     {
-        L1_category: String,
-        L2_category: String,
-        advertisingID: {type: String, required: true, unique: true},
-        referer: {type: String, required: true},
+        model: String,
+        announcementID: {type: String, required: true, unique: true},
+        content: {type: String, required: true},
         link: {type: String, required: true, unique: true},
-        filename: String,
         topic: String
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
@@ -30,5 +28,5 @@ announcement.set('toJSON', {
         }
     }
 );
-let advertisingModel = mongoose.model('advertising', advertising);
-exports.advertisingModel = advertisingModel;
+let announcementModel = mongoose.model('announcement', announcement);
+exports.announcementModel = announcementModel;
