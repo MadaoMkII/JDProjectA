@@ -6,35 +6,35 @@ exports.setSetting = async (req, res) => {
 
     let billResult = await findCurrentSetting();
     let managerConfigsObject = new managerConfigsModel();
-    managerConfigsObject.RcoinRate = !isEmpty(req.body.RcoinRate) ? req.body.RcoinRate : billResult.RcoinRate;
-    managerConfigsObject.RcoinRate.sort(compare('beginAmount'));
+    // managerConfigsObject.RcoinRate = !isEmpty(req.body.RcoinRate) ? req.body.RcoinRate : billResult.RcoinRate;
+    // managerConfigsObject.RcoinRate.sort(compare('beginAmount'));
 
 
     managerConfigsObject.PaymentPlatformRate = !isEmpty(req.body.PaymentPlatformRate) ?
         req.body.PaymentPlatformRate : billResult.PaymentPlatformRate;
     managerConfigsObject.PaymentPlatformRate.sort(compare('beginAmount'));
 
-    managerConfigsObject.aliPayAccounts = !isEmpty(req.body.aliPayAccounts) ? req.body.aliPayAccounts : billResult.aliPayAccounts;
-    if (!isEmpty(req.body.threshold)) {
-        managerConfigsObject.threshold.platform = !isEmpty(req.body.threshold.platform) ?
-            req.body.threshold.platform : billResult.threshold.platform;
-        managerConfigsObject.threshold.alipay = !isEmpty(req.body.threshold.alipay) ?
-            req.body.threshold.alipay : billResult.threshold.alipay;
-        managerConfigsObject.threshold.wechat = !isEmpty(req.body.threshold.wechat) ?
-            req.body.threshold.wechat : billResult.threshold.wechat;
-    } else {
-
-        managerConfigsObject.threshold.platform = billResult.threshold.platform;
-        managerConfigsObject.threshold.alipay = billResult.threshold.alipay;
-        managerConfigsObject.threshold.wechat = billResult.threshold.wechat;
-
-    }
-
-    managerConfigsObject.feeRate = !isEmpty(req.body.feeRate) ? req.body.feeRate : billResult.feeRate;
-    managerConfigsObject.L1_Issue = !isEmpty(req.body.L1_Issue) ? req.body.L1_Issue : billResult.L1_Issue;
-    managerConfigsObject.L2_Issue = !isEmpty(req.body.L2_Issue) ? req.body.L2_Issue : billResult.L2_Issue;
-    managerConfigsObject.L3_Issue = !isEmpty(req.body.L3_Issue) ? req.body.L3_Issue : billResult.L3_Issue;
-
+    // managerConfigsObject.aliPayAccounts = !isEmpty(req.body.aliPayAccounts) ? req.body.aliPayAccounts : billResult.aliPayAccounts;
+    // if (!isEmpty(req.body.threshold)) {
+    //     managerConfigsObject.threshold.platform = !isEmpty(req.body.threshold.platform) ?
+    //         req.body.threshold.platform : billResult.threshold.platform;
+    //     managerConfigsObject.threshold.alipay = !isEmpty(req.body.threshold.alipay) ?
+    //         req.body.threshold.alipay : billResult.threshold.alipay;
+    //     managerConfigsObject.threshold.wechat = !isEmpty(req.body.threshold.wechat) ?
+    //         req.body.threshold.wechat : billResult.threshold.wechat;
+    // } else {
+    //
+    //     managerConfigsObject.threshold.platform = billResult.threshold.platform;
+    //     managerConfigsObject.threshold.alipay = billResult.threshold.alipay;
+    //     managerConfigsObject.threshold.wechat = billResult.threshold.wechat;
+    //
+    // }
+    //
+    // managerConfigsObject.feeRate = !isEmpty(req.body.feeRate) ? req.body.feeRate : billResult.feeRate;
+    // managerConfigsObject.L1_Issue = !isEmpty(req.body.L1_Issue) ? req.body.L1_Issue : billResult.L1_Issue;
+    // managerConfigsObject.L2_Issue = !isEmpty(req.body.L2_Issue) ? req.body.L2_Issue : billResult.L2_Issue;
+    // managerConfigsObject.L3_Issue = !isEmpty(req.body.L3_Issue) ? req.body.L3_Issue : billResult.L3_Issue;
+    console.log(managerConfigsObject)
     //console.log("\033[40;32m" + managerConfigsObject)
     managerConfigsObject.save((err) => {
 

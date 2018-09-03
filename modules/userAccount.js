@@ -1,6 +1,19 @@
 const mongoose = require('../db/db').mongoose;
 const tool = require('../config/tools');
+const vipCoculart = (points) => {
+    let vipLevel = `VIP0`;
+    let vipArray = [22, 25, 40, 70, 130, 180, 260, 340, 460, 560];
+    for (let index = 0; index < vipArray.length; index++) {
+        if (points >= vipArray[index]) {
+            vipLevel = `VIP${index + 1}`;
+            if (index === vipArray.length-1) {
+                vipLevel = `SVIP`
+            }
+        }
+    }
 
+    return vipLevel;
+};
 
 const aliPayAccount = new mongoose.Schema(
     {
@@ -48,15 +61,19 @@ let userAccountSchema = new mongoose.Schema({
     isCStoreOpened: {type: Boolean, default: false},
     Rcoins: {type: String, required: true, set: tool.encrypt, get: tool.decrypt},
     returnCoins: {type: Number, default: 0},
-    growthPoints: {type: Number, default: 0},
+    growthPoints: {type: Number, default: 460},
     numberOfReferrers: {type: Number, default: 0},
     aliPayAccounts: [aliPayAccount],
     bankAccounts: [bankAccount],
     wechatAccounts: [wechatAccount],
-    myBills: [{type: mongoose.Schema.Types.ObjectId, ref: 'billStatement'}],
-    VIPLevel: {type: Number, default: 0},
+    // myBills: [{type: mongoose.Schema.Types.ObjectId, ref: 'billStatement'}],
     last_login_time: Date
 }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
+
+userAccountSchema.virtual('VIPLevel').get(function () {
+    return vipCoculart(this.growthPoints);
+});
+
 
 userAccountSchema.set('toJSON', {
     virtuals: true,
@@ -64,7 +81,7 @@ userAccountSchema.set('toJSON', {
         delete ret.__v;
         delete ret._id;
         delete ret.id;
-        ret.Rcoins=doc.Rcoins;
+        ret.Rcoins = doc.Rcoins;
         if (doc.created_at && doc.updated_at) {
             ret.created_at = new Date(doc.created_at).getTime();
             ret.updated_at = new Date(doc.updated_at).getTime();
@@ -72,15 +89,15 @@ userAccountSchema.set('toJSON', {
         if (doc.last_login_time) {
             ret.last_login_time = new Date(doc.last_login_time).getTime();
         }
-    },
+    }
 });
 
 
 userAccountSchema.set('toObject', {
-
-    transform: function (doc, ret) {
-        ret.Rcoins = tool.decrypt(doc.Rcoins);
-    }
+    virtuals: true
+    // transform: function (doc, ret) {
+    //     ret.Rcoins = tool.decrypt(doc.Rcoins);
+    // }
 });
 
 let userAccountModel = mongoose.model('userAccount', userAccountSchema);

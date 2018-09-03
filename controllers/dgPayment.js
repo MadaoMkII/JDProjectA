@@ -4,23 +4,72 @@ const userModel = require('../modules/userAccount').userAccountModel;
 const manageSettingController = require('../controllers/manageSettingController');
 const tool = require('../config/tools');
 
+exports.addDGByALIBill = async (req, res) => {
 
+    try {
+
+        if (req.user.Rcoins < req.body.itemInfo.itemPrice) {
+            return res.status(200).send({error_code: 513, error_msg: '要不起'});
+        }
+        const managerConfig = await manageSettingController.findCurrentSetting();
+
+
+        let rateObject = {};
+        for (let rateInfoEntity of managerConfig.PaymentPlatformRate) {
+
+            if (rateInfoEntity.vipLevel === req.user[`VIPLevel`]) {
+                rateObject = rateInfoEntity;
+            }
+
+        }
+
+        let rate;
+        for (let rateEntity of  rateObject.rateInfo) {
+
+            if (req.body.RMBAmount >= rateEntity.beginAmount) {
+                rate = rateEntity.detailRate;
+            }
+
+        }
+        console.log(rate)
+        let billObject = new dgBillModel();
+        billObject.typeStr = '支付宝代购';
+        billObject.billID = 'ALDG' + (Math.random() * Date.now() * 10).toFixed(0);
+        billObject.RMBAmount = req.body.RMBAmount;
+        billObject.userUUid = req.user.uuid;
+        billObject.expireDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
+        billObject.comment = req.body.comment;
+        billObject.NtdAmount = req.body.RMBAmount * rate;
+        billObject.rate = rate;
+        billObject.paymentInfo = {};
+        billObject.paymentInfo.paymentMethod = 'Alipay';
+        billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
+        billObject.itemInfo = {};
+        billObject.itemInfo.itemName = req.body.itemInfo.itemName;
+        billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
+        billObject.fee = managerConfig.feeRate * req.body.RMBAmount * rate;
+        //await billObject.save();
+
+        return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
+    }
+    catch (e) {
+        console.log(e)
+        return res.status(513).send({error_code: 513, error_msg: e});
+    }
+};
 exports.addDGBill = async (req, res) => {
 
     try {
-        let uproce = tool.encrypt(`` + 1000);
 
-       let user= await userModel.findOneAndUpdate({uuid: req.user.uuid}, {$set: {Rcoins: uproce}}, {new: true});
 
-        console.log(user.Rcoins)
-        if (req.user.Rcoins < req.body.itemInfo.itemPrice) {
+        if (!req.user.Rcoins || !req.body.itemInfo.itemPrice ||
+            Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.itemInfo.itemPrice) < 0) {
             return res.status(200).send({error_code: 513, error_msg: '要不起'});
         }
         const managerConfig = await manageSettingController.findCurrentSetting();
         let billObject = new dgBillModel();
         billObject.typeStr = '淘宝代付';
         billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
-        billObject.RMBAmount = req.body.RMBAmount;
         //billObject.userUUid = req.user.uuid;
         billObject.expireDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
         billObject.comment = req.body.comment;
@@ -33,6 +82,9 @@ exports.addDGBill = async (req, res) => {
 
         billObject.fee = managerConfig.feeRate * req.body.RMBAmount;
         //await billObject.save();
+        let recentRcoins = Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.itemInfo.itemPrice);
+        await userModel.findOneAndUpdate({uuid: req.user.uuid},
+            {$set: {Rcoins: tool.encrypt(`` + recentRcoins)}}, {new: true});
 
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }

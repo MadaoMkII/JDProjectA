@@ -3,8 +3,8 @@ const mongoose = require('../db/db').mongoose;
 
 const managerConfigs = new mongoose.Schema(
     {
-        RcoinRate: [{beginAmount: Number, detailRate: Number}],
-        PaymentPlatformRate: [{beginAmount: Number, detailRate: Number}],
+        RcoinRate: [{rateInfo: [{beginAmount: Number, detailRate: Number}], vipLevel: String}],
+        PaymentPlatformRate: [{rateInfo: [{beginAmount: Number, detailRate: Number}], vipLevel: String}],
         aliPayAccounts: [String],
         threshold: {platform: Number, alipay: Number, wechat: Number},
         feeRate: Number,

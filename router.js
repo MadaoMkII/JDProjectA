@@ -90,7 +90,7 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 app.post('/dgPayment',isAuthenticated('User'), dgPayment.addDGBill);
-
+app.post('/addDGByALIBill',isAuthenticated('User'), dgPayment.addDGByALIBill);
 
 app.post('/addAnnouncement', announcementController.addAdvertising);
 app.post('/findAnnouncement', announcementController.findAnnouncement);

@@ -2,7 +2,7 @@ const mongoose = require('../db/db').mongoose;
 const processOrder = new mongoose.Schema(
     {
 
-        billCustomID: {type: String, required: true },
+        billCustomID: {type: String, required: true},
         amount: Number,
         usedAccount: String,
         comment: String,
@@ -54,7 +54,6 @@ processOrder.set('toObject', {
 // });
 
 
-
 const dgBillSchema = new mongoose.Schema(
     {
         typeStr: {type: String},
@@ -72,8 +71,9 @@ const dgBillSchema = new mongoose.Schema(
         NtdAmount: {type: Number, required: true},		//应付台币
         dealDate: {type: Date, required: true},	//完成时间
         RMBAmount: {type: Number, required: true},
-        rate: {type: Number, default: 4.38},
+        rate: {type: Number},
         fee: {type: Number},
+        chargeInfo: {chargeMethod: String, chargeAccount: String, toOurAccount: String},
         paymentInfo: {
             paymentMethod: String,//Rcoin ,alipay
             paymentDFAccount: String, //alipay only
@@ -81,8 +81,7 @@ const dgBillSchema = new mongoose.Schema(
         itemInfo:
             {
                 itemName: String,
-                itemLink: String,
-                itemPrice: Number
+                itemLink: String
             },
         expireDate: Date,
         comment: String,
