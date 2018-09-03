@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 let isEmpty = (obj) => {
     if (obj == null) return true;
     if (obj.constructor.name === "Array" || obj.constructor.name === "String") return obj.length === 0;
@@ -21,5 +23,19 @@ exports.compare = (pro) => {
         }
     }
 };
+//加密
+exports.encrypt = (str) => {
+    let cipher = crypto.createCipher('aes192', "tempSecretKey");
+    let enc = cipher.update(str, 'utf8', 'hex');
+    enc += cipher.final('hex');
+    return enc;
+};
 
+//解密
+exports.decrypt = (str) => {
+    let decipher = crypto.createDecipher('aes192', "tempSecretKey");
+    let dec = decipher.update(str, 'hex', 'utf8');
+    dec += decipher.final('utf8');
+    return dec;
+};
 exports.isEmpty = isEmpty;

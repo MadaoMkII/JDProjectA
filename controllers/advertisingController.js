@@ -72,8 +72,6 @@ exports.delAdvertising = (req, res) => {
                 } else {
                     return res.json({error_msg: `OK`, error_code: "0"});
                 }
-
-
             })
         }
     )

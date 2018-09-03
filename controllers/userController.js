@@ -33,13 +33,13 @@ const redis = require("redis");
 // };
 
 exports.userSignUp = (req, res) => {
-
+    let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
     let uuid = uuidv1();
     let userInfo = {
         uuid: uuid,
         password: result,
         role: 'User',
-        Rcoins: 0,
+        Rcoins: '0',
         tel_number: req.body.tel_number,
         email_address: req.body.email
     };
@@ -61,7 +61,11 @@ exports.userSignUp = (req, res) => {
                             message: 'Duplication tel_number. The tel_number is : ' + userInfo.tel_number
                         });
                     } else {
-                        return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
+                        return res.status(409).json({
+                            success: false,
+                            message: 'Error happen when adding to DB',
+                            data: err
+                        });
                     }
                 }
                 return res.status(200).json({

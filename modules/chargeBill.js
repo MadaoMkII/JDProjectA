@@ -29,7 +29,8 @@ const chargeBillSchema = new mongoose.Schema(
         chargeInfo: {
             chargeMethod: {type: String},
             chargeFromAccount: {type: mongoose.Schema.Types.Object}
-        }//alipay wechat Rcoin
+        },//alipay wechat Rcoin,
+        order_processing: {type: mongoose.Schema.Types.ObjectId, ref: 'processOrder'}
     }, {
         'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}
     }

@@ -53,7 +53,7 @@ exports.getImgs = (req, res) => {
     });
 };
 
-exports.uploadImgArray = (req, res, callback) => {
+exports.uploadImgArray = async (req, res, callback) => {
 
     uploadArray(req, res, (err) => {
 
@@ -65,7 +65,7 @@ exports.uploadImgArray = (req, res, callback) => {
             });
 
         } else {
-            callback();
+           return callback();
         }
 
     });

@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
-const thirdPayment = require('./controllers/thirdPayment');
+
 const mailController = require('./controllers/mailController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
@@ -14,7 +14,7 @@ const rechargeController = require('./controllers/rechargeController');
 const appealFormController = require('./controllers/appealFormController');
 const manageSettingController = require('./controllers/manageSettingController');
 const announcementController = require('./controllers/annuouncementController');
-
+const dgPayment = require('./controllers/dgPayment');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 
@@ -89,6 +89,9 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+app.post('/dgPayment',isAuthenticated('User'), dgPayment.addDGBill);
+
+
 app.post('/addAnnouncement', announcementController.addAdvertising);
 app.post('/findAnnouncement', announcementController.findAnnouncement);
 app.post('/updateAnnouncement', announcementController.updateAnnouncement);
@@ -117,8 +120,7 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
     if (req.user) {
         return res.status(200).json({
             success: true,
-            message: 'Login successful! ' + 'Your role is : ' + req.user.role +
-                '  Your username is : ' + req.user.username
+            message: req.user
         });
     } else {
         return res.status(200).json({
@@ -148,12 +150,6 @@ app.post('/user/addReferenceAccount', isAuthenticated('User'), userController.ad
 app.post('/user/updateReferenceAccount', isAuthenticated('User'), userController.updateReferenceAccount);
 
 
-app.delete('/bill/delBill', isAuthenticated('User'), billStatement.deleteBills);
-app.post('/bill/getBills', isAuthenticated('User'), thirdPayment.getBills);
-
-
-app.post('/bill/addCZBill', thirdPayment.addCZBill);
-app.post('/bill/createTBBill', isAuthenticated('User'), thirdPayment.addTBDFBill);
 
 app.post('/signup', userController.userSignUp);
 
