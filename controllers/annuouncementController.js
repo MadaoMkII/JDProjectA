@@ -17,8 +17,16 @@ exports.findAnnouncement = (req, res) => {
 
         searchCommand.announcementTopic = req.body.announcementTopic;
     }
+    let operator = {};
+    if (isEmpty(req.body['page']) && !isEmpty(req.body['unit'])) {
+        operator.skip = parseInt(req.body['page']) * parseInt(req.body['unit']);
+        operator.limit = parseInt(req.body['unit']);
+    }
 
-    announcementModel.find(searchCommand, (err, data) => {
+    announcementModel.find(searchCommand, {
+        __v: 0,
+        _id: 0
+    }, operator, (err, data) => {
         if (err) {
             return res.json({error_msg: `400`, error_code: "advertising Error"});
         } else {
