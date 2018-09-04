@@ -2,7 +2,7 @@ const announcementModel = require('../modules/announcement').announcementModel;
 const uuidv1 = require('uuid/v1');
 const isEmpty = require('../config/tools').isEmpty;
 
-exports.findAnnouncement = (req, res) => {
+exports.findAnnouncement = async (req, res) => {
     let searchCommand = {};
     if (!isEmpty(req.body.model_name)) {
         searchCommand.model_name = req.body.model_name;
@@ -19,18 +19,19 @@ exports.findAnnouncement = (req, res) => {
     }
     let operator = {};
     if (isEmpty(req.body['page']) && !isEmpty(req.body['unit'])) {
-        operator.skip = parseInt(req.body['page']) * parseInt(req.body['unit']);
+        operator.skip = (parseInt(req.body['page']) - 1) * parseInt(req.body['unit']);
         operator.limit = parseInt(req.body['unit']);
     }
 
     announcementModel.find(searchCommand, {
         __v: 0,
         _id: 0
-    }, operator, (err, data) => {
+    }, operator, async (err, data) => {
         if (err) {
             return res.json({error_msg: `400`, error_code: "advertising Error"});
         } else {
-            return res.json({error_msg: `OK`, error_code: "0", data: data});
+            let billCount = await announcementModel.count(searchCommand);
+            return res.json({error_msg: `OK`, error_code: "0", data: data, nofdata: billCount});
         }
     })
 
@@ -61,7 +62,7 @@ exports.updateAnnouncement = (req, res) => {
     })
 };
 
-exports.addAdvertising = (req, res) => {
+exports.addAnnouncement = (req, res) => {
 
     let announcementObject = new announcementModel();
     announcementObject.model_name = req.body.model_name;
