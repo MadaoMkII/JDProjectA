@@ -1,8 +1,12 @@
 const mongoose = require('../db/db').mongoose;
 
-
+const rateInfo = new mongoose.Schema({
+        beginAmount: Number,
+        detailRate: Number
+    }, {_id: false}
+);
 const rateModel = new mongoose.Schema({
-        rateInfo: [{beginAmount: Number, detailRate: Number}],
+        rateInfo: [rateInfo],
         vipLevel: String
     }, {_id: false}
 );
