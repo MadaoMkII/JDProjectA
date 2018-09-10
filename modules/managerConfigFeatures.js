@@ -14,7 +14,7 @@ const rateModel = new mongoose.Schema({
 const managerConfigs = new mongoose.Schema(
     {
         RcoinRate: [rateModel],
-        PaymentPlatformRate: [rateModel],
+        AlipayAndWechatRate: [rateModel],
         aliPayAccounts: [String],
         threshold: {platform: Number, alipay: Number, wechat: Number},
         feeRate: Number,

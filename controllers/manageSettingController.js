@@ -10,9 +10,9 @@ exports.setSetting = async (req, res) => {
     managerConfigsObject.RcoinRate.sort(compare('beginAmount'));
 
 
-    managerConfigsObject.PaymentPlatformRate = !isEmpty(req.body.PaymentPlatformRate) ?
-        req.body.PaymentPlatformRate : billResult.PaymentPlatformRate;
-    managerConfigsObject.PaymentPlatformRate.sort(compare('beginAmount'));
+    managerConfigsObject.AlipayAndWechatRate = !isEmpty(req.body.AlipayAndWechatRate) ?
+        req.body.AlipayAndWechatRate : billResult.AlipayAndWechatRate;
+    managerConfigsObject.AlipayAndWechatRate.sort(compare('beginAmount'));
 
     managerConfigsObject.aliPayAccounts = !isEmpty(req.body.aliPayAccounts) ? req.body.aliPayAccounts : billResult.aliPayAccounts;
     if (!isEmpty(req.body.threshold)) {

@@ -13,7 +13,7 @@ let getRate = (req, res) => {
             let rateObject = {};
 
             let rateType = req.body[`rateType`];
-            if (rateType !== `RcoinRate` && rateType !== `PaymentPlatformRate`) {
+            if (rateType !== `RcoinRate` && rateType !== `AlipayAndWechatRate`) {
                 return res.status(403).send({error_code: 403, error_msg: `rateType wrong input`});
             }
             for (let rateInfoEntity of managerConfig[rateType]) {
@@ -23,6 +23,7 @@ let getRate = (req, res) => {
                 }
             }
             let rate;
+
             for (let rateEntity of  rateObject.rateInfo) {
                 if (req.body.RMBAmount >= rateEntity.beginAmount) {
                     rate = rateEntity.detailRate;
@@ -31,6 +32,7 @@ let getRate = (req, res) => {
             resolve(rate);
 
         } catch (err) {
+            console.log(err)
             reject(err);
         }
     });
@@ -41,6 +43,7 @@ exports.getThisUserRcoinRate = async (req, res) => {
 
         return res.status(200).send({error_code: 0, error_msg: "OK", data: {rate: rate}});
     } catch (e) {
+        console.log(e)
         return res.status(513).send({error_code: 513, error_msg: e});
     }
 
