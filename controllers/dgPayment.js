@@ -50,30 +50,24 @@ exports.getThisUserRcoinRate = async (req, res) => {
 exports.addDGByALIBill = async (req, res) => {
 
     try {
-
-        if (req.user.Rcoins < req.body.RMBAmount) {
-            return res.status(200).send({error_code: 513, error_msg: '要不起'});
-        }
+        let billObject = new dgBillModel();
         const managerConfig = await manageSettingController.findCurrentSetting();
 
-        let rateObject = {};
-        for (let rateInfoEntity of managerConfig.PaymentPlatformRate) {
-
-            if (rateInfoEntity.vipLevel === req.user[`VIPLevel`]) {
-                rateObject = rateInfoEntity;
-            }
+        if (!req.user.Rcoins || !req.body.RMBAmount ||
+            Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.RMBAmount) < 0) {
+            return res.status(200).send({error_code: 513, error_msg: '要不起'});
         }
-        let rate;
-        for (let rateEntity of  rateObject.rateInfo) {
-            if (req.body.RMBAmount >= rateEntity.beginAmount) {
-                rate = rateEntity.detailRate;
-            }
-
+        if (req.body.typeStr === `支付宝代付`) {
+            billObject.isVirtualItem = req.body.isVirtualItem;
+            billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
+            billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
+        } else if (req.body.typeStr === `支付宝代购`) {
+            billObject.isVirtualItem = null;
+            billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
+        } else {
+            return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }
-
-        let billObject = new dgBillModel();
-        billObject.typeStr = '支付宝代付';
-        billObject.billID = 'ALDF' + (Math.random() * Date.now() * 10).toFixed(0);
+        let rate = await getRate(req, res);
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
@@ -85,7 +79,7 @@ exports.addDGByALIBill = async (req, res) => {
         billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
         billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
         billObject.itemInfo = {};
-        billObject.itemInfo.itemName = req.body.itemInfo.itemName;
+        //billObject.itemInfo.itemName = req.body.itemInfo.itemName;
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
         billObject.fee = managerConfig.feeRate * req.body.RMBAmount * rate;
         await billObject.save();
@@ -117,22 +111,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         }
         const managerConfig = await manageSettingController.findCurrentSetting();
 
-        let rateObject = {};
-
-        for (let rateInfoEntity of managerConfig.RcoinRate) {
-
-            if (rateInfoEntity.vipLevel === req.user[`VIPLevel`]) {
-                rateObject = rateInfoEntity;
-            }
-        }
-
-        let rate;
-        for (let rateEntity of  rateObject.rateInfo) {
-            if (req.body.RMBAmount >= rateEntity.beginAmount) {
-                rate = rateEntity.detailRate;
-            }
-
-        }
+        let rate = await getRate(req, res);
 
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;

@@ -1,10 +1,16 @@
 const mongoose = require('../db/db').mongoose;
 
 
+const rateModel = new mongoose.Schema({
+        rateInfo: [{beginAmount: Number, detailRate: Number}],
+        vipLevel: String
+    }, {_id: false}
+);
+
 const managerConfigs = new mongoose.Schema(
     {
-        RcoinRate: [{rateInfo: [{beginAmount: Number, detailRate: Number}], vipLevel: String}],
-        PaymentPlatformRate: [{rateInfo: [{beginAmount: Number, detailRate: Number}], vipLevel: String}],
+        RcoinRate: [rateModel],
+        PaymentPlatformRate: [rateModel],
         aliPayAccounts: [String],
         threshold: {platform: Number, alipay: Number, wechat: Number},
         feeRate: Number,

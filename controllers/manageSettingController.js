@@ -30,12 +30,12 @@ exports.setSetting = async (req, res) => {
 
     }
 
-    managerConfigsObject.models =  !isEmpty(req.body.models) ? req.body.models : billResult.models;
+    managerConfigsObject.models = !isEmpty(req.body.models) ? req.body.models : billResult.models;
     managerConfigsObject.feeRate = !isEmpty(req.body.feeRate) ? req.body.feeRate : billResult.feeRate;
     managerConfigsObject.L1_Issue = !isEmpty(req.body.L1_Issue) ? req.body.L1_Issue : billResult.L1_Issue;
     managerConfigsObject.L2_Issue = !isEmpty(req.body.L2_Issue) ? req.body.L2_Issue : billResult.L2_Issue;
     // managerConfigsObject.L3_Issue = !isEmpty(req.body.L3_Issue) ? req.body.L3_Issue : billResult.L3_Issue;
-    console.log(managerConfigsObject)
+
     //console.log("\033[40;32m" + managerConfigsObject)
     managerConfigsObject.save((err) => {
 
@@ -53,38 +53,55 @@ exports.setSetting = async (req, res) => {
 exports.setModel = async (req, res) => {
 
     let modelsArray = req.body.models;
-    managerConfigsModel.findOneAndUpdate({},{ sort: {created_at: 1}},{update: {$set: {models: modelsArray}}
+    managerConfigsModel.findOneAndUpdate({}, {sort: {created_at: 1}}, {
+        update: {$set: {models: modelsArray}}
 
     }, (err) => {
-        console.log(err)
-        return res.status(200).send({error_code: 0, error_msg: 'NO', data: ``});
+
+        return res.status(200).send({error_code: 0, error_msg: 'NO', data: err});
     });
 
 };
 
 const findCurrentSetting = async () => {
-    let operator = {sort: {created_at: -1}, limit: 1};
-    let billResult;
-    billResult = await managerConfigsModel.findOne(null, {
-        __v: 0,
-        _id: 0
-    }, operator);
 
-    return billResult;
-};
-
-exports.getSetting = async (req, res) => {
     try {
-        let result = await findCurrentSetting();
-        return res.status(200).send({error_code: 0, error_msg: 'NO', data: result});
-    } catch (err) {
-        console.log(err);
-        return res.status(400).send({error_code: 400, error_msg: 'NO'});
+        let operator = {sort: {created_at: -1}, limit: 1};
+        let billResult;
+        billResult = await managerConfigsModel.findOne(null, {
+            __v: 0,
+            _id: 0
+        }, operator);
+
+        return billResult;
+    } catch (e) {
 
     }
 
+};
+
+exports.getSetting = async (req, res) => {
+
+    try {
+        let resResult = {};
+        let result = await findCurrentSetting();
+        if (!isEmpty(req.body[`conditions`])) {
+            for (let condition of req.body[`conditions`]) {
+
+                resResult[condition] = result[condition];
+            }
+        } else {
+            resResult = result;
+        }
+        return res.status(200).send({error_code: 0, error_msg: 'NO', data: resResult});
+    }
+    catch (err) {
+        console.log(err);
+        return res.status(400).send({error_code: 400, error_msg: 'NO'});
+    }
 
 };
+
 exports.getAppealTopics = async (req, res) => {
     try {
         let result = await findCurrentSetting();

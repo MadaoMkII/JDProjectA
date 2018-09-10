@@ -93,6 +93,7 @@ app.post('/getThisUserRate',isAuthenticated('User'), dgPayment.getThisUserRcoinR
 app.post('/setR', manageSettingController.setModel);
 app.post('/addProcessOrder', processOrderController.addProcessOrder);
 
+
 app.post('/addDGRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
 app.post('/addDGByALIBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
 
