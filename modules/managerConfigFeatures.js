@@ -10,7 +10,8 @@ const managerConfigs = new mongoose.Schema(
         feeRate: Number,
         L1_Issue: [{type: mongoose.Schema.Types.Mixed}],
         L2_Issue: [{type: mongoose.Schema.Types.Mixed}],
-        L3_Issue: [{type: mongoose.Schema.Types.Mixed}]
+        L3_Issue: [{type: mongoose.Schema.Types.Mixed}],
+        models: [String]
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 

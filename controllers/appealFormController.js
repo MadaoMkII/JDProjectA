@@ -25,7 +25,7 @@ exports.addAppealForm = (req, res) => {
                 !appealFormObject.L2_Issue || !appealFormObject.L3_Issue || !appealFormObject.description) {
                 return res.status(203).json({
                     error_code: `203`,
-                    filenames: appealFormObject.imagesFilename,
+                    fileNames: appealFormObject.imagesFilename,
                     error_msg: "接口直接调用，无其它信息属性值输入"
                 });
             }

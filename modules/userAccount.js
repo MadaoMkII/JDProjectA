@@ -56,7 +56,7 @@ let userAccountSchema = new mongoose.Schema({
         unique: true
     },
     referrer: String,
-    nickName: {type: Boolean, default: '无名氏'},
+    nickName: {type: String, default: '无名氏'},
     isAuthenticated: {type: Boolean, default: false},
     isCStoreOpened: {type: Boolean, default: false},
     Rcoins: {type: String, required: true, set: tool.encrypt, get: tool.decrypt},

@@ -65,12 +65,23 @@ exports.uploadImgArray = async (req, res, callback) => {
             });
 
         } else {
-           return callback();
+            return callback();
         }
 
     });
 };
+exports.uploadImgAsyncArray = (req, res) => {
 
+    return new Promise((resolve, reject) => {
+        uploadArray(req, res, (err) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve([req, res]);
+            }
+        });
+    });
+};
 exports.deleteImpsForController = (req, res) => {
     let filename;
     if (req.params.filename) {

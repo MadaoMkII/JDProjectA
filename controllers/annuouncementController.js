@@ -54,7 +54,7 @@ exports.updateAnnouncement = (req, res) => {
         $set: searchCommand
     }, {new: true}, (err, data) => {
         if (err) {
-            console.log(err)
+
             return res.status(400).json({error_msg: `400`, error_code: "announcemen Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
@@ -73,7 +73,7 @@ exports.addAnnouncement = (req, res) => {
 
     announcementObject.save(err => {
         if (err) {
-            console.log(err)
+
             return res.status(400).json({error_msg: `400`, error_code: "announcemen Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0"});

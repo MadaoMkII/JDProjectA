@@ -121,9 +121,9 @@ exports.deleteOrderForm = (req, res) => {
                 logger.info(req.body);
                 logger.error('Error location : Class: orderformController, function: updateOrderForm. ' + err);
                 logger.error('Response code:406, message: Not Successed Saved');
-                return res.status(406).send({success: false, message: 'Not Successed Saved'});
+                return res.status(406).send({success: false, message: 'Not Succeeded Saved'});
             } else {
-                return res.status(200).send({success: true, message: 'Successed Updated'});
+                return res.status(200).send({success: true, message: 'Succeeded Updated'});
             }
         }
     );

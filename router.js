@@ -7,13 +7,13 @@ const mailController = require('./controllers/mailController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
 const massageChecker = require('./controllers/massageController');
-const billStatement = require('./controllers/billStatementController');
 const picController = require('./controllers/picController');
 const advertisingController = require('./controllers/advertisingController');
 const rechargeController = require('./controllers/rechargeController');
 const appealFormController = require('./controllers/appealFormController');
 const manageSettingController = require('./controllers/manageSettingController');
 const announcementController = require('./controllers/annuouncementController');
+const processOrderController = require('./controllers/processOrderController');
 const dgPayment = require('./controllers/dgPayment');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -89,7 +89,11 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-app.post('/dgPayment', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
+app.post('/getThisUserRate',isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
+app.post('/setR', manageSettingController.setModel);
+app.post('/addProcessOrder', processOrderController.addProcessOrder);
+
+app.post('/addDGRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
 app.post('/addDGByALIBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
 
 app.post('/addAnnouncement', announcementController.addAnnouncement);
@@ -97,9 +101,8 @@ app.post('/findAnnouncement', announcementController.findAnnouncement);
 app.post('/updateAnnouncement', announcementController.updateAnnouncement);
 app.post('/delAnnouncement', announcementController.delAnnouncement);
 
-app.post('/setConfig', manageSettingController.setSetting);
 app.get('/getAppealIssues', manageSettingController.getAppealTopics);
-
+app.get('/process', picController.getImgs);
 app.get('/appeal', picController.getImgs);
 app.get('/adv', picController.getImgs);
 app.post('/addAppealForm', appealFormController.addAppealForm);
