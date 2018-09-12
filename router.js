@@ -90,12 +90,13 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 app.post('/getThisUserRate',isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
-app.post('/setR', manageSettingController.setModel);
+
 app.post('/addProcessOrder', processOrderController.addProcessOrder);
+app.post('/addReplacePostageBill', isAuthenticated('User'), dgPayment.addReplacePostageBill);
+app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
 
-
-app.post('/addDGRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
-app.post('/addDGByALIBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
+app.post('/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
+app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
 
 app.post('/addAnnouncement', announcementController.addAnnouncement);
 app.post('/findAnnouncement', announcementController.findAnnouncement);

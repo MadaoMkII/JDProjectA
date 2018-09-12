@@ -3,16 +3,12 @@ const mongoose = require('../db/db').mongoose;
 const processOrder = new mongoose.Schema(
     {
         billID: {type:String, required: true},
-        // OrderCustomID: {type: String, required: true},
         comment: String,
         chargeDate: {type: Date, required: true},
         imageFilesNames: [{type: String}],
         chargeAmount: Number,
         accountWeUsed:String,
 
-        // replaceStatus: String,
-        // postageAmount: Number,
-        // replaceDate: Date
     }, {
         'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}
     }

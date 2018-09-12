@@ -1,8 +1,11 @@
 const dgBillModel = require('../modules/dgBill').dgBillModel;
+const replacePostageBillModel = require('../modules/dgBill').replacePostageBillModel;
 //const logger = require('../logging/logger');
 const userModel = require('../modules/userAccount').userAccountModel;
 const manageSettingController = require('../controllers/manageSettingController');
 const tool = require('../config/tools');
+
+
 let getRate = (req, res) => {
 
 
@@ -32,7 +35,7 @@ let getRate = (req, res) => {
             resolve(rate);
 
         } catch (err) {
-            console.log(err)
+
             reject(err);
         }
     });
@@ -43,7 +46,7 @@ exports.getThisUserRcoinRate = async (req, res) => {
 
         return res.status(200).send({error_code: 0, error_msg: "OK", data: {rate: rate}});
     } catch (e) {
-        console.log(e)
+
         return res.status(513).send({error_code: 513, error_msg: e});
     }
 
@@ -56,20 +59,18 @@ exports.addDGByALIBill = async (req, res) => {
         let billObject = new dgBillModel();
         const managerConfig = await manageSettingController.findCurrentSetting();
 
-        if (!req.user.Rcoins || !req.body.RMBAmount ||
-            Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.RMBAmount) < 0) {
-            return res.status(200).send({error_code: 513, error_msg: '要不起'});
-        }
-        if (req.body.typeStr === `支付宝代付`) {
+        if (req.body.typeStr === `其他支付方式代付`) {
             billObject.isVirtualItem = req.body.isVirtualItem;
+            billObject.paymentInfo.paymentMethod = 'Alipay';
             billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
+            billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
-        } else if (req.body.typeStr === `支付宝代购`) {
-            billObject.isVirtualItem = null;
+        } else if (req.body.typeStr === `其他支付方式代购`) {
             billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
         } else {
             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }
+        req.body.rateType = `AlipayAndWechatRate`;
         let rate = await getRate(req, res);
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
@@ -77,12 +78,17 @@ exports.addDGByALIBill = async (req, res) => {
         billObject.comment = req.body.comment;
         billObject.NtdAmount = req.body.RMBAmount * rate;
         billObject.rate = rate;
-        billObject.paymentInfo = {};
-        billObject.paymentInfo.paymentMethod = 'Alipay';
-        billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
-        billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
+
+        billObject.chargeInfo={};
+        billObject.chargeInfo.chargeMethod= req.body.chargeInfo.chargeMethod;
+        billObject.chargeInfo.chargeAccount= req.body.chargeInfo.chargeAccount;
+        billObject.chargeInfo.toOurAccount= req.body.chargeInfo.toOurAccount;
+        let userObject = {};
+        userObject.nickName = req.user.nickName;
+        userObject.Rcoins = req.user.Rcoins;
+        userObject.growthPoints = req.user.growthPoints;
+        billObject.userInfo = userObject;
         billObject.itemInfo = {};
-        //billObject.itemInfo.itemName = req.body.itemInfo.itemName;
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
         billObject.fee = managerConfig.feeRate * req.body.RMBAmount * rate;
         await billObject.save();
@@ -90,7 +96,7 @@ exports.addDGByALIBill = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (e) {
-
+console.log(e)
         return res.status(513).send({error_code: 513, error_msg: e});
     }
 };
@@ -104,16 +110,21 @@ exports.addDGRcoinsBill = async (req, res) => {
         }
         if (req.body.typeStr === `R币代付`) {
             billObject.isVirtualItem = req.body.isVirtualItem;
+            billObject.typeStr = req.body.typeStr;
+            billObject.paymentInfo.paymentMethod = 'Alipay';
             billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
+            billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
+
         } else if (req.body.typeStr === `R币代购`) {
             billObject.isVirtualItem = null;
             billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
+            billObject.typeStr = req.body.typeStr;
         } else {
             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }
         const managerConfig = await manageSettingController.findCurrentSetting();
-
+        req.body.rateType = `RcoinRate`;
         let rate = await getRate(req, res);
 
         billObject.RMBAmount = req.body.RMBAmount;
@@ -123,13 +134,13 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.NtdAmount = req.body.RMBAmount * rate;
         billObject.rate = rate;
 
-        billObject.paymentInfo.paymentMethod = 'Rcoin';
+        billObject.chargeInfo={};
+        billObject.chargeInfo.chargeMethod= `Rcoin`;
 
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
         billObject.fee = managerConfig.feeRate * req.body.RMBAmount;
         let userObject = {};
-        userObject.uuid = req.user.uuid;
         userObject.nickName = req.user.nickName;
         userObject.Rcoins = req.user.Rcoins;
         userObject.growthPoints = req.user.growthPoints;
@@ -184,20 +195,57 @@ exports.getBills = async (req, res) => {
 
 };
 
-// let searchPayBills = async (query) => {
-//
-//     try {
-//         let accounts = await payingBillModel.findOne({comment:'你大爷'},{'_id':0,updated_at:0});
-//
-//         console.log(accounts) ;
-//
-//         mongoose.disconnect();
-//     } catch (error) {
-//
-//         return {error}
-//
-//     }
-//
-//
-// };
-// searchPayBills(null).then();
+exports.addReplacePostageBill = async (req, res) => {
+
+    try {
+        let replacePostageBillEntity = new replacePostageBillModel();
+
+        for (let index in req.body) {
+            if (!tool.isEmpty(req.body[index])) {
+                replacePostageBillEntity[index] = req.body[index];
+            }
+        }
+        replacePostageBillEntity.chargeDate = new Date();
+        replacePostageBillEntity.status = 2;
+        let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID, userUUid: req.user.uuid},
+            {$set: {replacePostage: replacePostageBillEntity, payFreight: 1}}, {new: true}).populate(`processOrder`);
+        console.log(dgBillEntity);
+        if (!dgBillEntity) {
+            return res.status(200).json({error_msg: `OK, but nothing has been changed`, error_code: "0"});
+        }
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({error_msg: e, error_code: "500"});
+
+    }
+
+
+};
+exports.payReplacePostage = async (req, res) => {
+
+    try {
+        let replacePostageBillEntity = {};
+
+        for (let index in req.body) {
+            if (!tool.isEmpty(req.body[index])) {
+                replacePostageBillEntity[index] = req.body[index];
+            }
+        }
+        console.log(replacePostageBillEntity);
+        let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID, userUUid: req.user.uuid},
+            {$set: {"replacePostage.replacePostagePayment": replacePostageBillEntity}}, {new: true})
+            .populate(`processOrder`);
+
+        if (!dgBillEntity) {
+            return res.status(200).json({error_msg: `OK, but nothing has been changed`, error_code: "0"});
+        }
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({error_msg: e, error_code: "500"});
+
+    }
+
+
+};

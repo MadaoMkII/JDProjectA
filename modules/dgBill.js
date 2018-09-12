@@ -1,6 +1,42 @@
 const mongoose = require('../db/db').mongoose;
 
 
+const replacePostagePayment = new mongoose.Schema(
+    {
+        ourAccount: String,
+        userPaymentAccount: {type: String}
+    }, {_id: false}
+);
+
+const replacePostageBill = new mongoose.Schema(
+    {//1表示代付成功，0表示代付失败，2表示进行中
+        status: Number,
+        comment: String,
+        chargeDate: {type: Date, required: true},
+        postageAmount: {type: Number, required: true},
+        replaceDate: Date,
+        replacePostagePayment: {type: replacePostagePayment}
+    }, {_id: false}
+);
+
+replacePostageBill.set('toJSON', {
+        virtuals: true,
+        transform: function (doc, ret) {
+            delete ret.uuid;
+            delete ret._id;
+            delete ret.id;
+            delete ret.__v;
+            if (doc.replaceDate && doc.chargeDate) {
+                ret.replaceDate = new Date(doc.replaceDate).getTime();
+                ret.chargeDate = new Date(doc.chargeDate).getTime();
+            } else {
+                ret.chargeDate = new Date().getTime();
+                ret.replaceDate = new Date().getTime();
+            }
+        }
+    }
+);
+
 const dgBillSchema = new mongoose.Schema(
     {
         isVirtualItem: {type: Boolean, default: false},
@@ -34,7 +70,9 @@ const dgBillSchema = new mongoose.Schema(
             },
         comment: String,
         userInfo: {type: mongoose.Schema.Types.Object},
-        processOrder: {type: mongoose.Schema.Types.ObjectId, ref: 'processOrder'}
+        processOrder: {type: mongoose.Schema.Types.ObjectId, ref: 'processOrder'},
+        replacePostage: {type: replacePostageBill}
+
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
 
 
@@ -77,4 +115,6 @@ dgBillSchema.set('toObject', {
 //     });
 
 const dgBillModel = mongoose.model('dgBill', dgBillSchema);
+const replacePostageBillModel = mongoose.model('replacePostageBill', replacePostageBill);
 module.exports.dgBillModel = dgBillModel;
+module.exports.replacePostageBillModel = replacePostageBillModel;
