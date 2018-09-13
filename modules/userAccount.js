@@ -81,6 +81,8 @@ userAccountSchema.set('toJSON', {
         delete ret.__v;
         delete ret._id;
         delete ret.id;
+        delete ret.password;
+        delete ret.myBills;
         ret.Rcoins = doc.Rcoins;
         if (doc.created_at && doc.updated_at) {
             ret.created_at = new Date(doc.created_at).getTime();

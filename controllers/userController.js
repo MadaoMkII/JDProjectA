@@ -270,11 +270,15 @@ exports.updatePhoneNumber = (req, res) => {
 };
 
 exports.getUserInfo = async (req, res) => {
+    try {
+        let userInfo = req.user;
+
+        return res.status(201).json({error_code: 500, error_massage: `OK`, data: userInfo});
+    } catch (e) {
+        return res.status(503).json({error_code: 503, error_massage: e});
+    }
 
 
-    let userInfo = await userModel.findOne({tel_number: req.user.tel_number}, {password: 0});
-
-    return res.status(200).json({error_code: 500, error_massage: `OK`, data: userInfo});
     // userModel.findOne({tel_number: req.user.tel_number}, {
     //     _id: 0,
     //     password: 0,
