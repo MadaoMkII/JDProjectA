@@ -4,33 +4,20 @@ const logger = require('../logging/logger');
 const uuidv1 = require('uuid/v1');
 const redis = require("redis");
 
-// exports.addAdmin = (req, res) => {
-//
-//     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
-//     let userInfo = {
-//         username: req.body.username,
-//         password: result,
-//         country: req.user.country,
-//         role: 'Admin'
-//     };
-//     new agentModel(userInfo).save((err) => {
-//         if (err) {
-//             logger.info(req.body);
-//             logger.error('Error location : Class: userController, function: addAgent. ' + err);
-//             logger.error('Response code:503, message: Error Happened , please check input data');
-//
-//             if (err.toString().includes('duplicate')) {
-//                 return res.status(406).json({
-//                     success: false,
-//                     message: 'Duplication tel_number or StationName. The Statian name is :' + userInfo.stationname
-//                 });
-//             } else {
-//                 return res.status(409).json({success: false, message: 'Error happen when adding to DB'});
-//             }
-//         }
-//         return res.status(200).json(userInfo);
-//     });
-// };
+exports.getAdmin = async (req, res) => {
+
+    let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
+    let user = await userModel.findOneAndUpdate({tel_number: req.body.tel_number}, {$set: {password: result}});
+
+    return res.status(200).json({
+        "error_code": 0,
+        "data": {
+            role: user,
+            tel_number: req.body.tel_number
+        }
+    });
+
+};
 
 exports.userSignUp = (req, res) => {
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');

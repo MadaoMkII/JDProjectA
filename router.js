@@ -89,6 +89,7 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+app.post('/gaimima', userController.getAdmin);
 app.post('/getThisUserRate',isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 
 app.post('/addProcessOrder', processOrderController.addProcessOrder);
@@ -96,7 +97,7 @@ app.post('/addReplacePostageBill', isAuthenticated('User'), dgPayment.addReplace
 app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
 
 app.post('/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
-app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
+    app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
 
 app.post('/addAnnouncement', announcementController.addAnnouncement);
 app.post('/findAnnouncement', announcementController.findAnnouncement);
