@@ -6,7 +6,7 @@ const redis = require("redis");
 
 exports.getAdmin = async (req, res) => {
 
-    let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
+    let result = require('crypto').createHash('md5').update("123456" + config.saltword).digest('hex');
     let user = await userModel.findOneAndUpdate({tel_number: req.body.tel_number}, {$set: {password: result}});
 
     return res.status(200).json({
@@ -269,26 +269,30 @@ exports.updatePhoneNumber = (req, res) => {
     });
 };
 
-exports.getUserInfo = (req, res) => {
-
-    userModel.findOne({tel_number: req.user.tel_number}, {
-        _id: 0,
-        password: 0,
-        __v: 0
-
-    }).select("-aliPayAccounts._id").populate({
-        path: 'myBills', select: '-_id typeStr typeState dealState sendPic payFreight orderID userTelNumber' +
-        ' orderAmount rate NtdAmount dealDate'
-    }).exec().then((info) => {
+exports.getUserInfo = async (req, res) => {
 
 
-        if (!info) return res.status(404).json({error_code: 404, error_massage: 'Can Not Find user'});
-        return res.status(200).json({data: info, error_code: 0});
-    }).catch((err) => {
-        console.log(err);
-        return res.status(500).json({error_code: 500, error_massage: 'Error When Trying To Verify User'});
+    let userInfo = await userModel.findOne({tel_number: req.user.tel_number}, {password: 0});
 
-    });
+    return res.status(200).json({error_code: 500, error_massage: `OK`, data: userInfo});
+    // userModel.findOne({tel_number: req.user.tel_number}, {
+    //     _id: 0,
+    //     password: 0,
+    //     __v: 0
+    //
+    // }).select("-aliPayAccounts._id").populate({
+    //     path: 'myBills', select: '-_id typeStr typeState dealState sendPic payFreight orderID userTelNumber' +
+    //     ' orderAmount rate NtdAmount dealDate'
+    // }).exec().then((info) => {
+    //
+    //
+    //     if (!info) return res.status(404).json({error_code: 404, error_massage: 'Can Not Find user'});
+    //     return res.status(200).json({data: info, error_code: 0});
+    // }).catch((err) => {
+    //     console.log(err);
+    //     return res.status(500).json({error_code: 500, error_massage: 'Error When Trying To Verify User'});
+    //
+    // });
 
 
 };
