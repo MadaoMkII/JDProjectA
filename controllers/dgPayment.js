@@ -32,7 +32,7 @@ let getRate = (req, res) => {
                     rate = rateEntity.detailRate;
                 }
             }
-            resolve(rate);
+            resolve([rate, managerConfig.feeRate]);
 
         } catch (err) {
 
@@ -42,9 +42,9 @@ let getRate = (req, res) => {
 };
 exports.getThisUserRcoinRate = async (req, res) => {
     try {
-        let rate = await getRate(req, res);
+        let [rate, feeRate] = await getRate(req, res);
 
-        return res.status(200).send({error_code: 0, error_msg: "OK", data: {rate: rate}});
+        return res.status(200).send({error_code: 0, error_msg: "OK", data: {rate: rate, feeRate: feeRate}});
     } catch (e) {
 
         return res.status(513).send({error_code: 513, error_msg: e});
@@ -79,10 +79,10 @@ exports.addDGByALIBill = async (req, res) => {
         billObject.NtdAmount = req.body.RMBAmount * rate;
         billObject.rate = rate;
 
-        billObject.chargeInfo={};
-        billObject.chargeInfo.chargeMethod= req.body.chargeInfo.chargeMethod;
-        billObject.chargeInfo.chargeAccount= req.body.chargeInfo.chargeAccount;
-        billObject.chargeInfo.toOurAccount= req.body.chargeInfo.toOurAccount;
+        billObject.chargeInfo = {};
+        billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
+        billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
+        billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
         let userObject = {};
         userObject.nickName = req.user.nickName;
         userObject.Rcoins = req.user.Rcoins;
@@ -96,7 +96,7 @@ exports.addDGByALIBill = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (e) {
-console.log(e)
+        console.log(e)
         return res.status(513).send({error_code: 513, error_msg: e});
     }
 };
@@ -134,8 +134,8 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.NtdAmount = req.body.RMBAmount * rate;
         billObject.rate = rate;
 
-        billObject.chargeInfo={};
-        billObject.chargeInfo.chargeMethod= `Rcoin`;
+        billObject.chargeInfo = {};
+        billObject.chargeInfo.chargeMethod = `Rcoin`;
 
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;

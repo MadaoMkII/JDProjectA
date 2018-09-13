@@ -46,6 +46,7 @@ let userAccountSchema = new mongoose.Schema({
         type: String
     },
     role: String,
+    userStatus: {hasPaid: {type: Boolean, default: false}},
     tel_number: {
         required: true,
         type: String,
