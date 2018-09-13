@@ -10,5 +10,8 @@ module.exports = {
     },
     saltword: 'ABL',
     mailusername: "baodan@usaboluo.com",
-    mailpassword: "123baoDAN"
+    mailpassword: "123baoDAN",
+    KEY: new Buffer('8vApxL1k5GPAsJrM4vxpxLs543PhsJrM', 'utf8'), // This key should be stored in an environment variable
+    HMAC_KEY: new Buffer('GnJd7EgzjjWj4aY9', 'utf8')
+
 };
