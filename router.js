@@ -90,6 +90,7 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 app.post('/gaimima', userController.getAdmin);
+app.post('/zhuce', userController.zhuce);
 app.post('/getThisUserRate',isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 
 app.post('/addProcessOrder', processOrderController.addProcessOrder);

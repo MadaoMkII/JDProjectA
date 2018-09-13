@@ -18,6 +18,26 @@ exports.getAdmin = async (req, res) => {
     });
 
 };
+exports.zhuce = async (req, res) => {
+    let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
+    let uuid = uuidv1();
+    let userInfo = {
+        uuid: uuid,
+        password: result,
+        role: 'User',
+        Rcoins: 198,
+        tel_number: req.body.tel_number,
+        email_address: req.body.email
+    };
+
+    let a = await new userModel(userInfo).save();
+
+    return res.status(200).json({
+        "error_code": 0,
+        "data": a
+    });
+
+};
 
 exports.userSignUp = (req, res) => {
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');

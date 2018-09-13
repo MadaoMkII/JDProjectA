@@ -6,7 +6,7 @@ const vipCoculart = (points) => {
     for (let index = 0; index < vipArray.length; index++) {
         if (points >= vipArray[index]) {
             vipLevel = `VIP${index + 1}`;
-            if (index === vipArray.length-1) {
+            if (index === vipArray.length - 1) {
                 vipLevel = `SVIP`
             }
         }
