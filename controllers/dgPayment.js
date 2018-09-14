@@ -48,8 +48,8 @@ exports.getThisUserRcoinRate = async (req, res) => {
             error_code: 0, error_msg: "OK", data: {
                 rate: rate,
                 feeRate:feeRate,
-                feeAmount: feeRate / 100 * parseInt(req.body.RMBAmount) * rate,
-                totalAmount: (1 + feeRate / 100) * req.body.RMBAmount * rate
+                feeAmount: (feeRate / 100 * parseInt(req.body.RMBAmount) * rate/100).toFixed(2),
+                totalAmount: ((1 + feeRate / 100) * req.body.RMBAmount * rate/100).toFixed(2)
             }
         });
     } catch (e) {
