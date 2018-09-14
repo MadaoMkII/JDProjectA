@@ -44,7 +44,14 @@ exports.getThisUserRcoinRate = async (req, res) => {
     try {
         let [rate, feeRate] = await getRate(req, res);
 
-        return res.status(200).send({error_code: 0, error_msg: "OK", data: {rate: rate, feeRate: feeRate}});
+        return res.status(200).send({
+            error_code: 0, error_msg: "OK", data: {
+                rate: rate,
+                feeRate:feeRate,
+                feeAmount: feeRate / 100 * parseInt(req.body.RMBAmount) * rate,
+                totalAmount: (1 + feeRate / 100) * req.body.RMBAmount * rate
+            }
+        });
     } catch (e) {
 
         return res.status(513).send({error_code: 513, error_msg: e});
@@ -90,7 +97,7 @@ exports.addDGByALIBill = async (req, res) => {
         billObject.userInfo = userObject;
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
-        billObject.fee = managerConfig.feeRate * req.body.RMBAmount * rate;
+        billObject.fee = managerConfig.feeRate / 100 * req.body.RMBAmount * rate;
         await billObject.save();
 
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
