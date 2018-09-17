@@ -32,7 +32,9 @@ let getRate = (req, res) => {
                     rate = rateEntity.detailRate;
                 }
             }
-            resolve([rate, managerConfig.feeRate]);
+            let feeAmount = (managerConfig.feeRate / 100 * parseInt(req.body.RMBAmount) * rate / 100).toFixed(2);
+            let totalAmount = ((1 + managerConfig.feeRate / 100) * req.body.RMBAmount * rate / 100).toFixed(2);
+            resolve([rate, managerConfig.feeRate, feeAmount, totalAmount]);
 
         } catch (err) {
 
@@ -42,14 +44,14 @@ let getRate = (req, res) => {
 };
 exports.getThisUserRcoinRate = async (req, res) => {
     try {
-        let [rate, feeRate] = await getRate(req, res);
+        let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
 
         return res.status(200).send({
             error_code: 0, error_msg: "OK", data: {
                 rate: rate,
                 feeRate: feeRate,
-                feeAmount: (feeRate / 100 * parseInt(req.body.RMBAmount) * rate / 100).toFixed(2),
-                totalAmount: ((1 + feeRate / 100) * req.body.RMBAmount * rate / 100).toFixed(2)
+                feeAmount: feeAmount,
+                totalAmount: totalAmount
             }
         });
     } catch (e) {
@@ -65,6 +67,9 @@ exports.addDGByALIBill = async (req, res) => {
     try {
         let billObject = new dgBillModel();
         if (req.body.typeStr === `其他支付方式代付`) {
+            if (tool.isEmpty(req.body.paymentInfo)  || tool.isEmpty(req.body.paymentInfo.friendAlipayAccount)) {
+                return res.status(402).send({error_code: 402, error_msg: 'friendAlipayAccount can not be empty'});
+            }
             billObject.isVirtualItem = req.body.isVirtualItem;
             billObject.paymentInfo.paymentMethod = 'Alipay';
             billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
@@ -76,14 +81,14 @@ exports.addDGByALIBill = async (req, res) => {
             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }
         req.body.rateType = `AlipayAndWechatRate`;
-        const [rate, feeRate] = await getRate(req, res);
+        let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
         billObject.comment = req.body.comment;
-        billObject.NtdAmount = req.body.RMBAmount * rate/100;
+        billObject.NtdAmount = totalAmount;
         billObject.rate = rate;
-        billObject.fee = (feeRate / 100 * req.body.RMBAmount * rate/100).toFixed(2);
+        billObject.fee = feeAmount;
         billObject.chargeInfo = {};
         billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
         billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
@@ -111,9 +116,13 @@ exports.addDGRcoinsBill = async (req, res) => {
         let billObject = new dgBillModel();
         if (!req.user.Rcoins || !req.body.RMBAmount ||
             Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.RMBAmount) < 0) {
-            return res.status(200).send({error_code: 513, error_msg: '要不起'});
+            return res.status(400).send({error_code: 400, error_msg: '要不起'});
         }
         if (req.body.typeStr === `R币代付`) {
+            if (tool.isEmpty(req.body.paymentInfo)  || tool.isEmpty(req.body.paymentInfo.friendAlipayAccount)) {
+                return res.status(402).send({error_code: 402, error_msg: 'friendAlipayAccount can not be empty'});
+            }
+
             billObject.isVirtualItem = req.body.isVirtualItem;
             billObject.typeStr = req.body.typeStr;
             billObject.paymentInfo.paymentMethod = 'Alipay';
@@ -130,15 +139,15 @@ exports.addDGRcoinsBill = async (req, res) => {
         }
 
         req.body.rateType = `RcoinRate`;
-        const [rate, feeRate] = await getRate(req, res);
+        const [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
 
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
         billObject.comment = req.body.comment;
-        billObject.NtdAmount = req.body.RMBAmount * rate / 100 + feeRate / 100 * req.body.RMBAmount;
+        billObject.NtdAmount = totalAmount;
         billObject.rate = rate;
-        billObject.fee = (feeRate/100 * req.body.RMBAmount * rate/100).toFixed(2);
+        billObject.fee = feeAmount;
         billObject.chargeInfo = {};
         billObject.chargeInfo.chargeMethod = `Rcoin`;
 
@@ -158,7 +167,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (e) {
-
+        console.log(e)
         return res.status(513).send({error_code: 513, error_msg: e});
     }
 };
