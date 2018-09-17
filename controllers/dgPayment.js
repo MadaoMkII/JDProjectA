@@ -1,10 +1,53 @@
 const dgBillModel = require('../modules/dgBill').dgBillModel;
 const replacePostageBillModel = require('../modules/dgBill').replacePostageBillModel;
+const baseRateModelModel = require('../modules/managerConfigFeatures').baseRateModel;
 //const logger = require('../logging/logger');
 const userModel = require('../modules/userAccount').userAccountModel;
 const manageSettingController = require('../controllers/manageSettingController');
 const tool = require('../config/tools');
 
+let getBaseRate = (req, res) => {
+    return new Promise((resolve, reject) => {
+
+            baseRateModelModel.findOne({VIPLevel: req.user.VIPLevel}, (err, data) => {
+
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data);
+                }
+
+            });
+        }
+    );
+};
+
+exports.setBaseRateOutside = async (req, res) => {
+
+    try {
+        let baseRateModelEntity = new baseRateModelModel();
+        baseRateModelEntity.VIPLevel = req.body.VIPLevel;
+        baseRateModelEntity.detailRate = req.body.detailRate;
+        let result = await baseRateModelModel.findOneAndUpdate({VIPLevel: baseRateModelEntity.VIPLevel},
+            {$set: {detailRate: baseRateModelEntity.detailRate}}
+            , {upsert: true, new: true});
+        return res.status(200).send({error_code: 200, error_msg: `OK`, data: result});
+    } catch (e) {
+        console.log(e)
+        return res.status(403).send({error_code: 403, error_msg: `Error when try to save`});
+    }
+
+};
+
+exports.getBaseRateOutside = async (req, res) => {
+    try {
+        let baseRate = await getBaseRate(req, res);
+        return res.status(200).send({error_code: 200, error_msg: `OK`, data: baseRate});
+    } catch (e) {
+        return res.status(403).send({error_code: 403, error_msg: `Need login first`});
+    }
+
+};
 
 let getRate = (req, res) => {
 
@@ -67,7 +110,7 @@ exports.addDGByALIBill = async (req, res) => {
     try {
         let billObject = new dgBillModel();
         if (req.body.typeStr === `其他支付方式代付`) {
-            if (tool.isEmpty(req.body.paymentInfo)  || tool.isEmpty(req.body.paymentInfo.friendAlipayAccount)) {
+            if (tool.isEmpty(req.body.paymentInfo) || tool.isEmpty(req.body.paymentInfo.friendAlipayAccount)) {
                 return res.status(402).send({error_code: 402, error_msg: 'friendAlipayAccount can not be empty'});
             }
             billObject.isVirtualItem = req.body.isVirtualItem;
@@ -119,7 +162,7 @@ exports.addDGRcoinsBill = async (req, res) => {
             return res.status(400).send({error_code: 400, error_msg: '要不起'});
         }
         if (req.body.typeStr === `R币代付`) {
-            if (tool.isEmpty(req.body.paymentInfo)  || tool.isEmpty(req.body.paymentInfo.friendAlipayAccount)) {
+            if (tool.isEmpty(req.body.paymentInfo) || tool.isEmpty(req.body.paymentInfo.friendAlipayAccount)) {
                 return res.status(402).send({error_code: 402, error_msg: 'friendAlipayAccount can not be empty'});
             }
 
@@ -176,9 +219,12 @@ exports.getBills = async (req, res) => {
     try {
 
         let command = {};
-
-        if (req.body.dealState) {
-            command['dealState'] = {$eq: req.body.dealState};
+        command.userUUid = req.user.uuid;
+        if (req.body['beginLowPrice'] && req.body['beginHighPrice']) {
+            command['RMBAmount'] = {
+                $lt: new Date(req.query['beginLowPrice']),
+                $gt: new Date(req.query['beginHighPrice'])
+            };
         }
 
         let operator = {};
@@ -192,18 +238,21 @@ exports.getBills = async (req, res) => {
             operator.limit = parseInt(req.body['unit']);
         }
 
-        let personalInfo = await userModel.findOne({tel_number: req.user.tel_number});
-        command['userID'] = {$eq: personalInfo._id};
         let billResult = await dgBillModel.find(command, {
             __v: 0,
             billStatementId: 0,
             _id: 0
-        }, operator);
-        let billCount = await dgBillModel.count({userID: personalInfo._id});
+        }, operator, (err) => {
+            throw  new Error(err);
+        });
+        let billCount = await dgBillModel.count({userUUid: req.user.uuid}, (err) => {
+            throw  new Error(err);
+        });
 
         return res.status(200).send({error_code: 503, error_msg: billResult, nofdata: billCount});
 
     } catch (err) {
+        console.log(err)
         return res.status(503).send({error_code: 503, error_msg: err});
     }
 

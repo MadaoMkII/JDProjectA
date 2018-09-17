@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
-
+const debug = require('debug')('http');
 const mailController = require('./controllers/mailController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
@@ -33,6 +33,8 @@ app.use(session({
     secret: 'abc', resave: true,
     saveUninitialized: true
 }));
+
+
 app.use(express.static('public'));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -90,17 +92,21 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 app.post('/gaimima', userController.getAdmin);
-app.post('/addbank', isAuthenticated('User'),userController.addUserBank);
+
+app.post('/setBaseRate', isAuthenticated('User'), dgPayment.setBaseRateOutside);
+app.get('/getBaseRate', isAuthenticated('User'), dgPayment.getBaseRateOutside);
+
+app.post('/addbank', isAuthenticated('User'), userController.addUserBank);
 app.post('/addBankAccounts', manageSettingController.addBankAccounts);
 app.post('/zhuce', userController.zhuce);
-app.post('/getThisUserRate',isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
-
+app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
+app.post('/getBills', dgPayment.getBills);
 app.post('/addProcessOrder', processOrderController.addProcessOrder);
 app.post('/addReplacePostageBill', isAuthenticated('User'), dgPayment.addReplacePostageBill);
 app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
 
 app.post('/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
-    app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
+app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
 
 app.post('/addAnnouncement', announcementController.addAnnouncement);
 app.post('/findAnnouncement', announcementController.findAnnouncement);
@@ -140,8 +146,8 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
 });
 app.post('/getSetting', manageSettingController.getSetting);
 app.post('/setSetting', manageSettingController.setSetting);
-app.post('/ceshi', rechargeController.addRcoinChargeBills);
-app.post('/ceshi2', rechargeController.addChargeBills);
+app.post('/addRcoinChargeBills', rechargeController.addRcoinChargeBills);
+app.post('/addChargeBills', rechargeController.addChargeBills);
 // app.post('/upload', picController.upload);
 app.post('/msg/send_massage', massageChecker.smsSend);
 app.post('/msg/check_massage', massageChecker.check_code);
