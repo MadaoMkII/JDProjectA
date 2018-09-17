@@ -101,6 +101,8 @@ dgBillSchema.set('toObject', {
         // delete ret.userID;
         // delete ret._id;
         // delete ret.id;
+        // doc.rate = ret.rate / 100;
+        // doc.fee = ret.fee / 100;
         // ret.created_at = new Date(doc.created_at).getTime();
         // ret.updated_at = new Date(doc.updated_at).getTime();
         // if (doc.typeStr === 'CZ') {

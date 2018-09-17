@@ -47,9 +47,9 @@ exports.getThisUserRcoinRate = async (req, res) => {
         return res.status(200).send({
             error_code: 0, error_msg: "OK", data: {
                 rate: rate,
-                feeRate:feeRate,
-                feeAmount: (feeRate / 100 * parseInt(req.body.RMBAmount) * rate/100).toFixed(2),
-                totalAmount: ((1 + feeRate / 100) * req.body.RMBAmount * rate/100).toFixed(2)
+                feeRate: feeRate,
+                feeAmount: (feeRate / 100 * parseInt(req.body.RMBAmount) * rate / 100).toFixed(2),
+                totalAmount: ((1 + feeRate / 100) * req.body.RMBAmount * rate / 100).toFixed(2)
             }
         });
     } catch (e) {
@@ -64,8 +64,6 @@ exports.addDGByALIBill = async (req, res) => {
 
     try {
         let billObject = new dgBillModel();
-        const managerConfig = await manageSettingController.findCurrentSetting();
-
         if (req.body.typeStr === `其他支付方式代付`) {
             billObject.isVirtualItem = req.body.isVirtualItem;
             billObject.paymentInfo.paymentMethod = 'Alipay';
@@ -78,14 +76,14 @@ exports.addDGByALIBill = async (req, res) => {
             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }
         req.body.rateType = `AlipayAndWechatRate`;
-        let rate = await getRate(req, res);
+        const [rate, feeRate] = await getRate(req, res);
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
         billObject.comment = req.body.comment;
-        billObject.NtdAmount = req.body.RMBAmount * rate;
+        billObject.NtdAmount = req.body.RMBAmount * rate/100;
         billObject.rate = rate;
-
+        billObject.fee = (feeRate / 100 * req.body.RMBAmount * rate/100).toFixed(2);
         billObject.chargeInfo = {};
         billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
         billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
@@ -97,13 +95,13 @@ exports.addDGByALIBill = async (req, res) => {
         billObject.userInfo = userObject;
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
-        billObject.fee = managerConfig.feeRate / 100 * req.body.RMBAmount * rate;
+
         await billObject.save();
 
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (e) {
-        console.log(e)
+
         return res.status(513).send({error_code: 513, error_msg: e});
     }
 };
@@ -130,23 +128,23 @@ exports.addDGRcoinsBill = async (req, res) => {
         } else {
             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }
-        const managerConfig = await manageSettingController.findCurrentSetting();
+
         req.body.rateType = `RcoinRate`;
-        let rate = await getRate(req, res);
+        const [rate, feeRate] = await getRate(req, res);
 
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
         billObject.comment = req.body.comment;
-        billObject.NtdAmount = req.body.RMBAmount * rate;
+        billObject.NtdAmount = req.body.RMBAmount * rate / 100 + feeRate / 100 * req.body.RMBAmount;
         billObject.rate = rate;
-
+        billObject.fee = (feeRate/100 * req.body.RMBAmount * rate/100).toFixed(2);
         billObject.chargeInfo = {};
         billObject.chargeInfo.chargeMethod = `Rcoin`;
 
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
-        billObject.fee = managerConfig.feeRate * req.body.RMBAmount;
+
         let userObject = {};
         userObject.nickName = req.user.nickName;
         userObject.Rcoins = req.user.Rcoins;
@@ -222,7 +220,7 @@ exports.addReplacePostageBill = async (req, res) => {
         }
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
     } catch (e) {
-        console.log(e)
+
         return res.status(500).json({error_msg: e, error_code: "500"});
 
     }
@@ -249,7 +247,7 @@ exports.payReplacePostage = async (req, res) => {
         }
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
     } catch (e) {
-        console.log(e)
+
         return res.status(500).json({error_msg: e, error_code: "500"});
 
     }

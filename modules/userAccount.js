@@ -1,4 +1,5 @@
 const mongoose = require('../db/db').mongoose;
+const bankAccount = require('../modules/bankAccount').bankAccount;
 const tool = require('../config/tools');
 const vipCoculart = (points) => {
     let vipLevel = `VIP0`;
@@ -31,13 +32,6 @@ const wechatAccount = new mongoose.Schema(
 
     }
 );
-const bankAccount = new mongoose.Schema(
-    {
-        realName: {type: String, required: true},
-        accountName: {type: String, required: true},
-        accountTelNumber: String
-    }
-);
 
 let userAccountSchema = new mongoose.Schema({
     uuid: {type: String},
@@ -46,7 +40,14 @@ let userAccountSchema = new mongoose.Schema({
         type: String
     },
     role: String,
-    userStatus: {hasPaid: {type: Boolean, default: false}},
+    userStatus: {hasPaid: {type: Boolean, default: false},
+        isRealName: {type: Boolean, default: false},
+        isAuthenticated: {type: Boolean, default: false},
+        isCStoreOpened: {type: Boolean, default: false},
+        isFirstTimePaid: {type: Boolean, default: false},
+        isFirstAlipayCharge: {type: Boolean, default: false},
+        isFirstWechatCharge: {type: Boolean, default: false}
+    },
     tel_number: {
         required: true,
         type: String,
@@ -58,8 +59,8 @@ let userAccountSchema = new mongoose.Schema({
     },
     referrer: String,
     nickName: {type: String, default: '无名氏'},
-    isAuthenticated: {type: Boolean, default: false},
-    isCStoreOpened: {type: Boolean, default: false},
+
+
     Rcoins: {type: String, required: true, set: tool.encrypt, get: tool.decrypt},
     returnCoins: {type: Number, default: 0},
     growthPoints: {type: Number, default: 460},

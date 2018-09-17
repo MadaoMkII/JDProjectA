@@ -3,7 +3,7 @@ const userModel = require('../modules/userAccount').userAccountModel;
 const logger = require('../logging/logger');
 const uuidv1 = require('uuid/v1');
 const redis = require("redis");
-
+const tools = require("../config/tools");
 exports.getAdmin = async (req, res) => {
 
     let result = require('crypto').createHash('md5').update("123456" + config.saltword).digest('hex');
@@ -319,4 +319,23 @@ exports.getUserInfo = async (req, res) => {
     // });
 
 
+};
+
+exports.addUserBank = (req, res) => {
+
+    let bankObject = {};
+    for (let index in req.body) {
+
+        if (!tools.isEmpty(req.body[index])) {
+
+            bankObject[index] = req.body[index];
+        }
+    }
+    userModel.findOneAndUpdate({uuid: req.user.uuid}, {$push: {bankAccounts: bankObject}}, {password: 0}, {new: true},
+        (err, data) => {
+        if (err) {
+            return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
+        }
+        return res.status(200).json({error_massage: 'OK', error_code: 0, data: data});
+    });
 };

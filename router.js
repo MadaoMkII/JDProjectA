@@ -90,6 +90,8 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 app.post('/gaimima', userController.getAdmin);
+app.post('/addbank', isAuthenticated('User'),userController.addUserBank);
+app.post('/addBankAccounts', manageSettingController.addBankAccounts);
 app.post('/zhuce', userController.zhuce);
 app.post('/getThisUserRate',isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 

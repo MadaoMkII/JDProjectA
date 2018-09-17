@@ -1,4 +1,5 @@
 const managerConfigsModel = require('../modules/managerConfigFeatures').managerConfigsModel;
+const bankAccountModel = require('../modules/bankAccount').bankAccountModel;
 const isEmpty = require('../config/tools').isEmpty;
 const compare = require('../config/tools').compare;
 exports.setSetting = async (req, res) => {
@@ -103,6 +104,7 @@ exports.getSetting = async (req, res) => {
 };
 
 exports.getAppealTopics = async (req, res) => {
+
     try {
         let result = await findCurrentSetting();
         let responseResult = {};
@@ -120,4 +122,42 @@ exports.getAppealTopics = async (req, res) => {
 
 };
 
+exports.addBankAccounts = async (req, res) => {
+
+    try {
+        let bankAccount = new bankAccountModel();
+
+        for (let condition in req.body) {
+            bankAccount[condition] = req.body[condition];
+        }
+
+        let saveResult = bankAccount.save();
+        return res.status(200).send({error_code: 0, error_msg: 'NO', a: saveResult, data: bankAccount});
+    } catch (err) {
+        console.log(err);
+        return res.status(400).send({error_code: 400, error_msg: 'Error happened'});
+
+    }
+
+
+};
+exports.getBankAccounts = async (req, res) => {
+
+    try {
+
+
+        for (let condition in req.body) {
+            bankAccount[condition] = req.body[condition];
+        }
+        bankAccountModel().findOne();
+
+        return res.status(200).send({error_code: 0, error_msg: 'NO', a: saveResult, data: bankAccount});
+    } catch (err) {
+        console.log(err);
+        return res.status(400).send({error_code: 400, error_msg: 'Error happened'});
+
+    }
+
+
+};
 exports.findCurrentSetting = findCurrentSetting;
