@@ -2,6 +2,7 @@ const processOrderModel = require('../modules/processOrder').processOrderModel;
 const dgBillModel = require('../modules/dgBill').dgBillModel;
 const isEmpty = require('../config/tools').isEmpty;
 const picController = require('../controllers/picController');
+const userModel = require('../modules/userAccount').userAccountModel;
 exports.addProcessOrder = async (req, res) => {
 
 
@@ -34,11 +35,51 @@ exports.addProcessOrder = async (req, res) => {
         await processOrderObject.save();
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
             {$set: {processOrder: processOrderObject._id}}, {new: true}).populate(`processOrder`);
-        console.log(processOrderObject);
+        let myEvent = {
+            eventType: `growthPoint`,
+            //content: `xxx`,
+            amount: 10,
+            behavior: `first Alipay consumption`
+        };
+        let userResult;
+
+        if (dgBillEntity.typeStr === `其他支付方式代付`) {
+            if (dgBillEntity.is_firstOrder === true && dgBillEntity.paymentInfo.paymentMethod === "Alipay") {
+                userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
+                    $inc: {growthPoints: 10},
+                    $push: {whatHappenedToMe: myEvent},
+                    $set: {"userStatus.isFirstAlipayCharge": true}
+                }, {new: true});
+            }
+        } else {
+            myEvent.amount = 1;
+            myEvent.behavior = `Alipay consumption`;
+            userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
+                $inc: {growthPoints: 1},
+                $push: {whatHappenedToMe: myEvent}
+            }, {new: true});
+
+        }
+
+
+        let giveThemMyEvent = {
+            eventType: `growthPoint`,
+            //content: `xxx`,
+            amount: 10,
+            behavior: `referrals consumption`,
+            referralsUUID: dgBillEntity.userUUid
+        };
+        for (let index of  userResult.referrer.referrerUUID) {
+
+            await userModel.findOneAndUpdate({uuid: index}, {
+                $inc: {growthPoints: 10}, $push: {whatHappenedToMe: giveThemMyEvent}
+            }, {new: true});//日子
+        }
 
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
 
-    } catch (e) {
+    }
+    catch (e) {
         return res.status(500).json({error_msg: e, error_code: "500"});
     }
 };

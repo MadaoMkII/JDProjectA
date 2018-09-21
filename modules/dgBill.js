@@ -69,6 +69,7 @@ const dgBillSchema = new mongoose.Schema(
                 itemLink: String
             },
         comment: String,
+        is_firstOrder: {type: Boolean, default: false},
         userInfo: {type: mongoose.Schema.Types.Object},
         processOrder: {type: mongoose.Schema.Types.ObjectId, ref: 'processOrder'},
         replacePostage: {type: replacePostageBill}

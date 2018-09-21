@@ -86,7 +86,7 @@ let getPrivilege = (privilegeName) => {
 //check if the request has enough privilege for a certain API
 exports.isAuthenticated = (privilegeName) => {
 
-    return function (req, res, next) {
+    return (req, res, next) => {
 
         if (req.user) {
             if (req.user.role !== null && getPrivilege(req.user.role) < getPrivilege(privilegeName)) {

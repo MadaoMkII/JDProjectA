@@ -91,8 +91,8 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-app.post('/gaimima', userController.getAdmin);
-
+app.post('/referer', isAuthenticated('User'), userController.setReferer);
+app.post('/addUserRealName', isAuthenticated('User'), userController.addUserRealName);
 app.post('/setBaseRate', isAuthenticated('User'), dgPayment.setBaseRateOutside);
 app.get('/getBaseRate', isAuthenticated('User'), dgPayment.getBaseRateOutside);
 

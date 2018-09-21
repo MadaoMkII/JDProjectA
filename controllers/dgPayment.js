@@ -136,20 +136,36 @@ exports.addDGByALIBill = async (req, res) => {
         billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
         billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
         billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
+        if (!req.user.userStatus.isFirstTimePaid) {
+
+            billObject.is_firstOrder = true;
+        }
+
+        billObject.itemInfo = {};
+        billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
+
+        let user = {};
+        if (!req.user.userStatus.isFirstTimePaid) {
+            user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
+                $set: {"userStatus.isFirstTimePaid": true},
+                $inc: {growthPoints: 10}
+            }, {new: true});
+        } else {
+            user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
+                $inc: {growthPoints: 1}
+            }, {new: true});
+        }
+        req.user = user;
         let userObject = {};
         userObject.nickName = req.user.nickName;
         userObject.Rcoins = req.user.Rcoins;
         userObject.growthPoints = req.user.growthPoints;
         billObject.userInfo = userObject;
-        billObject.itemInfo = {};
-        billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
-
         await billObject.save();
-
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (e) {
-
+        console.log(e)
         return res.status(513).send({error_code: 513, error_msg: e});
     }
 };

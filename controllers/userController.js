@@ -1,5 +1,6 @@
 const config = require('../config/develop');
 const userModel = require('../modules/userAccount').userAccountModel;
+const refererModel = require('../modules/userAccount').refererModel;
 const logger = require('../logging/logger');
 const uuidv1 = require('uuid/v1');
 const redis = require("redis");
@@ -295,6 +296,7 @@ exports.getUserInfo = async (req, res) => {
 
         return res.status(201).json({error_code: 500, error_massage: `OK`, data: userInfo});
     } catch (e) {
+        console.log(e)
         return res.status(503).json({error_code: 503, error_massage: e});
     }
 
@@ -320,7 +322,6 @@ exports.getUserInfo = async (req, res) => {
 
 
 };
-
 exports.addUserBank = (req, res) => {
 
     let bankObject = {};
@@ -333,9 +334,92 @@ exports.addUserBank = (req, res) => {
     }
     userModel.findOneAndUpdate({uuid: req.user.uuid}, {$push: {bankAccounts: bankObject}}, {password: 0}, {new: true},
         (err, data) => {
-        if (err) {
-            return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
+            if (err) {
+                return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
+            }
+            return res.status(200).json({error_massage: 'OK', error_code: 0, data: data});
+        });
+};
+exports.addUserRealName = async (req, res) => {
+    try {
+        for (let index in req.body) {
+
+            if (tools.isEmpty(req.body[index])) {
+                return res.status(400).json({error_code: 400, error_massage: 'Empty input value'});
+            }
         }
-        return res.status(200).json({error_massage: 'OK', error_code: 0, data: data});
-    });
+
+        if (!tools.isEmpty(req.user.realIDNumber)) {
+            return res.status(400).json({error_code: 400, error_massage: 'Already have a ID Number'});
+        }
+        const reg = /^[a-zA-Z][0-9]{9}$/;
+        let result_reg = reg.test(req.body.realIDNumber);
+        if (!result_reg) {
+            return res.status(400).json({error_code: 400, error_massage: 'Not a valid ID Number'});
+        }
+
+        let myEvent = {
+            eventType: `growthPoint`,
+            amount: 10,
+            behavior: `Add RealName`
+        };
+
+        await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
+            $set: {
+                realName: req.body.realName,
+                realIDNumber: req.body.realIDNumber
+            },
+            $inc: {growthPoints: 10}, $push: {whatHappenedToMe: myEvent}
+        }, {new: true});
+
+        res.status(200).json({error_code: 200, error_massage: 'OK'});
+
+    } catch (e) {
+
+        return res.status(400).json({error_code: 400, error_massage: 'Error happen'});
+    }
+
+
+};
+
+exports.setReferer = async (req, res) => {
+
+    try {
+        if (req.user.userStatus.isRefereed) {
+            return res.status(201).json({error_code: 201, error_massage: 'Already refereed a account'});
+        }
+        let inputType = req.body.inputType;
+        let search = {};
+        switch (inputType) {
+            case `tel_number`:
+                search = {tel_number: req.body.referer};
+                break;
+            case `email_address`:
+                search = {email_address: req.body.referer};
+                break;
+
+            default:
+                return res.status(400).json({error_code: 400, error_massage: 'Wrong inputType'});
+
+        }
+
+        let referrals = await userModel.findOne(search);
+
+        await userModel.update({uuid: referrals.uuid}, {$push: {"referrer.referrerUUID": req.user.uuid}}, {
+            upsert: true
+        });//被推荐人
+        await userModel.update({uuid: req.user.uuid}, {$set: {"referrer.referralsUUID": referrals.uuid}}, {
+            upsert: true
+        });//推荐人
+
+        let user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
+            $set: {"userStatus.isRefereed": true},
+            $inc: {growthPoints: 10}
+        });
+
+        return res.status(200).json({error_massage: 'OK', error_code: 0, data: user});
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
+    }
 };

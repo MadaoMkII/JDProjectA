@@ -68,11 +68,11 @@ exports.addChargeBills = async (req, res) => {
     let rate;
     if (billObject.rechargeInfo.rechargeAccountType === "wechat" ||
         billObject.rechargeInfo.rechargeAccountType === "alipay") {
-        for (let i = managerConfig.PaymentPlatformRate.length - 1; i >= 0; i--) {
-            if (billObject.RMBAmount >= managerConfig.PaymentPlatformRate[i].beginAmount) {
-                rate = managerConfig.PaymentPlatformRate[i].detailRate;
+        for (let i = managerConfig.AlipayAndWechatRate.length - 1; i >= 0; i--) {
+            if (billObject.RMBAmount >= managerConfig.AlipayAndWechatRate[i].beginAmount) {
+                rate = managerConfig.AlipayAndWechatRate[i].detailRate;
             } else {
-                rate = managerConfig.PaymentPlatformRate[0].detailRate;
+                rate = managerConfig.AlipayAndWechatRate[0].detailRate;
             }
         }
     } else {

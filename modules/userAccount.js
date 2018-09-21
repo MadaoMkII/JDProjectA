@@ -15,7 +15,23 @@ const vipCoculart = (points) => {
 
     return vipLevel;
 };
-
+const referer = new mongoose.Schema(
+    {
+        referrerUUID: [{type: String, sparse: true}],
+        referralsUUID: {type: String, required: true}
+    }, {_id: false}, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
+);
+let refererModel = mongoose.model('referer', referer);
+exports.refererModel = refererModel;
+const myGrowthPointEvent = new mongoose.Schema(
+    {
+        eventType: {type: String, required: true},
+        content: {type: String},
+        amount: Number,
+        behavior: {type: String},
+        referralsUUID: {type: String, required: true}
+    }, {_id: false}
+);
 const aliPayAccount = new mongoose.Schema(
     {
         realName: {type: String, required: true},
@@ -40,11 +56,13 @@ let userAccountSchema = new mongoose.Schema({
         type: String
     },
     role: String,
-    userStatus: {hasPaid: {type: Boolean, default: false},
+    userStatus: {
+        hasPaid: {type: Boolean, default: false},
         isRealName: {type: Boolean, default: false},
         isAuthenticated: {type: Boolean, default: false},
         isCStoreOpened: {type: Boolean, default: false},
         isFirstTimePaid: {type: Boolean, default: false},
+        isRefereed: {type: Boolean, default: false},
         isFirstAlipayCharge: {type: Boolean, default: false},
         isFirstWechatCharge: {type: Boolean, default: false}
     },
@@ -57,13 +75,14 @@ let userAccountSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
-    referrer: String,
+    referrer: referer,
     nickName: {type: String, default: '无名氏'},
-
-
+    realName: String,
+    realIDNumber: String,
+    whatHappenedToMe: [myGrowthPointEvent],
     Rcoins: {type: String, required: true, set: tool.encrypt, get: tool.decrypt},
     returnCoins: {type: Number, default: 0},
-    growthPoints: {type: Number, default: 460},
+    growthPoints: {type: Number, default: 0},
     numberOfReferrers: {type: Number, default: 0},
     aliPayAccounts: [aliPayAccount],
     bankAccounts: [bankAccount],
