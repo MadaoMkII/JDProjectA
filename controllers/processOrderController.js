@@ -38,29 +38,30 @@ exports.addProcessOrder = async (req, res) => {
         let myEvent = {
             eventType: `growthPoint`,
             //content: `xxx`,
-            amount: 10,
-            behavior: `first Alipay consumption`
+
         };
         let userResult;
 
-        if (dgBillEntity.typeStr === `其他支付方式代付`) {
-            if (dgBillEntity.is_firstOrder === true && dgBillEntity.paymentInfo.paymentMethod === "Alipay") {
-                userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
-                    $inc: {growthPoints: 10},
-                    $push: {whatHappenedToMe: myEvent},
-                    $set: {"userStatus.isFirstAlipayCharge": true}
-                }, {new: true});
-            }
+
+        if (dgBillEntity.typeStr === `其他支付方式代付` &&
+            dgBillEntity.is_firstOrder === true &&
+            dgBillEntity.paymentInfo.paymentMethod === "Alipay") {
+            myEvent.amount = 10;
+            myEvent.behavior = `first Alipay consumption`;
+            userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
+                $inc: {growthPoints: 10},
+                $push: {whatHappenedToMe: myEvent},
+                $set: {"userStatus.isFirstTimePaid": true}
+            }, {new: true});
         } else {
             myEvent.amount = 1;
-            myEvent.behavior = `Alipay consumption`;
+            myEvent.behavior = `consumption`;
             userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
                 $inc: {growthPoints: 1},
                 $push: {whatHappenedToMe: myEvent}
             }, {new: true});
 
         }
-
 
         let giveThemMyEvent = {
             eventType: `growthPoint`,
@@ -69,17 +70,21 @@ exports.addProcessOrder = async (req, res) => {
             behavior: `referrals consumption`,
             referralsUUID: dgBillEntity.userUUid
         };
-        for (let index of  userResult.referrer.referrerUUID) {
+        if (!isEmpty(userResult.referrer) && !isEmpty(userResult.referrer.referrerUUID)) {
+            for (let index of  userResult.referrer.referrerUUID) {
 
-            await userModel.findOneAndUpdate({uuid: index}, {
-                $inc: {growthPoints: 10}, $push: {whatHappenedToMe: giveThemMyEvent}
-            }, {new: true});//日子
+                await userModel.findOneAndUpdate({uuid: index}, {
+                    $inc: {growthPoints: 10}, $push: {whatHappenedToMe: giveThemMyEvent}
+                }, {new: true});//日子
+            }
         }
+
 
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
 
     }
     catch (e) {
+        console.log(e)
         return res.status(500).json({error_msg: e, error_code: "500"});
     }
 };

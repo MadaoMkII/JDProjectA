@@ -113,6 +113,7 @@ exports.addDGByALIBill = async (req, res) => {
             if (tool.isEmpty(req.body.paymentInfo) || tool.isEmpty(req.body.paymentInfo.friendAlipayAccount)) {
                 return res.status(402).send({error_code: 402, error_msg: 'friendAlipayAccount can not be empty'});
             }
+
             billObject.isVirtualItem = req.body.isVirtualItem;
             billObject.paymentInfo.paymentMethod = 'Alipay';
             billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
@@ -136,24 +137,21 @@ exports.addDGByALIBill = async (req, res) => {
         billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
         billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
         billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
+
+        console.log(req.user.userStatus.isFirstTimePaid)
         if (!req.user.userStatus.isFirstTimePaid) {
 
             billObject.is_firstOrder = true;
+        } else {
+            billObject.is_firstOrder = false;
         }
 
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
-
+        billObject.typeStr = req.body.typeStr;
         let user = {};
         if (!req.user.userStatus.isFirstTimePaid) {
-            user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
-                $set: {"userStatus.isFirstTimePaid": true},
-                $inc: {growthPoints: 10}
-            }, {new: true});
-        } else {
-            user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
-                $inc: {growthPoints: 1}
-            }, {new: true});
+            billObject.is_firstOrder = true;
         }
         req.user = user;
         let userObject = {};
