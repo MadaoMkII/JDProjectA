@@ -1,106 +1,127 @@
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
-const logger = require('../logging/logger');
-const dgBillModel = require('../modules/dgBill').dgBillModel;
 const manageSettingController = require('../controllers/manageSettingController');
+const dgPayment = require('../controllers/dgPayment');
+const tool = require('../config/tools');
+
+exports.findChargeBills = async (req, res) => {
 
 
-
-
-exports.addRcoinChargeBills = async (req, res) => {
-    const managerConfig = await manageSettingController.findCurrentSetting();
-    let billObject = new chargeBillModel();
-    billObject.typeStr = 'R币充值';
-    billObject.billID = 'CHAR' + (Math.random() * Date.now() * 10).toFixed(0);
-    billObject.RMBAmount = req.body.RMBAmount;
-    //billObject.userUUid = req.user.uuid;
-    billObject.expireDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
-    billObject.rechargeInfo.rechargeAccountType = req.body.rechargeInfo.rechargeAccountType;
-    //billObject.rechargeInfo.rechargeToAccount = req.body.rechargeInfo.rechargeToAccount;
-    billObject.chargeInfo.chargeFromAccount = req.body.chargeInfo.chargeFromAccount;
-    billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
-
-    let rate;
-    if (billObject.rechargeInfo.rechargeAccountType === "Rcoin") {
-        for (let i = managerConfig.RcoinRate.length - 1; i >= 0; i--) {
-            if (billObject.RMBAmount >= managerConfig.RcoinRate[i].beginAmount) {
-                rate = managerConfig.RcoinRate[i].detailRate;
-            } else {
-                rate = managerConfig.RcoinRate[0].detailRate;
-            }
-        }
-    } else {
-        return res.status(403).send({error_code: 403, error_msg: 'Error input'});
+    let command = {};
+    command.userUUid = req.user.uuid;
+    if (req.body['beginData'] && req.body['endData']) {
+        command['created_at'] = {
+            $lt: new Date(req.query['beginData']),
+            $gt: new Date(req.query['endData'])
+        };
     }
-    billObject.NtdAmount = req.body.RMBAmount * rate;
-    billObject.rate = rate;
-    billObject.fee = managerConfig.feeRate * req.body.RMBAmount * rate;
-    billObject.comment = req.body.comment;
-    console.log(billObject);
-    // billObject.save((err) => {
-    //
-    //         if (err) {
-    //             console.log(err)
-    //             logger.info(req.body);
-    //             logger.error('Error location : Class: billStatementModel, function: updateOrderForm. ' + err);
-    //             logger.error('Response code:406, message: Not Succeeded Saved');
-    //             return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
-    //         } else {
-    //             return res.status(200).send({error_code: 0, error_msg: 'OK'});
-    //         }
-    //     }
-    //);
-    return res.status(200).send({error_code: 0, error_msg: billObject});
+
+    let operator = {};
+    if (req.body['order'] && req.body['sortBy']) {
+        operator.sort = {};
+        operator.sort[req.body['sortBy']] = parseInt(req.body['order']);
+    }
+
+    if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
+        operator.skip = parseInt(req.body['page']) * parseInt(req.body['unit']);
+        operator.limit = parseInt(req.body['unit']);
+    }
+
+    let billResult = await chargeBillModel.find(command, {
+        __v: 0,
+        _id: 0
+    }, operator);
+    let billCount = await chargeBillModel.count({userUUid: req.user.uuid});
+
+    return res.status(200).send({error_code: 200, error_msg: billResult, nofdata: billCount});
+};
+exports.addRcoinChargeBills = async (req, res) => {
+
+
+    try {
+        req.body.rateType = `RcoinRate`;
+        let billObject = new chargeBillModel();
+        billObject.typeStr = 'R币充值';
+        billObject.billID = 'CHAR' + (Math.random() * Date.now() * 10).toFixed(0);
+        billObject.RMBAmount = req.body.RMBAmount;
+        billObject.userUUid = req.user.uuid;
+        billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
+        billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
+
+        if (billObject.chargeInfo.chargeMethod === "bankAccount") {
+            for (let account of  req.user.bankAccounts) {
+
+                if (account.last6digital === req.body.chargeInfo.chargeFromAccount) {
+                    account.updated_at = undefined;
+                    account.created_at = undefined;
+                    billObject.chargeInfo.chargeFromAccount = account;
+                }
+            }
+
+        } else {
+            billObject.chargeInfo.chargeFromAccount = req.body.chargeInfo.chargeFromAccount;
+        }
+
+
+        let [rate, feeRate, feeAmount, totalAmount] = await dgPayment.getRate(req, res);
+        billObject.NtdAmount = totalAmount;
+        billObject.rate = rate;
+        billObject.feeRate = feeRate;
+        billObject.fee = feeAmount;
+        billObject.comment = req.body.comment;
+        billObject.save();
+        return res.status(200).send({error_code: 0, error_msg: billObject});
+    } catch (e) {
+        return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
+    }
+
+
 };
 
 exports.addChargeBills = async (req, res) => {
-    const managerConfig = await manageSettingController.findCurrentSetting();
-    let billObject = new chargeBillModel();
-    billObject.typeStr = '账户代充';
-    billObject.billID = 'CHAR' + (Math.random() * Date.now() * 10).toFixed(0);
-    billObject.RMBAmount = req.body.RMBAmount;
-    //billObject.userUUid = req.user.uuid;
-    billObject.expireDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
-    billObject.rechargeInfo.rechargeAccountType = req.body.rechargeInfo.rechargeAccountType;
-    billObject.rechargeInfo.rechargeToAccount = req.body.rechargeInfo.rechargeToAccount;
-    billObject.chargeInfo.chargeFromAccount = req.body.chargeInfo.chargeFromAccount;
-    billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
 
-    let rate;
-    if (billObject.rechargeInfo.rechargeAccountType === "wechat" ||
-        billObject.rechargeInfo.rechargeAccountType === "alipay") {
-        for (let i = managerConfig.AlipayAndWechatRate.length - 1; i >= 0; i--) {
-            if (billObject.RMBAmount >= managerConfig.AlipayAndWechatRate[i].beginAmount) {
-                rate = managerConfig.AlipayAndWechatRate[i].detailRate;
-            } else {
-                rate = managerConfig.AlipayAndWechatRate[0].detailRate;
+
+    try {
+        req.body.rateType = `AlipayAndWechatRate`;
+        const managerConfig = await manageSettingController.findCurrentSetting();
+        let billObject = new chargeBillModel();
+        billObject.typeStr = '账户代充';
+        billObject.billID = 'CHAR' + (Math.random() * Date.now() * 10).toFixed(0);
+        billObject.RMBAmount = req.body.RMBAmount;
+        billObject.userUUid = req.user.uuid;
+        billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
+        billObject.rechargeInfo.rechargeAccountType = req.body.rechargeInfo.rechargeAccountType;
+        billObject.rechargeInfo.rechargeToAccount = req.body.rechargeInfo.rechargeToAccount;
+
+        billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
+        if (billObject.chargeInfo.chargeMethod === "bankAccount") {
+            for (let account of  req.user.bankAccounts) {
+
+                if (account.last6digital === req.body.chargeInfo.chargeFromAccount) {
+                    account.updated_at = undefined;
+                    account.created_at = undefined;
+                    billObject.chargeInfo.chargeFromAccount = account;
+                }
             }
+        } else {
+            billObject.chargeInfo.chargeFromAccount = req.body.chargeInfo.chargeFromAccount;
         }
-    } else {
-        return res.status(403).send({error_code: 403, error_msg: 'Error input'});
+
+        let [rate, feeRate, feeAmount, totalAmount] = await dgPayment.getRate(req, res);
+        if (req.body.RMBAmount < managerConfig.threshold[billObject.rechargeInfo.rechargeAccountType]) {
+            return res.status(403).send({
+                error_code: 403,
+                error_msg: 'can not less than ' + managerConfig.threshold[billObject.rechargeInfo.rechargeAccountType]
+            });
+        }
+        billObject.NtdAmount = totalAmount;
+        billObject.rate = rate;
+        billObject.fee = feeAmount;
+        billObject.feeRate = feeRate;
+        billObject.comment = req.body.comment;
+        billObject.save();
+        return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
+    } catch (e) {
+        return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
     }
-    if (req.body.RMBAmount < managerConfig.threshold[billObject.rechargeInfo.rechargeAccountType]) {
-        return res.status(403).send({
-            error_code: 403,
-            error_msg: 'can not less than ' + managerConfig.threshold[billObject.rechargeInfo.rechargeAccountType]
-        });
-    }
-    billObject.NtdAmount = req.body.RMBAmount * rate;
-    billObject.rate = rate;
-    billObject.fee = managerConfig.feeRate * req.body.RMBAmount * rate;
-    billObject.comment = req.body.comment;
-    console.log(billObject);
-    // billObject.save((err) => {
-    //
-    //         if (err) {
-    //             console.log(err)
-    //             logger.info(req.body);
-    //             logger.error('Error location : Class: billStatementModel, function: updateOrderForm. ' + err);
-    //             logger.error('Response code:406, message: Not Succeeded Saved');
-    //             return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
-    //         } else {
-    //             return res.status(200).send({error_code: 0, error_msg: 'OK'});
-    //         }
-    //     }
-    //);
-    return res.status(200).send({error_code: 0, error_msg: billObject});
+
 };

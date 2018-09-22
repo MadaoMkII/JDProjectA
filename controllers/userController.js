@@ -322,24 +322,40 @@ exports.getUserInfo = async (req, res) => {
 
 
 };
-exports.addUserBank = (req, res) => {
+exports.addUserBank = async (req, res) => {
+    try {
 
-    let bankObject = {};
-    for (let index in req.body) {
+        let bankObject = {};
+        for (let index in req.body) {
 
-        if (!tools.isEmpty(req.body[index])) {
+            if (!tools.isEmpty(req.body[index])) {
 
-            bankObject[index] = req.body[index];
-        }
-    }
-    userModel.findOneAndUpdate({uuid: req.user.uuid}, {$push: {bankAccounts: bankObject}}, {password: 0}, {new: true},
-        (err, data) => {
-            if (err) {
-                return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
+                bankObject[index] = req.body[index];
             }
-            return res.status(200).json({error_massage: 'OK', error_code: 0, data: data});
-        });
+        }
+        let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+            {$push: {bankAccounts: bankObject}}, {password: 0, new: true});
+        res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
+    } catch (e) {
+        return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
+    }
+
 };
+exports.delUserBank = async (req, res) => {
+    try {
+
+        let last6digital = req.body.last6digital;
+
+        let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+            {$pull: {bankAccounts: {last6digital: last6digital}}}, {password: 0, new: true});
+        res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
+    } catch (e) {
+        return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
+    }
+
+};
+
+
 exports.addUserRealName = async (req, res) => {
     try {
         for (let index in req.body) {
@@ -388,7 +404,7 @@ exports.setReferer = async (req, res) => {
         if (req.user.userStatus.isRefereed) {
             return res.status(201).json({error_code: 201, error_massage: 'Already refereed a account'});
         }
-        let inputType = req.body.inputType;
+        let inputType = req.body[`inputType`];
         let search = {};
         switch (inputType) {
             case `tel_number`:

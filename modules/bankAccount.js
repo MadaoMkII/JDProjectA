@@ -10,13 +10,14 @@ const bankAccount = new mongoose.Schema(
         accountTelNumber: {type: String, required: true, sparse: true},
         notice_1: String,
         notice_2: String,
+        last6digital: String
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 
 
-bankAccount.virtual('last6digital').get(function () {
-    return this.accountTelNumber.slice(-6);
-});
+// bankAccount.virtual('last6digital').get(function () {
+//     return this.accountTelNumber.slice(-6);
+// });
 
 
 bankAccount.set('toJSON', {

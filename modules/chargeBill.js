@@ -20,11 +20,11 @@ const chargeBillSchema = new mongoose.Schema(
         RMBAmount: {type: Number, required: true},
         rate: {type: Number, default: 4.38},
         fee: {type: Number},
+        feeRate: {type: Number},
         rechargeInfo: {
             rechargeAccountType: String,
             rechargeToAccount: {type: mongoose.Schema.Types.Object}
         },
-        expireDate: Date,
         comment: String,
         chargeInfo: {
             chargeMethod: {type: String},
@@ -42,7 +42,7 @@ chargeBillSchema.set('toJSON', {
         transform: function (doc, ret) {
             delete ret.uuid;
             delete ret._id;
-            delete ret.id;
+            delete ret.chargeInfo.chargeFromAccount._id;
             delete ret.__v;
             if (doc.created_at && doc.updated_at) {
                 ret.created_at = new Date(doc.created_at).getTime();
@@ -51,7 +51,7 @@ chargeBillSchema.set('toJSON', {
                 ret.created_at = new Date().getTime();
                 ret.updated_at = new Date().getTime();
             }
-            ret.expireDate = doc.expireDate.getTime();
+            ret.dealDate = doc.dealDate.getTime();
         }
     }
 );

@@ -96,11 +96,13 @@ app.post('/addUserRealName', isAuthenticated('User'), userController.addUserReal
 app.post('/setBaseRate', isAuthenticated('User'), dgPayment.setBaseRateOutside);
 app.get('/getBaseRate', isAuthenticated('User'), dgPayment.getBaseRateOutside);
 
+app.post('/delbank', isAuthenticated('User'), userController.delUserBank);
 app.post('/addbank', isAuthenticated('User'), userController.addUserBank);
 app.post('/addBankAccounts', manageSettingController.addBankAccounts);
 app.post('/zhuce', userController.zhuce);
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 app.post('/getBills', dgPayment.getBills);
+
 app.post('/addProcessOrder', processOrderController.addProcessOrder);
 app.post('/addReplacePostageBill', isAuthenticated('User'), dgPayment.addReplacePostageBill);
 app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
@@ -144,11 +146,11 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
         });
     }
 });
-app.post('/getSetting', manageSettingController.getSetting);
-app.post('/setSetting', manageSettingController.setSetting);
-app.post('/addRcoinChargeBills', rechargeController.addRcoinChargeBills);
-app.post('/addChargeBills', rechargeController.addChargeBills);
-// app.post('/upload', picController.upload);
+app.post('/getSetting',  isAuthenticated('User'),manageSettingController.getSetting);
+app.post('/setSetting', isAuthenticated('User') ,manageSettingController.setSetting);
+app.post('/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addRcoinChargeBills);
+app.post('/addChargeBill',  isAuthenticated('User'),rechargeController.addChargeBills);
+app.post('/findChargeBill',  isAuthenticated('User'),rechargeController.findChargeBills);
 app.post('/msg/send_massage', massageChecker.smsSend);
 app.post('/msg/check_massage', massageChecker.check_code);
 

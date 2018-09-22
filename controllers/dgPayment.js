@@ -256,12 +256,8 @@ exports.getBills = async (req, res) => {
             __v: 0,
             billStatementId: 0,
             _id: 0
-        }, operator, (err) => {
-            throw  new Error(err);
-        });
-        let billCount = await dgBillModel.count({userUUid: req.user.uuid}, (err) => {
-            throw  new Error(err);
-        });
+        }, operator);
+        let billCount = await dgBillModel.count({userUUid: req.user.uuid});
 
         return res.status(200).send({error_code: 503, error_msg: billResult, nofdata: billCount});
 
@@ -326,3 +322,4 @@ exports.payReplacePostage = async (req, res) => {
 
 
 };
+exports.getRate = getRate;
