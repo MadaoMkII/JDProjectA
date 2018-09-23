@@ -376,10 +376,13 @@ exports.addUserBank = async (req, res) => {
                 bankObject[index] = req.body[index];
             }
         }
+        console.log(bankObject)
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$push: {bankAccounts: bankObject}}, {password: 0, new: true});
         res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
     } catch (e) {
+        console.log(e
+        )
         return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
     }
 

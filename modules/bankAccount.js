@@ -1,5 +1,5 @@
 const mongoose = require('../db/db').mongoose;
-
+const isEmpty = require('../config/tools').isEmpty;
 const bankAccount = new mongoose.Schema(
     {
         bankCode: {type: String, required: true, unique: true, sparse: true},
@@ -16,8 +16,10 @@ const bankAccount = new mongoose.Schema(
 );
 
 
-bankAccount.virtual('webLast6Digital').get(function () {
-    return this.accountCode.slice(-6);
+bankAccount.virtual('webLast6Digital').get(() => {
+    if (!isEmpty(this.accountCode)) {
+        return this.accountCode.slice(-6);
+    }
 });
 
 

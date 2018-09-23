@@ -109,6 +109,16 @@ exports.addDGByALIBill = async (req, res) => {
 
     try {
         let billObject = new dgBillModel();
+        billObject.itemInfo = {};
+        billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
+        if (req.body.itemInfo.itemLink.search("detail.tmall.com") != -1) {
+            billObject.itemInfo.itemWebType = "tmall";
+
+        } else if (req.body.itemInfo.itemLink.search("taobao.com") != -1) {
+            billObject.itemInfo.itemWebType = "taobao";
+        } else {
+            billObject.itemInfo.itemWebType = "others";
+        }
         if (req.body.typeStr === `其他支付方式代付`) {
             if (tool.isEmpty(req.body.paymentInfo) || tool.isEmpty(req.body.paymentInfo.friendAlipayAccount)) {
                 return res.status(402).send({error_code: 402, error_msg: 'friendAlipayAccount can not be empty'});
@@ -120,6 +130,7 @@ exports.addDGByALIBill = async (req, res) => {
             billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
         } else if (req.body.typeStr === `其他支付方式代购`) {
+            billObject.itemInfo.itemWebType = "others";
             billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
         } else {
             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
@@ -146,9 +157,7 @@ exports.addDGByALIBill = async (req, res) => {
             billObject.is_firstOrder = false;
         }
 
-        billObject.itemInfo = {};
-        billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
-        billObject.itemInfo.itemType = req.body.itemInfo.itemType;
+
         billObject.typeStr = req.body.typeStr;
         let user = {};
         if (!req.user.userStatus.isFirstTimePaid) {
@@ -172,11 +181,14 @@ exports.addDGRcoinsBill = async (req, res) => {
 
     try {
         let billObject = new dgBillModel();
+        billObject.itemInfo = {};
+        billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
+
         if (!req.user.Rcoins || !req.body.RMBAmount ||
             Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.RMBAmount) < 0) {
             return res.status(400).send({error_code: 400, error_msg: '要不起'});
         }
-        if (req.body.itemInfo.itemLink.search("detail.tmall.com") != -1) {
+        if (req.body.itemInfo.itemLink.search("tmall.com") != -1) {
             billObject.itemInfo.itemWebType = "tmall";
 
         } else if (req.body.itemInfo.itemLink.search("taobao.com") != -1) {
@@ -200,6 +212,7 @@ exports.addDGRcoinsBill = async (req, res) => {
             billObject.isVirtualItem = null;
             billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
             billObject.typeStr = req.body.typeStr;
+            billObject.itemInfo.itemWebType = "others";
         } else {
             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }
@@ -216,10 +229,6 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.fee = feeAmount;
         billObject.chargeInfo = {};
         billObject.chargeInfo.chargeMethod = `Rcoin`;
-
-
-        billObject.itemInfo = {};
-        billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
 
         billObject.typeState = 1;
         let userObject = {};
