@@ -19,6 +19,31 @@ exports.getAdmin = async (req, res) => {
     });
 
 };
+
+exports.dujiuxing = async (req, res) => {
+    return res.status(200).json({
+        "error_code": 0,
+        "data": {
+            "bank": [
+                {"value": "004", "label": "004 台灣銀行"},
+                {"value": "005", "label": "005 土地銀行"},
+                {"value": "006", "label": "006 合作金庫"},
+                {"value": "007", "label": "007 第一銀行"},
+                {"value": "008", "label": "008 華南銀行"},
+                {"value": "009", "label": "009 彰化銀行"},
+                {"value": "011", "label": "011 上海銀行"},
+                {"value": "012", "label": "012 台北富邦銀行"},
+                {"value": "013", "label": "013 國泰世華銀行"},
+                {"value": "016", "label": "016 高雄銀行"},
+                {"value": "017", "label": "017 兆豐商銀"},
+                {"value": "020", "label": "020 瑞實銀行"}
+            ]
+        }
+
+    });
+
+
+}
 exports.zhuce = async (req, res) => {
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
     let uuid = uuidv1();

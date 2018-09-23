@@ -3,14 +3,13 @@ const dgBillModel = require('../modules/dgBill').dgBillModel;
 const isEmpty = require('../config/tools').isEmpty;
 const picController = require('../controllers/picController');
 const userModel = require('../modules/userAccount').userAccountModel;
+const dataAnalystModel = require('../modules/dataAnalyst').dataAnalystModel;
 exports.addProcessOrder = async (req, res) => {
 
 
     try {
 
         const [returnReq] = await picController.uploadImgAsyncArray(req, res);
-
-
         let processOrderObject = new processOrderModel();
 
         if (isEmpty(req.body[`billID`])) {
@@ -72,16 +71,20 @@ exports.addProcessOrder = async (req, res) => {
         };
         if (!isEmpty(userResult.referrer) && !isEmpty(userResult.referrer.referrerUUID)) {
             for (let index of  userResult.referrer.referrerUUID) {
-
                 await userModel.findOneAndUpdate({uuid: index}, {
                     $inc: {growthPoints: 10}, $push: {whatHappenedToMe: giveThemMyEvent}
                 }, {new: true});//日子
             }
         }
+        let myDate = new Date();
 
-
+        let dataAnalyst = await dataAnalystModel.findOneAndUpdate({
+            year: myDate.getFullYear(),
+            month: myDate.getMonth(),
+            day: myDate.getDay()
+        }, {$inc: {count: 1, amount: dgBillEntity.NtdAmount}}, {new: true, upsert: true});
+        console.log(dataAnalyst)
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
-
     }
     catch (e) {
         console.log(e)

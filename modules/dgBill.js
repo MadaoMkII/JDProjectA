@@ -65,6 +65,7 @@ const dgBillSchema = new mongoose.Schema(
         },
         itemInfo:
             {
+                itemWebType: String,
                 itemName: String,
                 itemLink: String
             },

@@ -148,6 +148,7 @@ exports.addDGByALIBill = async (req, res) => {
 
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
+        billObject.itemInfo.itemType = req.body.itemInfo.itemType;
         billObject.typeStr = req.body.typeStr;
         let user = {};
         if (!req.user.userStatus.isFirstTimePaid) {
@@ -208,8 +209,18 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.chargeInfo = {};
         billObject.chargeInfo.chargeMethod = `Rcoin`;
 
+
+        if (req.body.itemInfo.itemLink.search("detail.tmall.com") != -1) {
+            billObject.itemInfo.itemWebType = "tmall";
+
+        } else if (req.body.itemInfo.itemLink.search("detail.tmall.com") != -1) {
+            billObject.itemInfo.itemWebType = "";
+        }
+
+
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
+
         billObject.typeState = 1;
         let userObject = {};
         userObject.nickName = req.user.nickName;
