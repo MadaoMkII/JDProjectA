@@ -396,7 +396,7 @@ exports.delUserBank = async (req, res) => {
             {$pull: {bankAccounts: {last6digital: last6digital}}}, {password: 0, new: true});
         res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
     } catch (e) {
-        return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
+        return res.status(500).json({error_code: 500, error_massage: 'Failed to del'});
     }
 
 };

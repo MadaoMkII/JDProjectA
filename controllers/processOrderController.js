@@ -58,7 +58,6 @@ exports.addProcessOrder = async (req, res) => {
         };
         let userResult;
 
-
         if (dgBillEntity.typeStr === `其他支付方式代付` &&
             dgBillEntity.is_firstOrder === true &&
             dgBillEntity.paymentInfo.paymentMethod === "Alipay") {
@@ -142,17 +141,16 @@ exports.addProcessOrderForCharge = async (req, res) => {
         let myEvent = {
             eventType: `growthPoint`,
             //content: `xxx`,
-
         };
         let userResult;
 
 
-        if (dgBillEntity.typeStr === `其他支付方式代付` &&
-            dgBillEntity.is_firstOrder === true &&
-            dgBillEntity.paymentInfo.paymentMethod === "Alipay") {
+        if (chargeBill.typeStr === `账户代充` &&
+            chargeBill.isFirstAlipayCharge === false &&
+            chargeBill.rechargeInfo.rechargeAccountType === "Alipay") {
             myEvent.amount = 10;
             myEvent.behavior = `first Alipay consumption`;
-            userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
+            userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
                 $inc: {growthPoints: 10},
                 $push: {whatHappenedToMe: myEvent},
                 $set: {"userStatus.isFirstTimePaid": true}

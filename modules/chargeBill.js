@@ -25,6 +25,7 @@ const chargeBillSchema = new mongoose.Schema(
             rechargeAccountType: String,
             rechargeToAccount: {type: mongoose.Schema.Types.Object}
         },
+        is_firstOrder: {type: Boolean, default: false},
         comment: String,
         chargeInfo: {
             chargeMethod: {type: String},

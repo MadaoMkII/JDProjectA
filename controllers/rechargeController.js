@@ -89,6 +89,15 @@ exports.addChargeBills = async (req, res) => {
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
+
+        if (req.user.status.isFirstAlipayCharge === false &&
+            req.body.rechargeInfo.rechargeAccountType === "Alipay") {
+            billObject.is_firstOrder = true;
+        }
+        if (req.user.status.isFirstWechatCharge === false &&
+            req.body.rechargeInfo.rechargeAccountType === "Wechat") {
+            billObject.is_firstOrder = true;
+        }
         billObject.rechargeInfo.rechargeAccountType = req.body.rechargeInfo.rechargeAccountType;
         billObject.rechargeInfo.rechargeToAccount = req.body.rechargeInfo.rechargeToAccount;
 
