@@ -176,6 +176,14 @@ exports.addDGRcoinsBill = async (req, res) => {
             Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.RMBAmount) < 0) {
             return res.status(400).send({error_code: 400, error_msg: '要不起'});
         }
+        if (req.body.itemInfo.itemLink.search("detail.tmall.com") != -1) {
+            billObject.itemInfo.itemWebType = "tmall";
+
+        } else if (req.body.itemInfo.itemLink.search("taobao.com") != -1) {
+            billObject.itemInfo.itemWebType = "taobao";
+        } else {
+            billObject.itemInfo.itemWebType = "others";
+        }
         if (req.body.typeStr === `R币代付`) {
             if (tool.isEmpty(req.body.paymentInfo) || tool.isEmpty(req.body.paymentInfo.friendAlipayAccount)) {
                 return res.status(402).send({error_code: 402, error_msg: 'friendAlipayAccount can not be empty'});
@@ -208,14 +216,6 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.fee = feeAmount;
         billObject.chargeInfo = {};
         billObject.chargeInfo.chargeMethod = `Rcoin`;
-
-
-        if (req.body.itemInfo.itemLink.search("detail.tmall.com") != -1) {
-            billObject.itemInfo.itemWebType = "tmall";
-
-        } else if (req.body.itemInfo.itemLink.search("detail.tmall.com") != -1) {
-            billObject.itemInfo.itemWebType = "";
-        }
 
 
         billObject.itemInfo = {};

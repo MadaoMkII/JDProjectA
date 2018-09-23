@@ -36,9 +36,27 @@ exports.dujiuxing = async (req, res) => {
                 {"value": "013", "label": "013 國泰世華銀行"},
                 {"value": "016", "label": "016 高雄銀行"},
                 {"value": "017", "label": "017 兆豐商銀"},
-                {"value": "020", "label": "020 瑞實銀行"}
+                {"value": "020", "label": "020 瑞實銀行"},
+                {"value": "021", "label": "021 花旗"},
+                {"value": "025", "label": "025 首都銀行"}
+            ],
+            "postOffice": [
+                {"value": "700", "label": "700 郵局"}
+            ],
+            "cooperative": [
+                {"value": "104", "label": "104 台北五信"},
+                {"value": "106", "label": "106 台北九信"}
+            ],
+            "association": [
+                {"value": "600", "label": "600 農金資中心"},
+                {"value": "603", "label": "603 基隆市農會"}
+            ],
+            "fishing": [
+                {"value": "503", "label": "503 基隆漁會"},
+                {"value": "504", "label": "504 瑞芳漁會"}
             ]
         }
+
 
     });
 
