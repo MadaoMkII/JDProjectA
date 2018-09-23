@@ -131,15 +131,13 @@ exports.addBankAccounts = async (req, res) => {
             bankAccount[condition] = req.body[condition];
         }
 
-        let saveResult = bankAccount.save();
-        return res.status(200).send({error_code: 0, error_msg: 'NO', a: saveResult, data: bankAccount});
+        bankAccount.save();
+        return res.status(200).send({error_code: 0, error_msg: 'NO', data: bankAccount});
     } catch (err) {
         console.log(err);
         return res.status(400).send({error_code: 400, error_msg: 'Error happened'});
 
     }
-
-
 };
 exports.getBankAccounts = async (req, res) => {
 
@@ -158,13 +156,10 @@ exports.getBankAccounts = async (req, res) => {
             operator.limit = parseInt(req.body['unit']);
         }
 
-        let result = bankAccountModel.find(searchCommand, operator, (err) => {
-            throw new Error(err)
-        });
-
+        let result = await bankAccountModel.find(searchCommand, operator);
         return res.status(200).send({error_code: 0, error_msg: 'NO', data: result});
     } catch (err) {
-
+        console.log(err)
         return res.status(400).send({error_code: 400, error_msg: 'Error happened'});
 
     }

@@ -99,6 +99,7 @@ app.get('/getBaseRate', isAuthenticated('User'), dgPayment.getBaseRateOutside);
 app.post('/delbank', isAuthenticated('User'), userController.delUserBank);
 app.post('/addbank', isAuthenticated('User'), userController.addUserBank);
 app.post('/addBankAccounts', manageSettingController.addBankAccounts);
+app.post('/getBankAccounts', manageSettingController.getBankAccounts);
 app.post('/zhuce', userController.zhuce);
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 app.post('/getBills', dgPayment.getBills);
@@ -146,11 +147,11 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
         });
     }
 });
-app.post('/getSetting',  isAuthenticated('User'),manageSettingController.getSetting);
-app.post('/setSetting', isAuthenticated('User') ,manageSettingController.setSetting);
+app.post('/getSetting', isAuthenticated('User'), manageSettingController.getSetting);
+app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSetting);
 app.post('/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addRcoinChargeBills);
-app.post('/addChargeBill',  isAuthenticated('User'),rechargeController.addChargeBills);
-app.post('/findChargeBill',  isAuthenticated('User'),rechargeController.findChargeBills);
+app.post('/addChargeBill', isAuthenticated('User'), rechargeController.addChargeBills);
+app.post('/findChargeBill', isAuthenticated('User'), rechargeController.findChargeBills);
 app.post('/msg/send_massage', massageChecker.smsSend);
 app.post('/msg/check_massage', massageChecker.check_code);
 
