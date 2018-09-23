@@ -210,7 +210,7 @@ exports.addDGRcoinsBill = async (req, res) => {
 
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
-
+        billObject.typeState = 1;
         let userObject = {};
         userObject.nickName = req.user.nickName;
         userObject.Rcoins = req.user.Rcoins;
