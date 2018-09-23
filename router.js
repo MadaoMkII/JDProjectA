@@ -99,7 +99,7 @@ app.get('/getBaseRate', isAuthenticated('User'), dgPayment.getBaseRateOutside);
 app.post('/delbank', isAuthenticated('User'), userController.delUserBank);
 app.post('/addbank', isAuthenticated('User'), userController.addUserBank);
 app.post('/addBankAccounts', manageSettingController.addBankAccounts);
-app.post('/getBankAccounts', manageSettingController.getBankAccounts);
+app.get('/getBankAccounts', manageSettingController.getBankAccounts);
 app.post('/zhuce', userController.zhuce);
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 app.post('/getBills', dgPayment.getBills);

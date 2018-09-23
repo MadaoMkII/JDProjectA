@@ -142,21 +142,21 @@ exports.addBankAccounts = async (req, res) => {
 exports.getBankAccounts = async (req, res) => {
 
     try {
-        let searchCommand = {};
+        // let searchCommand = {};
+        //
+        // for (let condition in req.body) {
+        //     if (!isEmpty(req.body[condition])) {
+        //         searchCommand[condition] = req.body[condition];
+        //     }
+        // }
 
-        for (let condition in req.body) {
-            if (!isEmpty(req.body[condition])) {
-                searchCommand[condition] = req.body[condition];
-            }
-        }
+        // let operator = {};
+        // if (isEmpty(req.body['page']) && !isEmpty(req.body['unit'])) {
+        //     operator.skip = (parseInt(req.body['page']) - 1) * parseInt(req.body['unit']);
+        //     operator.limit = parseInt(req.body['unit']);
+        // }
 
-        let operator = {};
-        if (isEmpty(req.body['page']) && !isEmpty(req.body['unit'])) {
-            operator.skip = (parseInt(req.body['page']) - 1) * parseInt(req.body['unit']);
-            operator.limit = parseInt(req.body['unit']);
-        }
-
-        let result = await bankAccountModel.find(searchCommand, operator);
+        let result = await bankAccountModel.find();
         return res.status(200).send({error_code: 0, error_msg: 'NO', data: result});
     } catch (err) {
         console.log(err)
