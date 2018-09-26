@@ -47,19 +47,15 @@ exports.addRcoinChargeBills = async (req, res) => {
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
         billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
 
-        if (billObject.chargeInfo.chargeMethod === "bankAccount") {
-            for (let account of  req.user.bankAccounts) {
+        for (let account of  req.user.bankAccounts) {
 
-                if (account.last6digital === req.body.chargeInfo.chargeFromAccount) {
-                    account.updated_at = undefined;
-                    account.created_at = undefined;
-                    billObject.chargeInfo.chargeFromAccount = account;
-                }
+            if (account.last6digital === req.body.chargeInfo.chargeFromAccount) {
+                account.updated_at = undefined;
+                account.created_at = undefined;
+                billObject.chargeInfo.chargeFromAccount = account;
             }
-
-        } else {
-            billObject.chargeInfo.chargeFromAccount = req.body.chargeInfo.chargeFromAccount;
         }
+
 
 
         let [rate, feeRate, feeAmount, totalAmount] = await dgPayment.getRate(req, res);

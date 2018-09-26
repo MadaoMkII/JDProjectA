@@ -92,6 +92,7 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 app.post('/getDataAnalyst', isAuthenticated('User'), processOrderController.getDataAnalyst);
+app.post('/addProcessOrderForCharge', isAuthenticated('User'), processOrderController.addProcessOrderForRcoinCharge);
 app.post('/referer', isAuthenticated('User'), userController.setReferer);
 app.post('/addUserRealName', isAuthenticated('User'), userController.addUserRealName);
 app.post('/setBaseRate', isAuthenticated('User'), dgPayment.setBaseRateOutside);
@@ -108,8 +109,8 @@ app.post('/getBills', dgPayment.getBills);
 app.post('/addProcessOrder', processOrderController.addProcessOrder);
 app.post('/addReplacePostageBill', isAuthenticated('User'), dgPayment.addReplacePostageBill);
 app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
-
 app.post('/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
+
 app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
 
 app.post('/addAnnouncement', announcementController.addAnnouncement);

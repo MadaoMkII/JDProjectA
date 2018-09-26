@@ -21,17 +21,39 @@ const referer = new mongoose.Schema(
         referralsUUID: {type: String, required: true}
     }, {_id: false}, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
+
 let refererModel = mongoose.model('referer', referer);
-exports.refererModel = refererModel;
-const myGrowthPointEvent = new mongoose.Schema(
+
+
+const myEvent = new mongoose.Schema(
     {
         eventType: {type: String, required: true},
         content: {type: String},
-        amount: Number,
+        amount: {type: String, required: true, set: tool.encrypt, get: tool.decrypt},
         behavior: {type: String},
-        referralsUUID: {type: String, required: true}
-    }, {_id: false}
+        referralsUUID: {type: String}
+    }, {
+        'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}
+    }
 );
+myEvent.set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret) => {
+        delete ret.__v;
+        delete ret._id;
+        delete ret.id;
+        delete ret.password;
+        delete ret.myBills;
+        ret.amount = parseInt(tool.decrypt(doc.amount));
+        if (doc.created_at && doc.updated_at) {
+            ret.created_at = new Date(doc.created_at).getTime();
+            ret.updated_at = new Date(doc.updated_at).getTime();
+        }
+        if (doc.last_login_time) {
+            ret.last_login_time = new Date(doc.last_login_time).getTime();
+        }
+    }
+});
 const aliPayAccount = new mongoose.Schema(
     {
         realName: {type: String, required: true},
@@ -79,8 +101,8 @@ let userAccountSchema = new mongoose.Schema({
     nickName: {type: String, default: '无名氏'},
     realName: String,
     realIDNumber: String,
-    whatHappenedToMe: [myGrowthPointEvent],
-    Rcoins: {type: String, required: true, set: tool.encrypt, get: tool.decrypt},
+    whatHappenedToMe: [myEvent],
+    Rcoins: {type: String, required: true},
     returnCoins: {type: Number, default: 0},
     growthPoints: {type: Number, default: 0},
     numberOfReferrers: {type: Number, default: 0},
@@ -104,7 +126,7 @@ userAccountSchema.set('toJSON', {
         delete ret.id;
         delete ret.password;
         delete ret.myBills;
-        ret.Rcoins = doc.Rcoins;
+
         if (doc.created_at && doc.updated_at) {
             ret.created_at = new Date(doc.created_at).getTime();
             ret.updated_at = new Date(doc.updated_at).getTime();
@@ -122,7 +144,8 @@ userAccountSchema.set('toObject', {
     //     ret.Rcoins = tool.decrypt(doc.Rcoins);
     // }
 });
-
+let myEventModel = mongoose.model('myEvent', myEvent);
 let userAccountModel = mongoose.model('userAccount', userAccountSchema);
 exports.userAccountModel = userAccountModel;
-
+exports.refererModel = refererModel;
+exports.myEventModel = myEventModel;
