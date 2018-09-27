@@ -24,9 +24,32 @@ exports.getDataAnalyst = async (req, res) => {
             };
         }
         console.log(searchConditions)
-        let result = await dataAnalystModel.find(searchConditions);
+        let result = await dataAnalystModel.aggregate([
+                {
+                    $match: searchConditions
+                },
+                {
+                    $group: {
+                        _id: '$itemWebType',
+                        totalAmount: {$sum: `$amount`},
+                        count: {$sum: `$count`}
+                        // avg: {$avg: '$price'}
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        itemWebType: "$_id",
+                        count: 1,
+                        totalAmount: 1
+                    }
+                }
+            ]
+        );
+        //let result = await dataAnalystModel.find(searchConditions, {}, {"group": `itemWebType`});
         return res.status(200).json({error_msg: 'ok', error_code: "0", data: result});
     } catch (e) {
+        console.log(e)
         return res.status(500).json({error_msg: e, error_code: "500"});
     }
 };
