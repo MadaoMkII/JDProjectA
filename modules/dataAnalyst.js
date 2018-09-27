@@ -3,9 +3,7 @@ const mongoose = require('../db/db').mongoose;
 
 const dataAnalyst = new mongoose.Schema(
     {
-        year: {type: String, required: true},
-        month: {type: String, required: true},
-        day: {type: String, required: true},
+        dateClock: Date,
         itemWebType: {type: String, required: true},
         amount: {type: Number, default: 0},
         count: {type: Number, default: 0},

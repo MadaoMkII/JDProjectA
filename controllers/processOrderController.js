@@ -15,6 +15,13 @@ exports.getDataAnalyst = async (req, res) => {
                 searchConditions[index] = req.body[index];
             }
         }
+        if (req.body['beforeDate'] && req.body['afterDate']) {
+            searchConditions['dateClock'] = {
+                $lte: new Date(req.body['beforeDate']),
+                $gte: new Date(req.body['afterDate'])
+            };
+        }
+
         let result = await dataAnalystModel.find(searchConditions);
         return res.status(200).json({error_msg: 'ok', error_code: "0", data: result});
     } catch (e) {
@@ -50,28 +57,36 @@ exports.addProcessOrder = async (req, res) => {
             }
         }
         await processOrderObject.save();
+
+
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
             {$set: {processOrder: processOrderObject._id}}, {new: true}).populate(`processOrder`);
-        let myEvent = {
-            eventType: `growthPoint`,
-            //content: `xxx`,
 
-        };
+
+        let myEvent1 = new myEventModel();
+        myEvent1.eventType = `growthPoint`;
+        myEvent1.behavior = `consume`;
+        myEvent1.amount = dgBillEntity.RMBAmount;
+
+        let myEvent2 = new myEventModel();
+        myEvent2.eventType = `growthPoint`;
+
+
         let userResult;
 
         if (dgBillEntity.typeStr === `其他支付方式代付` &&
             dgBillEntity.is_firstOrder === true &&
             dgBillEntity.paymentInfo.paymentMethod === "Alipay") {
-            myEvent.amount = 10;
-            myEvent.behavior = `first Alipay consumption`;
+            myEvent2.amount = 10;
+            myEvent2.behavior = `first Alipay consumption`;
             userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
                 $inc: {growthPoints: 10},
                 $push: {whatHappenedToMe: myEvent},
                 $set: {"userStatus.isFirstTimePaid": true}
             }, {new: true});
         } else {
-            myEvent.amount = 1;
-            myEvent.behavior = `consumption`;
+            myEvent2.amount = 1;
+            myEvent2.behavior = `consumption`;
             userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
                 $inc: {growthPoints: 1},
                 $push: {whatHappenedToMe: myEvent}
@@ -109,7 +124,20 @@ exports.addProcessOrder = async (req, res) => {
         return res.status(500).json({error_msg: e, error_code: "500"});
     }
 };
+exports.ccceshi = async (req, res) => {
+    let myDate = new Date();
+    await dataAnalystModel.findOneAndUpdate({
+        dateoftest:new Date('2014-08-18'),
+        year: myDate.getFullYear(),
+        month: myDate.getMonth() + 1,
+        day: myDate.getDate(),
+        itemWebType: `测试`
+    }, {$inc: {count: 1, amount: 110}}, {new: true, upsert: true});
 
+    return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
+
+
+}
 exports.addProcessOrderForRcoinCharge = async (req, res) => {
 
 

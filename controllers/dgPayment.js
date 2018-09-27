@@ -150,13 +150,7 @@ exports.addDGByALIBill = async (req, res) => {
         billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
 
         console.log(req.user.userStatus.isFirstTimePaid)
-        if (!req.user.userStatus.isFirstTimePaid) {
-
-            billObject.is_firstOrder = true;
-        } else {
-            billObject.is_firstOrder = false;
-        }
-
+        billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
 
         billObject.typeStr = req.body.typeStr;
         let user = {};
@@ -188,10 +182,10 @@ exports.addDGRcoinsBill = async (req, res) => {
             Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.RMBAmount) < 0) {
             return res.status(400).send({error_code: 400, error_msg: '要不起'});
         }
-        if (req.body.itemInfo.itemLink.search("tmall.com") != -1) {
+        if (req.body.itemInfo.itemLink.search("tmall.com") !== -1) {
             billObject.itemInfo.itemWebType = "tmall";
 
-        } else if (req.body.itemInfo.itemLink.search("taobao.com") != -1) {
+        } else if (req.body.itemInfo.itemLink.search("taobao.com") !== -1) {
             billObject.itemInfo.itemWebType = "taobao";
         } else {
             billObject.itemInfo.itemWebType = "others";
