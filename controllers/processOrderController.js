@@ -15,13 +15,15 @@ exports.getDataAnalyst = async (req, res) => {
                 searchConditions[index] = req.body[index];
             }
         }
+        delete searchConditions[`beforeDate`];
+        delete searchConditions[`afterDate`];
         if (req.body['beforeDate'] && req.body['afterDate']) {
             searchConditions['dateClock'] = {
                 $lte: new Date(req.body['beforeDate']),
                 $gte: new Date(req.body['afterDate'])
             };
         }
-
+        console.log(searchConditions)
         let result = await dataAnalystModel.find(searchConditions);
         return res.status(200).json({error_msg: 'ok', error_code: "0", data: result});
     } catch (e) {
@@ -127,7 +129,7 @@ exports.addProcessOrder = async (req, res) => {
 exports.ccceshi = async (req, res) => {
     let myDate = new Date();
     await dataAnalystModel.findOneAndUpdate({
-        dateoftest:new Date('2014-08-18'),
+        dateoftest: new Date('2014-08-18'),
         year: myDate.getFullYear(),
         month: myDate.getMonth() + 1,
         day: myDate.getDate(),

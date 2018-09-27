@@ -24,28 +24,28 @@ let ccceshi = async () => {
 
     await dataAnalystModel.findOneAndUpdate({
         dateClock:new Date(`2014-05-01`),
-        itemWebType: `测试`
+        itemWebType: `天猫淘宝代付`
     }, {$inc: {count: 1, amount: 110}}, {new: true, upsert: true});
     await dataAnalystModel.findOneAndUpdate({
         dateClock:new Date(`2018-11-11`),
-        itemWebType: `测试`
-    }, {$inc: {count: 1, amount: 110}}, {new: true, upsert: true});
+        itemWebType: `阿里巴巴代付`
+    }, {$inc: {count: 5, amount: 1210}}, {new: true, upsert: true});
     await dataAnalystModel.findOneAndUpdate({
         dateClock:new Date(`2014-11-21`),
-        itemWebType: `测试`
-    }, {$inc: {count: 1, amount: 110}}, {new: true, upsert: true});
+        itemWebType: `代付`
+    }, {$inc: {count: 39, amount: 18800}}, {new: true, upsert: true});
     await dataAnalystModel.findOneAndUpdate({
         dateClock:new Date(`2016-04-10`),
-        itemWebType: `测试`
-    }, {$inc: {count: 1, amount: 110}}, {new: true, upsert: true});
+        itemWebType: `代付`
+    }, {$inc: {count: 89, amount: 58910}}, {new: true, upsert: true});
     await dataAnalystModel.findOneAndUpdate({
         dateClock:new Date(`2016-10-01`),
-        itemWebType: `测试`
-    }, {$inc: {count: 1, amount: 110}}, {new: true, upsert: true});
+        itemWebType: `代付`
+    }, {$inc: {count: 1121, amount: 1105884}}, {new: true, upsert: true});
     await dataAnalystModel.findOneAndUpdate({
         dateClock:new Date(`2015-05-21`),
-        itemWebType: `测试`
-    }, {$inc: {count: 1, amount: 110}}, {new: true, upsert: true});
+        itemWebType: `代付`
+    }, {$inc: {count: 601, amount: 15890}}, {new: true, upsert: true});
 
 
 }
