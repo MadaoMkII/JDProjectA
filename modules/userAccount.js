@@ -102,7 +102,7 @@ let userAccountSchema = new mongoose.Schema({
     realName: String,
     realIDNumber: String,
     whatHappenedToMe: [myEvent],
-    Rcoins: {type: String, required: true},
+    Rcoins: {type: String, required: true, set: tool.encrypt, get: tool.decrypt},
     returnCoins: {type: Number, default: 0},
     growthPoints: {type: Number, default: 0},
     numberOfReferrers: {type: Number, default: 0},
@@ -126,7 +126,7 @@ userAccountSchema.set('toJSON', {
         delete ret.id;
         delete ret.password;
         delete ret.myBills;
-
+        ret.Rcoins = doc.Rcoins;
         if (doc.created_at && doc.updated_at) {
             ret.created_at = new Date(doc.created_at).getTime();
             ret.updated_at = new Date(doc.updated_at).getTime();
