@@ -23,7 +23,7 @@ exports.getDataAnalyst = async (req, res) => {
                 $gte: new Date(req.body['afterDate'])
             };
         }
-        console.log(searchConditions)
+
         let result = await dataAnalystModel.aggregate([
                 {
                     $match: searchConditions
@@ -46,8 +46,24 @@ exports.getDataAnalyst = async (req, res) => {
                 }
             ]
         );
+        let resultMap = new Map();
+        resultMap.set(`天猫淘宝代付`, {"totalAmount": 0, "count": 0,});
+        resultMap.set(`阿里巴巴代付`, {"totalAmount": 0, "count": 0,});
+        resultMap.set(`支付宝充值`, {"totalAmount": 0, "count": 0,});
+        resultMap.set(`微信充值`, {"totalAmount": 0, "count": 0,});
+        resultMap.set(`代购`, {"totalAmount": 0, "count": 0,});
+        for (let resultEntityKey of result) {
+            resultMap.set(resultEntityKey.itemWebType,
+                {"totalAmount": resultEntityKey.totalAmount, "count": resultEntityKey.count});
+
+        }
+        let lastResult = [];
+        resultMap.forEach((value, key) => {
+
+            lastResult.push({itemWebType: key, count: value.count, totalAmount: value.totalAmount});
+        });
         //let result = await dataAnalystModel.find(searchConditions, {}, {"group": `itemWebType`});
-        return res.status(200).json({error_msg: 'ok', error_code: "0", data: result});
+        return res.status(200).json({error_msg: 'ok', error_code: "0", data: lastResult});
     } catch (e) {
         console.log(e)
         return res.status(500).json({error_msg: e, error_code: "500"});
