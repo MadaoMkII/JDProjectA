@@ -111,10 +111,10 @@ exports.addDGByALIBill = async (req, res) => {
         let billObject = new dgBillModel();
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
-        if (req.body.itemInfo.itemLink.search("detail.tmall.com") != -1) {
+        if (req.body.itemInfo.itemLink.search("detail.tmall.com") !== -1) {
             billObject.itemInfo.itemWebType = "tmall";
 
-        } else if (req.body.itemInfo.itemLink.search("taobao.com") != -1) {
+        } else if (req.body.itemInfo.itemLink.search("taobao.com") !== -1) {
             billObject.itemInfo.itemWebType = "taobao";
         } else {
             billObject.itemInfo.itemWebType = "others";

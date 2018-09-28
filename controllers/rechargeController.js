@@ -67,6 +67,7 @@ exports.addRcoinChargeBills = async (req, res) => {
         billObject.save();
         return res.status(200).send({error_code: 0, error_msg: billObject});
     } catch (e) {
+        console.log(e)
         return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
     }
 

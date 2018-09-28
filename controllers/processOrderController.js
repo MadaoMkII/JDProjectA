@@ -219,7 +219,7 @@ exports.addProcessOrderForRcoinCharge = async (req, res) => {
         userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
             $inc: {growthPoints: 1},
             $push: {whatHappenedToMe: myEvent},
-            $set: {Rcoins: rcoins}
+            $set: {Rcoins: tools.encrypt(rcoins)}
         }, {new: true});
         req.user = userResult;
 
@@ -261,9 +261,7 @@ exports.addProcessOrderForRcoinCharge = async (req, res) => {
 
 
         let dataAnalyst = await dataAnalystModel.findOneAndUpdate({
-            year: myDate.getFullYear(),
-            month: myDate.getMonth() + 1,
-            day: myDate.getDate(),
+            dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
             itemWebType: `Rcoin recharge`
         }, {$inc: {count: 1, amount: chargeBill.RMBAmount}}, {new: true, upsert: true});
         console.log(dataAnalyst)

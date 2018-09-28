@@ -43,7 +43,8 @@ chargeBillSchema.set('toJSON', {
         transform: function (doc, ret) {
             delete ret.uuid;
             delete ret._id;
-            delete ret.chargeInfo.chargeFromAccount._id;
+            delete ret.id;
+           // delete re.chargeInfo.chargeFromAccount._id;
             delete ret.__v;
             if (doc.created_at && doc.updated_at) {
                 ret.created_at = new Date(doc.created_at).getTime();
