@@ -67,9 +67,6 @@ let getPrivilege = (privilegeName) => {
         case 'Super_Admin':
             privilege = 50;
             break;
-        case 'Agent':
-            privilege = 10;
-            break;
         case 'User':
             privilege = 10;
             break;

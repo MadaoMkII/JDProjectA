@@ -2,7 +2,7 @@ const redis = require("redis"),
     redisClient = redis.createClient();
 const userAccountModel = require('../modules/userAccount').userAccountModel;
 //const regex = /^(09)[0-9]{8}$/;
-const MessageXSend = require('../lib/SUBMAIL/messageXSend');
+const MessageXSend = require('../lib/SUBMAIL/intersmsXsend');
 const message = new MessageXSend();
 
 
@@ -34,7 +34,7 @@ exports.smsSend = (req, res) => {
             } else {
 
                 message.set_to(tel);
-                message.set_project('S2ID91');
+                message.set_project('WnDSX2');
                 message.add_var('code', verity_code);
                 message.add_var('time', '60sec');
                 message.xsend(() => {

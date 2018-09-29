@@ -91,6 +91,12 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+app.post('/uploadImgArrayForEndpoint', isAuthenticated('User'), picController.uploadImgArrayForEndpoint);
+app.post('/setUserRole', isAuthenticated('Super_Admin'), userController.setUserRole);
+app.post('/zhuceSuperAdmin', userController.zhuce);
+app.post('/findUser', isAuthenticated('User'), userController.findUser);
+app.post('/findThisUserRcoinRecord', isAuthenticated('User'), dgPayment.findThisUserRcoinRecord);
+
 app.post('/getDataAnalyst', isAuthenticated('User'), processOrderController.getDataAnalyst);
 app.post('/addProcessOrderForCharge', isAuthenticated('User'), processOrderController.addProcessOrderForRcoinCharge);
 app.post('/referer', isAuthenticated('User'), userController.setReferer);
@@ -102,7 +108,7 @@ app.post('/delbank', isAuthenticated('User'), userController.delUserBank);
 app.post('/addbank', isAuthenticated('User'), userController.addUserBank);
 app.post('/addBankAccounts', manageSettingController.addBankAccounts);
 app.get('/getBankAccounts', manageSettingController.getBankAccounts);
-app.post('/zhuce', userController.zhuce);
+
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 app.post('/getBills', dgPayment.getBills);
 

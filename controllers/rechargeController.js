@@ -34,6 +34,8 @@ exports.findChargeBills = async (req, res) => {
 
     return res.status(200).send({error_code: 200, error_msg: billResult, nofdata: billCount});
 };
+
+
 exports.addRcoinChargeBills = async (req, res) => {
 
 
@@ -55,8 +57,6 @@ exports.addRcoinChargeBills = async (req, res) => {
                 billObject.chargeInfo.chargeFromAccount = account;
             }
         }
-
-
 
         let [rate, feeRate, feeAmount, totalAmount] = await dgPayment.getRate(req, res);
         billObject.NtdAmount = totalAmount;

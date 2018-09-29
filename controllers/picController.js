@@ -52,7 +52,22 @@ exports.getImgs = (req, res) => {
         }
     });
 };
+exports.uploadImgArrayForEndpoint = async (req, res) => {
 
+    try {
+        const [returnReq] = await uploadImgAsyncArray(req, res);
+        let imgObject = [];
+        for (let img of returnReq.files) {
+            imgObject.push(img.filename);
+        }
+        return res.json({error_msg: `OK`, error_code: "0", data: imgObject});
+
+    } catch (e) {
+        console.log(e)
+        return res.status(400).json({error_msg: `400`, error_code: "upload Images Error"});
+    }
+
+};
 exports.uploadImgArray = async (req, res, callback) => {
 
     uploadArray(req, res, (err) => {
@@ -70,7 +85,7 @@ exports.uploadImgArray = async (req, res, callback) => {
 
     });
 };
-exports.uploadImgAsyncArray = (req, res) => {
+let uploadImgAsyncArray = (req, res) => {
 
     return new Promise((resolve, reject) => {
         uploadArray(req, res, (err) => {
@@ -168,3 +183,4 @@ exports.findImgById = (req, res) => {
     })
 };
 
+exports.uploadImgAsyncArray = uploadImgAsyncArray;

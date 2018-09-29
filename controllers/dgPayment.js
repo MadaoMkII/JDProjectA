@@ -1,11 +1,10 @@
 const dgBillModel = require('../modules/dgBill').dgBillModel;
 const replacePostageBillModel = require('../modules/dgBill').replacePostageBillModel;
 const baseRateModelModel = require('../modules/managerConfigFeatures').baseRateModel;
-//const logger = require('../logging/logger');
 const userModel = require('../modules/userAccount').userAccountModel;
 const manageSettingController = require('../controllers/manageSettingController');
 const tool = require('../config/tools');
-
+const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 let getBaseRate = (req, res) => {
     return new Promise((resolve, reject) => {
 
@@ -33,7 +32,7 @@ exports.setBaseRateOutside = async (req, res) => {
             , {upsert: true, new: true});
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: result});
     } catch (e) {
-        console.log(e)
+
         return res.status(403).send({error_code: 403, error_msg: `Error when try to save`});
     }
 
@@ -85,6 +84,7 @@ let getRate = (req, res) => {
         }
     });
 };
+
 exports.getThisUserRcoinRate = async (req, res) => {
     try {
         let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
@@ -104,7 +104,40 @@ exports.getThisUserRcoinRate = async (req, res) => {
 
 };
 
+exports.findThisUserRcoinRecord = async (req, res) => {
 
+    try {
+
+        let operator = {sort: {updated_at: -1}};
+        if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
+            operator.skip = (parseInt(req.body['page']) - 1) * parseInt(req.body['unit']);
+            operator.limit = parseInt(req.body['unit']);
+        }
+
+        let chargeResult = await chargeBillModel.find({userUUid: req.user.uuid, typeStr: `R币充值`},
+            {_id: 0}, operator);
+
+        let dgBillResult = await dgBillModel.find({
+            userUUid: req.user.uuid,
+            $or: [
+                {"typeStr": `R币代购`},
+                {"typeStr": `R币代付`}
+            ]
+        }, {_id: 0}, operator);
+
+        let resultArray = {RcoinsConsume: dgBillResult, RcoinsRecharge: chargeResult};
+
+
+        return res.status(200).send({
+            error_code: 0, error_msg: "OK", data: resultArray
+        });
+
+    } catch (e) {
+        console.log(e)
+        return res.status(513).send({error_code: 513, error_msg: e});
+    }
+
+};
 exports.addDGByALIBill = async (req, res) => {
 
     try {
@@ -138,6 +171,7 @@ exports.addDGByALIBill = async (req, res) => {
         req.body.rateType = `AlipayAndWechatRate`;
         let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
         billObject.RMBAmount = req.body.RMBAmount;
+        billObject.feeRate = feeRate;
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
         billObject.comment = req.body.comment;
@@ -149,7 +183,6 @@ exports.addDGByALIBill = async (req, res) => {
         billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
         billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
 
-        console.log(req.user.userStatus.isFirstTimePaid)
         billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
 
         billObject.typeStr = req.body.typeStr;
@@ -167,7 +200,7 @@ exports.addDGByALIBill = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (e) {
-        console.log(e)
+
         return res.status(513).send({error_code: 513, error_msg: e});
     }
 };
@@ -213,7 +246,7 @@ exports.addDGRcoinsBill = async (req, res) => {
 
         req.body.rateType = `RcoinRate`;
         const [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
-
+        billObject.feeRate = feeRate;
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
@@ -238,7 +271,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (e) {
-        console.log(e)
+
         return res.status(513).send({error_code: 513, error_msg: e});
     }
 };
@@ -276,7 +309,7 @@ exports.getBills = async (req, res) => {
         return res.status(200).send({error_code: 503, error_msg: billResult, nofdata: billCount});
 
     } catch (err) {
-        console.log(err)
+
         return res.status(503).send({error_code: 503, error_msg: err});
     }
 

@@ -104,57 +104,50 @@ exports.addProcessOrder = async (req, res) => {
             {$set: {processOrder: processOrderObject._id}}, {new: true}).populate(`processOrder`);
 
 
-        let myEvent1 = new myEventModel();
-        myEvent1.eventType = `growthPoint`;
-        myEvent1.behavior = `consume`;
-        myEvent1.amount = dgBillEntity.RMBAmount;
-
-        let myEvent2 = new myEventModel();
-        myEvent2.eventType = `growthPoint`;
-
-
         let userResult;
 
         if (dgBillEntity.typeStr === `其他支付方式代付` &&
             dgBillEntity.is_firstOrder === true &&
             dgBillEntity.paymentInfo.paymentMethod === "Alipay") {
-            myEvent2.amount = 10;
-            myEvent2.behavior = `first Alipay consumption`;
+            let tempEvent = new myEventModel();
+            tempEvent.eventType = `growthPoint`;
+            tempEvent.amount = dgBillEntity.RMBAmount;
+            tempEvent.amount = 10;
+            tempEvent.behavior = `first Alipay consumption`;
+
             userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
                 $inc: {growthPoints: 10},
-                $push: {whatHappenedToMe: myEvent},
+                $push: {whatHappenedToMe: tempEvent},
                 $set: {"userStatus.isFirstTimePaid": true}
             }, {new: true});
         } else {
-            myEvent2.amount = 1;
-            myEvent2.behavior = `consumption`;
+            let tempEvent = new myEventModel();
+            tempEvent.eventType = `growthPoint`;
+            tempEvent.amount = 1;
+            tempEvent.behavior = `consumption`;
             userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
                 $inc: {growthPoints: 1},
-                $push: {whatHappenedToMe: myEvent}
+                $push: {whatHappenedToMe: tempEvent}
             }, {new: true});
 
         }
 
-        let giveThemMyEvent = {
-            eventType: `growthPoint`,
-            //content: `xxx`,
-            amount: 10,
-            behavior: `referrals consumption`,
-            referralsUUID: dgBillEntity.userUUid
-        };
+        let giveThemMyEvent = new myEventModel();
+        giveThemMyEvent.eventType = `growthPoint`;
+        giveThemMyEvent.amount = 10;
+        giveThemMyEvent.referralsUUID = dgBillEntity.userUUid;
+        //content: `xxx`,
+
         if (!tools.isEmpty(userResult.referrer) && !tools.isEmpty(userResult.referrer.referrerUUID)) {
-            for (let index of  userResult.referrer.referrerUUID) {
-                await userModel.findOneAndUpdate({uuid: index}, {
-                    $inc: {growthPoints: 10}, $push: {whatHappenedToMe: giveThemMyEvent}
-                }, {new: true});//日子
-            }
+            await userModel.findOneAndUpdate({uuid: userResult.referrer.referrerUUID}, {
+                $inc: {growthPoints: 10}, $push: {whatHappenedToMe: giveThemMyEvent}
+            }, {new: true});//日子
+
         }
         let myDate = new Date();
 
         await dataAnalystModel.findOneAndUpdate({
-            year: myDate.getFullYear(),
-            month: myDate.getMonth() + 1,
-            day: myDate.getDate(),
+            dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
             itemWebType: dgBillEntity.itemInfo.itemWebType
         }, {$inc: {count: 1, amount: dgBillEntity.NtdAmount}}, {new: true, upsert: true});
 
@@ -165,20 +158,7 @@ exports.addProcessOrder = async (req, res) => {
         return res.status(500).json({error_msg: e, error_code: "500"});
     }
 };
-exports.ccceshi = async (req, res) => {
-    let myDate = new Date();
-    await dataAnalystModel.findOneAndUpdate({
-        dateoftest: new Date('2014-08-18'),
-        year: myDate.getFullYear(),
-        month: myDate.getMonth() + 1,
-        day: myDate.getDate(),
-        itemWebType: `测试`
-    }, {$inc: {count: 1, amount: 110}}, {new: true, upsert: true});
 
-    return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
-
-
-}
 exports.addProcessOrderForRcoinCharge = async (req, res) => {
 
 

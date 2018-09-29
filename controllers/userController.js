@@ -61,15 +61,15 @@ exports.dujiuxing = async (req, res) => {
     });
 
 
-}
+};
 exports.zhuce = async (req, res) => {
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
     let uuid = uuidv1();
     let userInfo = {
         uuid: uuid,
         password: result,
-        role: 'User',
-        Rcoins: 198,
+        role: 'Super_Admin',
+        Rcoins: 188,
         tel_number: req.body.tel_number,
         email_address: req.body.email
     };
@@ -82,7 +82,48 @@ exports.zhuce = async (req, res) => {
     });
 
 };
+exports.setUserRole = async (req, res) => {
 
+    try {
+        let role = ``;
+        if (req.body[`roleCode`] === 1) {
+            role = `Admin`;
+        }
+        if (req.body[`roleCode`] === 0) {
+            role = `User`;
+        }
+        let result = await userModel.findOneAndUpdate({uuid: req.body.uuid}, {$set: {role: role}}, {new: true});
+        req.user = result;
+        return res.status(200).json({"error_code": 200, error_massage: "OK", data: result});
+    } catch (e) {
+        return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
+    }
+
+};
+
+exports.findUser = async (req, res) => {
+    try {
+        let operator = {};
+        if (!tools.isEmpty(req.body['page']) && !tools.isEmpty(req.body['unit'])) {
+            operator.skip = (req.body['page'] - 1) * req.body['unit'];
+            operator.limit = parseInt(req.body['unit']);
+        }
+        let billCount = await userModel.count();
+        let result = await  userModel.find({}, {
+            password: 0, userStatus: 0,
+            whatHappenedToMe: 0, returnCoins: 0
+        }, operator);
+        return res.status(200).json({
+            "error_code": 0,
+            "data": result,
+            nofdata: billCount
+        });
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
+    }
+
+};
 exports.userSignUp = (req, res) => {
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
     let uuid = uuidv1();
@@ -467,7 +508,7 @@ exports.setReferer = async (req, res) => {
 
         let referrals = await userModel.findOne(search);
 
-        await userModel.update({uuid: referrals.uuid}, {$push: {"referrer.referrerUUID": req.user.uuid}}, {
+        await userModel.update({uuid: referrals.uuid}, {$set: {"referrer.referrerUUID": req.user.uuid}}, {
             upsert: true
         });//被推荐人
         await userModel.update({uuid: req.user.uuid}, {$set: {"referrer.referralsUUID": referrals.uuid}}, {
@@ -477,8 +518,8 @@ exports.setReferer = async (req, res) => {
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
             $set: {"userStatus.isRefereed": true},
             $inc: {growthPoints: 10}
-        });
-
+        }, {new: true});
+        req.user = user;
         return res.status(200).json({error_massage: 'OK', error_code: 0, data: user});
     } catch (e) {
         console.log(e)
