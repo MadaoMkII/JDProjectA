@@ -58,9 +58,9 @@ exports.uploadImgForEndpoint = async (req, res) => {
 
         const [returnReq] = await uploadImgAsync(req, res);
         let imgObject = [];
-        for (let img of returnReq.files) {
-            imgObject.push(`http://www.yubaopay.com.tw/image/${img.filename}`);
-        }
+
+        imgObject.push(`http://www.yubaopay.com.tw/image/${returnReq.file.filename}`);
+
         return res.json({error_msg: `OK`, error_code: "0", data: imgObject});
 
     } catch (e) {
