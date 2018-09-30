@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const multer = require('multer');
 const GridFsStorage = require('multer-gridfs-storage');
 const mongoose = require('../db/db').mongoose;
-
+const logger = require('../logging/logger');
 const grid = require('gridfs-stream');
 
 let gridfs = {};
@@ -64,7 +64,9 @@ exports.uploadImgArrayForEndpoint = async (req, res) => {
         return res.json({error_msg: `OK`, error_code: "0", data: imgObject});
 
     } catch (e) {
-        console.log(e)
+        logger.info(req.body);
+        logger.error('Error location : Class: picController, function: getOrderForm. ' + e);
+        logger.error('Response code:406, message: Not Successed Saved');
         return res.status(400).json({error_msg: `400`, error_code: "upload Images Error"});
     }
 

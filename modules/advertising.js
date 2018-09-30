@@ -1,6 +1,5 @@
 const mongoose = require('../db/db').mongoose;
 
-
 const advertising = new mongoose.Schema(
     {
         L1_category: String,
@@ -9,9 +8,10 @@ const advertising = new mongoose.Schema(
         advertisingID: {type: String, required: true, unique: true},
         referer: {type: String, required: true},
         link: {type: String, required: true, unique: true},
-        filename: String
+        imageLink: String
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
+
 advertising.set('toJSON', {
         virtuals: true,
         transform: function (doc, ret) {
@@ -30,5 +30,6 @@ advertising.set('toJSON', {
         }
     }
 );
+
 let advertisingModel = mongoose.model('advertising', advertising);
 exports.advertisingModel = advertisingModel;

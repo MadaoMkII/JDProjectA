@@ -40,13 +40,14 @@ exports.addAdvertising = (req, res) => {
     advertisingObject.L1_category = req.body.L1_category;
     advertisingObject.L2_category = req.body.L2_category;
     advertisingObject.link = req.body.link.trim();
-    //advertisingObject.filename = req.file.filename;
+    advertisingObject.imageLink = req.body.imageLink;
     advertisingObject.item_name = req.body.item_name;
     advertisingObject.topic = req.body.topic;
     advertisingObject.advertisingID = uuidv1();
     advertisingObject.save(err => {
         if (err) {
-            return res.json({error_msg: `400`, error_code: "advertising Error"});
+
+            return res.status(500).json({error_msg: `500`, error_code: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0"});
         }

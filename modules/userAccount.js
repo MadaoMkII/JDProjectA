@@ -118,12 +118,12 @@ userAccountSchema.virtual('VIPLevel').get(() => {
     return vipCoculart(this.growthPoints);
 });
 
-userAccountSchema.virtual('referer', {
-    ref: 'userAccount',
-    localField: 'author_id',
-    foreignField: 'id',
-    justOne: true // for many-to-1 relationships
-});
+// userAccountSchema.virtual('referer', {
+//     ref: 'userAccount',
+//     localField: 'author_id',
+//     foreignField: 'id',
+//     justOne: true // for many-to-1 relationships
+// });
 
 userAccountSchema.set('toJSON', {
     virtuals: true,
