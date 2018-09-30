@@ -91,7 +91,7 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-app.post('/uploadImgArrayForEndpoint', isAuthenticated('User'), picController.uploadImgForEndpoint);
+app.post('/uploadImgForEndpoint', isAuthenticated('User'), picController.uploadImgForEndpoint);
 app.post('/setUserRole', isAuthenticated('Super_Admin'), userController.setUserRole);
 app.post('/zhuceSuperAdmin', userController.zhuce);
 app.post('/findUser', isAuthenticated('User'), userController.findUser);
