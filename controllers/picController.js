@@ -59,9 +59,9 @@ exports.uploadImgForEndpoint = async (req, res) => {
         const [returnReq] = await uploadImgAsync(req, res);
         let imgObject = [];
         logger.info(returnReq.file);
-        if (tool.isEmpty(returnReq.file)) {
-            return res.status(400).json({error_msg: `图片获取为空`, error_code: "400"});
-        }
+        // if (tool.isEmpty(returnReq.file)) {
+        //     return res.status(400).json({error_msg: `图片获取为空`, error_code: "400"});
+        // }
         imgObject.push(`http://www.yubaopay.com.tw/image/${returnReq.file.filename}`);
 
         return res.json({error_msg: `OK`, error_code: "0", data: imgObject});
