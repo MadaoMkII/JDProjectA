@@ -54,6 +54,7 @@ myEvent.set('toJSON', {
         }
     }
 });
+
 const aliPayAccount = new mongoose.Schema(
     {
         realName: {type: String, required: true},
@@ -113,10 +114,16 @@ let userAccountSchema = new mongoose.Schema({
     last_login_time: Date
 }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
 
-userAccountSchema.virtual('VIPLevel').get(function () {
+userAccountSchema.virtual('VIPLevel').get(() => {
     return vipCoculart(this.growthPoints);
 });
 
+userAccountSchema.virtual('referer', {
+    ref: 'userAccount',
+    localField: 'author_id',
+    foreignField: 'id',
+    justOne: true // for many-to-1 relationships
+});
 
 userAccountSchema.set('toJSON', {
     virtuals: true,

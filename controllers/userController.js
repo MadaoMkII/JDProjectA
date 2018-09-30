@@ -58,7 +58,29 @@ exports.setUserRole = async (req, res) => {
     }
 
 };
+exports.findUserReferer = async (req, res) => {
+    try {
+        let operator = {};
+        if (!tools.isEmpty(req.body['page']) && !tools.isEmpty(req.body['unit'])) {
+            operator.skip = (req.body['page'] - 1) * req.body['unit'];
+            operator.limit = parseInt(req.body['unit']);
+        }
+        let billCount = await userModel.count();
+        let result = await  userModel.find({}, {
+            password: 0, userStatus: 0,
+            whatHappenedToMe: 0, returnCoins: 0
+        }, operator);
+        return res.status(200).json({
+            "error_code": 0,
+            "data": result,
+            nofdata: billCount
+        });
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
+    }
 
+};
 exports.findUser = async (req, res) => {
     try {
         let operator = {};

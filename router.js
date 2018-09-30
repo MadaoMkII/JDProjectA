@@ -175,7 +175,6 @@ app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
 app.post('/user/addReferenceAccount', isAuthenticated('User'), userController.addReferenceAccount);
 app.post('/user/updateReferenceAccount', isAuthenticated('User'), userController.updateReferenceAccount);
 
-app.get('/dujiuxing', userController.dujiuxing);
 app.post('/signup', userController.userSignUp);
 
 app.post('/login', loginUser.loginUser);
