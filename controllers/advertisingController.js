@@ -34,30 +34,23 @@ exports.findAdvertising = (req, res) => {
 
 exports.addAdvertising = (req, res) => {
 
-    picController.uploadImg(req, res, () => {
 
-            if (typeof (req.file) === 'undefined') {
-                return res.json({error_msg: `403`, error_code: "失败！"});
-            }
-
-            let advertisingObject = new advertisingModel();
-            advertisingObject.referer = req.body.referrer;
-            advertisingObject.L1_category = req.body.L1_category;
-            advertisingObject.L2_category = req.body.L2_category;
-            advertisingObject.link = req.body.link.trim();
-            advertisingObject.filename = req.file.filename;
-            advertisingObject.item_name = req.body.item_name;
-            advertisingObject.topic = req.body.topic;
-            advertisingObject.advertisingID = uuidv1();
-            advertisingObject.save(err => {
-                if (err) {
-                    return res.json({error_msg: `400`, error_code: "advertising Error"});
-                } else {
-                    return res.json({error_msg: `OK`, error_code: "0"});
-                }
-            })
+    let advertisingObject = new advertisingModel();
+    advertisingObject.referer = req.body.referrer;
+    advertisingObject.L1_category = req.body.L1_category;
+    advertisingObject.L2_category = req.body.L2_category;
+    advertisingObject.link = req.body.link.trim();
+    //advertisingObject.filename = req.file.filename;
+    advertisingObject.item_name = req.body.item_name;
+    advertisingObject.topic = req.body.topic;
+    advertisingObject.advertisingID = uuidv1();
+    advertisingObject.save(err => {
+        if (err) {
+            return res.json({error_msg: `400`, error_code: "advertising Error"});
+        } else {
+            return res.json({error_msg: `OK`, error_code: "0"});
         }
-    )
+    })
 };
 //return res.status(403).json({"error_code": 403, error_massage: "Not yet verified"});
 exports.delAdvertising = (req, res) => {
