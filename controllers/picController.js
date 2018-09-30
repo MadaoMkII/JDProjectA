@@ -55,7 +55,9 @@ exports.getImgs = (req, res) => {
 exports.uploadImgArrayForEndpoint = async (req, res) => {
 
     try {
-
+        logger.info(req.body);
+        logger.error('Error location : Class: picController, function: getOrderForm. ');
+        logger.error('Response code:406, message: Not Successed Saved');
         const [returnReq] = await uploadImgAsyncArray(req, res);
         let imgObject = [];
         for (let img of returnReq.files) {
@@ -64,9 +66,8 @@ exports.uploadImgArrayForEndpoint = async (req, res) => {
         return res.json({error_msg: `OK`, error_code: "0", data: imgObject});
 
     } catch (e) {
-        logger.info(req.body);
-        logger.error('Error location : Class: picController, function: getOrderForm. ' + e);
-        logger.error('Response code:406, message: Not Successed Saved');
+
+        console.log(e)
         return res.status(400).json({error_msg: `400`, error_code: "upload Images Error"});
     }
 

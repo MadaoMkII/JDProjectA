@@ -39,14 +39,16 @@ exports.addAdvertising = (req, res) => {
     advertisingObject.referer = req.body.referrer;
     advertisingObject.L1_category = req.body.L1_category;
     advertisingObject.L2_category = req.body.L2_category;
-    advertisingObject.link = req.body.link.trim();
+    advertisingObject.advertisingLink = req.body.advertisingLink;
     advertisingObject.imageLink = req.body.imageLink;
     advertisingObject.item_name = req.body.item_name;
     advertisingObject.topic = req.body.topic;
     advertisingObject.advertisingID = uuidv1();
     advertisingObject.save(err => {
         if (err) {
-
+            if (err.message.toString().includes(`duplicate`)) {
+                return res.status(400).json({error_msg: `400`, error_code: "advertisingLink can not be duplicated"});
+            }
             return res.status(500).json({error_msg: `500`, error_code: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0"});
