@@ -52,13 +52,11 @@ exports.getImgs = (req, res) => {
         }
     });
 };
-exports.uploadImgArrayForEndpoint = async (req, res) => {
+exports.uploadImgForEndpoint = async (req, res) => {
 
     try {
-        logger.info(req.body);
-        logger.error('Error location : Class: picController, function: getOrderForm. ');
-        logger.error('Response code:406, message: Not Successed Saved');
-        const [returnReq] = await uploadImgAsyncArray(req, res);
+
+        const [returnReq] = await uploadImgAsync(req, res);
         let imgObject = [];
         for (let img of returnReq.files) {
             imgObject.push(`http://www.yubaopay.com.tw/image/${img.filename}`);
@@ -66,7 +64,9 @@ exports.uploadImgArrayForEndpoint = async (req, res) => {
         return res.json({error_msg: `OK`, error_code: "0", data: imgObject});
 
     } catch (e) {
-
+        logger.info(req.body);
+        logger.error('Error location : Class: picController, function: getOrderForm. ');
+        logger.error(e);
         console.log(e)
         return res.status(400).json({error_msg: `400`, error_code: "upload Images Error"});
     }
@@ -87,6 +87,18 @@ exports.uploadImgArray = async (req, res, callback) => {
             return callback();
         }
 
+    });
+};
+let uploadImgAsync = (req, res) => {
+
+    return new Promise((resolve, reject) => {
+        upload(req, res, (err) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve([req, res]);
+            }
+        });
     });
 };
 let uploadImgAsyncArray = (req, res) => {
