@@ -1,39 +1,47 @@
-const express = require('express');
+const mongoose = require('mongoose');
+const logger = require('./logging/logger');
+const config = require('./config/develop');
+const autoIncrement = require('mongoose-auto-increment');
 
-let app = express();
-app.use(express.static('public'));
-const DOMAIN = 'http://localhost:80';
-// Add headers
-app.use(function (req, res, next) {
+const mongodbUri = `mongodb://root:hothothot2@dds-3ns4adb9c4a4e0641.mongodb.rds.aliyuncs.com:3717,dds-3ns4adb9c4a4e0642.mongodb.rds.aliyuncs.com:3717/admin?replicaSet=mgset-9624007`;
+const options = {
+    poolSize: 6,
+    useMongoClient: true,
+    keepAlive: true
+};
 
-    // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', DOMAIN);
+const connection = mongoose.connection;
+mongoose.connect(mongodbUri, options);
+if (connection !== "undefined") {
+    //console.log(connection.readyState.toString());
+    connection.once("open", () => {
+        logger.log('Host:' + db.host
+            + ' port: ' + db.host, ' user: '
+            + db.user + ' pass: ' + db.pass +
+            ' name: ' + db.name);
+        console.log("Connection Open");
+    });
+} else {
 
-    // Request methods you wish to allow
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    console.log('Sorry not connected');
+}
 
-    // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+let db = mongoose.connection;
 
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
-    res.setHeader('Access-Control-Allow-Credentials', true);hj
-
-    if (req.method === 'OPTIONS') {
-        res.sendStatus(200);
-    } else {
-        // Pass to next layer of middleware
-        next();
-    }
+db.on('error', (error) => {
+    logger.error(error);
+    logger.trace('Host:' + db.host
+        + ' port: ' + db.host, ' user: '
+        + db.user + ' pass: ' + db.pass +
+        ' name: ' + db.name);
+    console.error('Error in MongoDb connection: ' + error);
+    mongoose.disconnect();
 });
-app.get('/ceshi', function (req, res) {
-        return res.status(200).json({
-            success: true,
-            message: 'Server is running'
-        });
 
+db.on('close', (info) => {
+    console.log('Disconnected');
+    logger.warn('Db has dissconnected: ' + info);
 });
-
-
-app.listen(80);
-console.log("Begin Server");
+autoIncrement.initialize(mongoose.connection);
+mongoose.Promise = global.Promise;
+module.exports.mongoose = mongoose;

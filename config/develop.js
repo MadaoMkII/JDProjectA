@@ -1,6 +1,6 @@
 module.exports = {
 
-    url: 'mongodb://localhost:27017/cats',
+    url: 'mongodb://root:****@dds-3ns4adb9c4a4e0641235-pub.mongodb.rds.aliyuncs.com:3717',
     username: '',
     password: '',
     session: {

@@ -40,6 +40,70 @@ exports.zhuce = async (req, res) => {
     });
 
 };
+exports.setReferer = async (req, res) => {
+
+    try {
+        // if (req.user.userStatus.isRefereed) {
+        //     return res.status(201).json({error_code: 201, error_massage: 'Already refereed a account'});
+        // }
+
+        let search = {};
+        let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+        let wanwan_phone_reg = /^1(3|4|5|7|8)\d{9}$/;
+        let mainland_reg = /^1[3|4|5|7|8][0-9]{9}$/;
+        ///^(09)[0-9]{8}$/;
+        if (!tools.isEmpty(req.body.referer)) {
+
+            if (email_reg.test(req.body.referer)) {
+                search = {email_address: req.body.referer};
+
+            } else if (wanwan_phone_reg.test(req.body.referer) || mainland_reg.test(req.body.referer)) {
+                search = {tel_number: req.body.referer};
+
+            } else {
+
+                return res.status(400).json({error_code: 400, error_massage: 'Wrong inputType'});
+            }
+        }
+
+
+        let referrals = await userModel.findOne(search);
+        console.log(tools.isEmpty(referrals))
+        if (!tools.isEmpty(referrals)) {
+            return res.status(400).json({error_massage: 'Can not find your referer', error_code: 400});
+        }
+        if (!tools.isEmpty(referrals.referrer) && !tools.isEmpty(referrals.referrer.referrerUUID)) {
+
+            return res.status(201).json({error_massage: 'target user already has been referred', error_code: 201});
+        }
+
+        await userModel.update({uuid: referrals.uuid}, {
+            $set: {
+                "referrer.referrerUUID": req.user.uuid,
+                "referrer.addTime": new Date().getTime()
+            }
+        }, {
+            upsert: true
+        });//被推荐人
+        // await userModel.update({uuid: req.user.uuid}, {$set: {}}, {
+        //     upsert: true
+        // });//推荐人
+
+        let user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
+            $set: {
+                "userStatus.isRefereed": true,
+                "referrer.referralsUUID": referrals.uuid, "referrer.addTime": new Date().getTime()
+            },
+            $inc: {growthPoints: 10}
+        }, {new: true});
+        req.user = user;
+        return res.status(200).json({error_massage: 'OK', error_code: 0, data: user});
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
+    }
+};
+
 exports.setUserRole = async (req, res) => {
 
     try {
@@ -64,15 +128,29 @@ exports.findUserReferer = async (req, res) => {
         if (!tools.isEmpty(req.body['page']) && !tools.isEmpty(req.body['unit'])) {
             operator.skip = (req.body['page'] - 1) * req.body['unit'];
             operator.limit = parseInt(req.body['unit']);
+        }//
+        let billCount = await userModel.find({"referrer.referrerUUID": {$exists: true}}).count();
+        let result = await userModel.find({"referrer.referrerUUID": {$exists: true}}, {
+            email_address: 1,
+            Rcoins: 1, realName: 1, referrer: 1
+        });
+        let finalResult = [];
+
+        for (let entity of result) {
+
+            finalResult.push({
+                referrerUUID: entity.referrer.referrerUUID,
+                email_address: entity.email_address,
+                addTime: entity.referrer.addTime,
+                realName: entity.realName
+            })
+
         }
-        let billCount = await userModel.count();
-        let result = await  userModel.find({}, {
-            password: 0, userStatus: 0,
-            whatHappenedToMe: 0, returnCoins: 0
-        }, operator);
+
+
         return res.status(200).json({
             "error_code": 0,
-            "data": result,
+            "data": finalResult,
             nofdata: billCount
         });
     } catch (e) {
@@ -153,92 +231,6 @@ exports.userSignUp = (req, res) => {
         }
     })
 
-};
-
-exports.updateReferenceAccount = (req, res) => {
-
-    let addObject = {}, updateQuery = {}, updateObject = {};
-    const inputType = `${req.body[`inputType`]}Accounts`;
-    switch (inputType) {
-        case 'aliPayAccounts': {
-            addObject[inputType] = {
-                _id: req.body.accountId,
-                accountName: req.body.accountName,
-                accountTelNumber: req.body.accountTelNumber
-            };
-            break;
-        }
-        case 'wechatAccounts': {//TODO暂时先这样
-            addObject[inputType] = {
-                accountName: req.body.accountName,
-                accountTelNumber: req.body.accountTelNumber
-            };
-            break;
-        }
-
-        case 'bankAccounts': {//TODO暂时先这样
-            addObject[inputType] = {
-                accountName: req.body.accountName,
-                accountTelNumber: req.body.accountTelNumber
-            };
-            break;
-        }
-
-    }
-
-    updateQuery[`${inputType}._id`] = req.body[`accountId`];
-    updateObject[`${inputType}.$`] = addObject['aliPayAccounts'];
-    userModel.findOneAndUpdate(updateQuery, {$set: updateObject}, (err) => {
-        if (err) {
-            return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
-        } else {
-
-            return res.status(200).json({"error_code": 0, error_massage: 'OK'});
-        }
-    });
-};
-exports.addReferenceAccount = (req, res) => {
-
-    let addObject = {};
-    const inputType = `${req.body[`inputType`]}Accounts`;
-
-    switch (inputType) {
-        case 'aliPayAccounts': {
-            addObject[inputType] = {
-                accountName: req.body.accountName,
-                accountTelNumber: req.body.accountTelNumber
-            };
-            break;
-        }
-        case 'wechatAccounts': {//TODO暂时先这样
-            addObject[inputType] = {
-                accountName: req.body.accountName,
-                accountTelNumber: req.body.accountTelNumber
-            };
-            break;
-        }
-
-        case 'bankAccounts': {//TODO暂时先这样
-            addObject[inputType] = {
-                accountName: req.body.accountName,
-                accountTelNumber: req.body.accountTelNumber
-            };
-            break;
-        }
-
-    }
-
-    userModel.update({tel_number: req.user.tel_number}, {
-        $push: addObject
-    }, (err) => {
-        if (err) {
-
-            return res.status(500).json({"error_code": 500, error_massage: "Bad happened!"});
-        } else {
-
-            return res.status(200).json({"error_code": 0, error_massage: "OK"});
-        }
-    });
 };
 
 
@@ -465,47 +457,3 @@ exports.addUserRealName = async (req, res) => {
 
 };
 
-exports.setReferer = async (req, res) => {
-
-    try {
-        if (req.user.userStatus.isRefereed) {
-            return res.status(201).json({error_code: 201, error_massage: 'Already refereed a account'});
-        }
-        let inputType = req.body[`inputType`];
-        let search = {};
-        switch (inputType) {
-            case `tel_number`:
-                search = {tel_number: req.body.referer};
-                break;
-            case `email_address`:
-                search = {email_address: req.body.referer};
-                break;
-
-            default:
-                return res.status(400).json({error_code: 400, error_massage: 'Wrong inputType'});
-
-        }
-
-        let referrals = await userModel.findOne(search);
-        if (!tools.isEmpty(referrals.referrer) && !tools.isEmpty(referrals.referrer.referrerUUID)) {
-
-            return res.status(201).json({error_massage: 'target user already has been referred', error_code: 201});
-        }
-        await userModel.update({uuid: referrals.uuid}, {$set: {"referrer.referrerUUID": req.user.uuid}}, {
-            upsert: true
-        });//被推荐人
-        // await userModel.update({uuid: req.user.uuid}, {$set: {}}, {
-        //     upsert: true
-        // });//推荐人
-
-        let user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
-            $set: {"userStatus.isRefereed": true, "referrer.referralsUUID": referrals.uuid},
-            $inc: {growthPoints: 10}
-        }, {new: true});
-        req.user = user;
-        return res.status(200).json({error_massage: 'OK', error_code: 0, data: user});
-    } catch (e) {
-        console.log(e)
-        return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
-    }
-};

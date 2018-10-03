@@ -91,6 +91,8 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+app.post('/findUserReferer', isAuthenticated('User'), userController.findUserReferer);
+
 app.post('/uploadImgForEndpoint', isAuthenticated('User'), picController.uploadImgForEndpoint);
 app.post('/setUserRole', isAuthenticated('Super_Admin'), userController.setUserRole);
 app.post('/zhuceSuperAdmin', userController.zhuce);
@@ -172,8 +174,7 @@ app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.upda
 app.post('/user/updateGeneral', isAuthenticated('User'), userController.updateGeneralData);//done
 app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
-app.post('/user/addReferenceAccount', isAuthenticated('User'), userController.addReferenceAccount);
-app.post('/user/updateReferenceAccount', isAuthenticated('User'), userController.updateReferenceAccount);
+
 
 app.post('/signup', userController.userSignUp);
 
