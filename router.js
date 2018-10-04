@@ -112,7 +112,7 @@ app.post('/addBankAccounts', manageSettingController.addBankAccounts);
 app.get('/getBankAccounts', manageSettingController.getBankAccounts);
 
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
-app.post('/getBills', dgPayment.getBills);
+app.post('/getBills',isAuthenticated('User'), dgPayment.getBills);
 
 app.post('/addProcessOrder', processOrderController.addProcessOrder);
 app.post('/addReplacePostageBill', isAuthenticated('User'), dgPayment.addReplacePostageBill);

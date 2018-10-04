@@ -171,9 +171,33 @@ exports.findUser = async (req, res) => {
         }
         let billCount = await userModel.count();
         let result = await  userModel.find({}, {
-            password: 0, userStatus: 0,
-            whatHappenedToMe: 0, returnCoins: 0
+            role: 1,
+            tel_number: 1,
+            email_address: 1,
+            nickName: 1,
+            realName: 1,
+            bankAccounts: 1,
+            growthPoints: 1,
+            Rcoins: 1,
+            referrer: 1
         }, operator);
+        // for (let userEntity of result) {
+        //
+        //     if (!tools.isEmpty(userEntity.referrer)) {
+        //
+        //         if (userEntity.referrer.referrerUUID) {
+        //             let tempInfoObject = await userModel.findOne({uuid: userEntity.referrer.referrerUUID});
+        //             userEntity.referrer=tempInfoObject.realName
+        //
+        //
+        //         }
+        //         if (userEntity.referrer.referralsUUID) {
+        //         }
+        //     }
+        //
+        // }
+
+
         return res.status(200).json({
             "error_code": 0,
             "data": result,

@@ -125,9 +125,24 @@ exports.findThisUserRcoinRecord = async (req, res) => {
             ]
         }, {_id: 0}, operator);
 
-        let resultArray = {RcoinsConsume: dgBillResult, RcoinsRecharge: chargeResult};
-
-
+        //let resultArray = {RcoinsConsume: dgBillResult, RcoinsRecharge: chargeResult};
+        // if (!tools.isEmpty(req.body['updatedAt'])) {
+        //     command['updated_at'] = {};
+        //     if (!isEmpty(req.body[`updatedAt`]['beforeDate'])) {
+        //         command['updated_at'].$lte = new Date(req.body[`updatedAt`]['beforeDate']);
+        //     }
+        //     if (!isEmpty(req.body[`updatedAt`]['afterDate'])) {
+        //         command['updated_at'].$gte = new Date(req.body[`updatedAt`]['afterDate']);
+        //     }
+        // }
+        let resultArray = [{tradeType: `payment`, amount: 50, credit: 900, dealTime: 1538122531845},
+            {tradeType: `payment`, amount: 56, credit: 950, dealTime: 1538122531845},
+            {tradeType: `recharge`, amount: 100, credit: 1006, dealTime: 1538122531845},
+            {tradeType: `payment`, amount: 10, credit: 996, dealTime: 1538122531845},
+            {tradeType: `recharge`, amount: 96, credit: 1006, dealTime: 1538122531845},
+            {tradeType: `recharge`, amount: 110, credit: 910, dealTime: 1538122531845},
+            {tradeType: `payment`, amount: 200, credit: 800, dealTime: 1538122531845},
+            {tradeType: `recharge`, amount: 1000, credit: 1000, dealTime: 1538122531845}];
         return res.status(200).send({
             error_code: 0, error_msg: "OK", data: resultArray
         });
@@ -280,13 +295,28 @@ exports.getBills = async (req, res) => {
     try {
 
         let command = {};
-        command.userUUid = req.user.uuid;
+        //command.userUUid = req.user.uuid;
         if (req.body['beginLowPrice'] && req.body['beginHighPrice']) {
             command['RMBAmount'] = {
                 $lt: new Date(req.query['beginLowPrice']),
                 $gt: new Date(req.query['beginHighPrice'])
             };
         }
+        if (!tool.isEmpty(req.body['typeStr'])) {
+            command['typeStr'] = req.body['typeStr'];
+        }
+        if (!tool.isEmpty(req.body['dealState'])) {
+            command['dealState'] = req.body['dealState'];
+        }
+
+
+        if (!tool.isEmpty(req.body['beforeDate'])) {
+            command['created_at'].$lte = new Date(req.body['beforeDate']);
+        }
+        if (!tool.isEmpty(req.body['afterDate'])) {
+            command['created_at'].$gte = new Date(req.body['afterDate']);
+        }
+
 
         let operator = {};
         if (req.body['order'] && req.body['sortBy']) {
@@ -300,16 +330,24 @@ exports.getBills = async (req, res) => {
         }
 
         let billResult = await dgBillModel.find(command, {
-            __v: 0,
-            billStatementId: 0,
-            _id: 0
+            typeStr: 1, billID: 1, RMBAmount: 1, rate: 1, NtdAmount: 1, dealState: 1, created_at: 1, dealDate: 1
         }, operator);
         let billCount = await dgBillModel.count({userUUid: req.user.uuid});
-
-        return res.status(200).send({error_code: 503, error_msg: billResult, nofdata: billCount});
+        let resultArray = [{tradeType: `payment`, amount: 50, credit: 900, dealTime: 1538122531845},
+            {tradeType: `payment`, orderID: "Z12345696", amount: 56, credit: 950, dealTime: 1538122531845},
+            {tradeType: `recharge`, orderID: "Z12345692", amount: 100, credit: 1006, dealTime: 1538122531845},
+            {tradeType: `payment`, orderID: "Z12345691", amount: 10, credit: 996, dealTime: 1538122531845},
+            {tradeType: `recharge`, orderID: "Z12345698", amount: 96, credit: 1006, dealTime: 1538122531845},
+            {tradeType: `recharge`, orderID: "Z12345691", amount: 110, credit: 910, dealTime: 1538122531845},
+            {tradeType: `payment`, orderID: "Z12345692", amount: 200, credit: 800, dealTime: 1538122531845},
+            {tradeType: `recharge`, orderID: "Z12345691", amount: 1000, credit: 1000, dealTime: 1538122531845}];
+        // return res.status(200).send({
+        //     error_code: 0, error_msg: "OK", data: resultArray
+        // });
+        return res.status(200).send({error_code: 200, error_msg: billResult, nofdata: billCount});
 
     } catch (err) {
-
+        console.log(err)
         return res.status(503).send({error_code: 503, error_msg: err});
     }
 

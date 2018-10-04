@@ -46,6 +46,7 @@ exports.addAdvertising = (req, res) => {
     advertisingObject.advertisingID = uuidv1();
     advertisingObject.save(err => {
         if (err) {
+            console.log(err)
             if (err.message.toString().includes(`duplicate`)) {
                 return res.status(400).json({error_msg: `400`, error_code: "advertisingLink can not be duplicated"});
             }
