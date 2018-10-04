@@ -5,8 +5,8 @@ const advertising = new mongoose.Schema(
         L1_category: String,
         L2_category: String,
         item_name: String,
-        advertisingID: {type: String, required: true, unique: true,sparse: true},
-        referer: {type: String, required: true},
+        advertisingID: {type: String, required: true, unique: true, sparse: true},
+        referer: {type: String},
         advertisingLink: {type: String, sparse: true},
         imageLink: String
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
