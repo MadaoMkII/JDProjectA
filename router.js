@@ -91,6 +91,9 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+
+app.get('/adv/getHomepage', advertisingController.getHomepage);
+
 app.post('/findUserReferer', isAuthenticated('User'), userController.findUserReferer);
 
 app.post('/uploadImgForEndpoint', isAuthenticated('User'), picController.uploadImgForEndpoint);

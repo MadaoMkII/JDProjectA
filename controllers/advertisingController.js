@@ -3,6 +3,22 @@ const picController = require('../controllers/picController');
 const uuidv1 = require('uuid/v1');
 const isEmpty = require('../config/tools').isEmpty;
 
+exports.getHomepage = (req, res) => {
+    let searchCommand = {};
+
+        searchCommand.L1_category = `首页`;
+        searchCommand.L2_category = `头图`;
+
+
+    advertisingModel.find(searchCommand, (err, data) => {
+        if (err) {
+            return res.json({error_msg: `400`, error_code: "advertising Error"});
+        } else {
+            return res.json({error_msg: `OK`, error_code: "0", data: data});
+        }
+    })
+
+};
 exports.findAdvertising = (req, res) => {
     let searchCommand = {};
     if (!isEmpty(req.body.advertisingID)) {
