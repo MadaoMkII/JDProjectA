@@ -1,6 +1,6 @@
 module.exports = {
 
-    url: 'mongodb://localhost:27017/cats',
+    url: 'mongodb://localhost:27017/yubaopay',
     username: '',
     password: '',
     session: {
