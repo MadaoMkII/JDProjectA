@@ -66,40 +66,43 @@ exports.setReferer = async (req, res) => {
             }
         }
 
+        if (!tools.isEmpty(req.user.referrer) && !tools.isEmpty(req.user.referrer.referralsUUID)) {
+
+            return res.status(201).json({error_massage: 'you already has a referrer', error_code: 201});
+        }
 
         let referrals = await userModel.findOne(search);
-        console.log(tools.isEmpty(referrals))
-        if (!tools.isEmpty(referrals)) {
+
+        if (tools.isEmpty(referrals)) {
             return res.status(400).json({error_massage: 'Can not find your referer', error_code: 400});
         }
-        if (!tools.isEmpty(referrals.referrer) && !tools.isEmpty(referrals.referrer.referrerUUID)) {
+        if (referrals.userStatus.isRefereed) {
 
             return res.status(201).json({error_massage: 'target user already has been referred', error_code: 201});
         }
 
         await userModel.update({uuid: referrals.uuid}, {
             $set: {
-                "referrer.referrerUUID": req.user.uuid,
-                "referrer.addTime": new Date().getTime()
+                "userStatus.isRefereed": true,
+                "referrer.referrerUUID": req.user.uuid
             }
-        }, {
-            upsert: true
-        });//被推荐人
-        // await userModel.update({uuid: req.user.uuid}, {$set: {}}, {
-        //     upsert: true
-        // });//推荐人
+        }, {upsert: true});//被推荐人
 
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
             $set: {
-                "userStatus.isRefereed": true,
-                "referrer.referralsUUID": referrals.uuid, "referrer.addTime": new Date().getTime()
-            },
-            $inc: {growthPoints: 10}
-        }, {new: true});
+                "referrer.referralsUUID": referrals.uuid,
+                "referrer.addTime": new Date().getTime()
+            }, $inc: {growthPoints: 10}
+        }, {new: true});//推荐人
         req.user = user;
         return res.status(200).json({error_massage: 'OK', error_code: 0, data: user});
     } catch (e) {
-        console.log(e)
+        if (e.toString().indexOf(`E11000`)) {
+            return res.status(400).json({
+                error_code: 400, error_massage: 'referrer ID is duplicate,' +
+                'please recommend another user'
+            });
+        }
         return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
     }
 };

@@ -3,11 +3,12 @@ const config = require('../config/develop');
 
 
 let isEmpty = (obj) => {
-    if (obj == null) return true;
+    if (obj === null) return true;
+    if (obj === undefined) return true;
     if (obj.constructor.name === "Array" || obj.constructor.name === "String") return obj.length === 0;
-    for (let key in obj) {
-        if (obj.hasOwnProperty(key) && isEmpty(obj[key])) return true;
-    }
+    // for (let key in obj) {
+    //     if (obj.hasOwnProperty(key) && isEmpty(obj[key])) return true;
+    // }
     return false;
 };
 
