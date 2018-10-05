@@ -9,7 +9,7 @@ exports.setSetting = async (req, res) => {
     let managerConfigsObject = new managerConfigsModel();
     managerConfigsObject.RcoinRate = !isEmpty(req.body.RcoinRate) ? req.body.RcoinRate : billResult.RcoinRate;
     managerConfigsObject.RcoinRate.sort(compare('beginAmount'));
-console.log(isEmpty(req.body.AlipayAndWechatRate))
+    console.log(isEmpty(req.body.AlipayAndWechatRate))
 
     managerConfigsObject.AlipayAndWechatRate = !isEmpty(req.body.AlipayAndWechatRate) ?
         req.body.AlipayAndWechatRate : billResult.AlipayAndWechatRate;
@@ -63,7 +63,22 @@ exports.setModel = async (req, res) => {
     });
 
 };
+exports.find3L = async (req, res) => {
 
+    try {
+        let operator = {sort: {created_at: -1}, limit: 1};
+        let billResult;
+        billResult = await managerConfigsModel.findOne(null, {
+            L1_Issue: 1, L2_Issue: 1,
+            L3_Issue: 1, _id: 0
+        }, operator);
+
+        return res.status(200).send({error_code: 0, error_msg: 'NO', data: billResult});
+    } catch (e) {
+
+    }
+
+};
 const findCurrentSetting = async () => {
 
     try {
@@ -80,6 +95,7 @@ const findCurrentSetting = async () => {
     }
 
 };
+
 
 exports.getSetting = async (req, res) => {
 

@@ -136,7 +136,7 @@ app.get('/adv', picController.getImgs);
 
 app.get('/appealForm/getMyAppealForm', isAuthenticated('User'), appealFormController.getMyAppealForm);
 app.post('/appealForm/addAppealForm', isAuthenticated('User'), appealFormController.addAppealForm);
-app.post('/appealForm/findAppealForm',isAuthenticated('Admin'), appealFormController.findAppealForm);
+app.post('/appealForm/findAppealForm', isAuthenticated('Admin'), appealFormController.findAppealForm);
 app.post('/appealForm/setResponseAppealForm', appealFormController.setResponseAppealForm);
 app.post('/appealForm/delAppealForm', appealFormController.delAppealForm);
 
@@ -150,6 +150,7 @@ app.post('/upload', appealFormController.addAppealForm);
 app.get('/delImage/:filename', picController.deleteImpsForController);
 app.post('/setSetting', manageSettingController.setSetting);
 app.get('/getSetting', manageSettingController.getSetting);
+app.get('/get3level', manageSettingController.find3L);
 app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
     if (req.user) {
         return res.status(200).json({
