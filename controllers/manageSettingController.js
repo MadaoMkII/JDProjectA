@@ -9,7 +9,7 @@ exports.setSetting = async (req, res) => {
     let managerConfigsObject = new managerConfigsModel();
     managerConfigsObject.RcoinRate = !isEmpty(req.body.RcoinRate) ? req.body.RcoinRate : billResult.RcoinRate;
     managerConfigsObject.RcoinRate.sort(compare('beginAmount'));
-
+console.log(isEmpty(req.body.AlipayAndWechatRate))
 
     managerConfigsObject.AlipayAndWechatRate = !isEmpty(req.body.AlipayAndWechatRate) ?
         req.body.AlipayAndWechatRate : billResult.AlipayAndWechatRate;

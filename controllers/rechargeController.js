@@ -22,7 +22,7 @@ exports.findChargeBills = async (req, res) => {
     }
 
     if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
-        operator.skip = parseInt(req.body['page']) * parseInt(req.body['unit']);
+        operator.skip = (parseInt(req.body['page']) - 1) * parseInt(req.body['unit']);
         operator.limit = parseInt(req.body['unit']);
     }
 

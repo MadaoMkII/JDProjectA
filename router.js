@@ -115,7 +115,7 @@ app.post('/addBankAccounts', manageSettingController.addBankAccounts);
 app.get('/getBankAccounts', manageSettingController.getBankAccounts);
 
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
-app.post('/getBills',isAuthenticated('User'), dgPayment.getBills);
+app.post('/getBills', isAuthenticated('User'), dgPayment.getBills);
 
 app.post('/addProcessOrder', processOrderController.addProcessOrder);
 app.post('/addReplacePostageBill', isAuthenticated('User'), dgPayment.addReplacePostageBill);
@@ -133,9 +133,12 @@ app.get('/getAppealIssues', manageSettingController.getAppealTopics);
 app.get('/process', picController.getImgs);
 app.get('/appeal', picController.getImgs);
 app.get('/adv', picController.getImgs);
-app.post('/addAppealForm', appealFormController.addAppealForm);
-app.post('/findAppealForm', appealFormController.findAppealForm);
-app.post('/setResponseAppealForm', appealFormController.setResponseAppealForm);
+
+app.get('/appealForm/getMyAppealForm', isAuthenticated('User'), appealFormController.getMyAppealForm);
+app.post('/appealForm/addAppealForm', isAuthenticated('User'), appealFormController.addAppealForm);
+app.post('/appealForm/findAppealForm',isAuthenticated('Admin'), appealFormController.findAppealForm);
+app.post('/appealForm/setResponseAppealForm', appealFormController.setResponseAppealForm);
+app.post('/appealForm/delAppealForm', appealFormController.delAppealForm);
 
 app.post('/addAdvertising', advertisingController.addAdvertising);
 app.post('/findAdvertising', advertisingController.findAdvertising);

@@ -147,6 +147,7 @@ exports.deleteImgs = (req, res, callback) => {
     } else {
         return res.status(404).json("filename is not here");
     }
+    console.log(filename)
     gridfs.remove({filename: filename, root: 'images'}, (err) => {
         if (err) {
             return res.status(404).json({err: err});
