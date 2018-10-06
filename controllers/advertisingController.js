@@ -28,7 +28,7 @@ exports.getHomepage = (req, res) => {
     searchCommand.advertisingID = `5e6da9c0-c7ea-11e8-a64e-5b52debd6872`;
 
 
-    advertisingModel.find(searchCommand, (err, data) => {
+    advertisingModel.findOne(searchCommand, (err, data) => {
         if (err) {
             return res.json({error_msg: `400`, error_code: "advertising Error"});
         } else {
