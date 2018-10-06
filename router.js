@@ -92,6 +92,7 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 
+app.post('/adv/setHomepage', advertisingController.setHomepage);
 app.get('/adv/getHomepage', advertisingController.getHomepage);
 
 app.post('/findUserReferer', isAuthenticated('User'), userController.findUserReferer);

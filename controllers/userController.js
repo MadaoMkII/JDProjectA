@@ -43,9 +43,6 @@ exports.zhuce = async (req, res) => {
 exports.setReferer = async (req, res) => {
 
     try {
-        // if (req.user.userStatus.isRefereed) {
-        //     return res.status(201).json({error_code: 201, error_massage: 'Already refereed a account'});
-        // }
 
         let search = {};
         let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
@@ -62,8 +59,10 @@ exports.setReferer = async (req, res) => {
 
             } else {
 
-                return res.status(400).json({error_code: 400, error_massage: 'Wrong inputType'});
+                return res.status(404).json({error_code: 404, error_massage: 'Wrong inputType'});
             }
+        } else {
+            return res.status(406).json({error_code: 406, error_massage: 'referer is null'});
         }
 
         if (!tools.isEmpty(req.user.referrer) && !tools.isEmpty(req.user.referrer.referralsUUID)) {
@@ -74,11 +73,11 @@ exports.setReferer = async (req, res) => {
         let referrals = await userModel.findOne(search);
 
         if (tools.isEmpty(referrals)) {
-            return res.status(400).json({error_massage: 'Can not find your referer', error_code: 400});
+            return res.status(204).json({error_massage: 'Can not find your referer', error_code: 204});
         }
         if (referrals.userStatus.isRefereed) {
 
-            return res.status(201).json({error_massage: 'target user already has been referred', error_code: 201});
+            return res.status(208).json({error_massage: 'target user already has been referred', error_code: 208});
         }
 
         await userModel.update({uuid: referrals.uuid}, {
@@ -416,13 +415,11 @@ exports.addUserBank = async (req, res) => {
                 bankObject[index] = req.body[index];
             }
         }
-        console.log(bankObject)
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$push: {bankAccounts: bankObject}}, {password: 0, new: true});
         res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
     } catch (e) {
-        console.log(e
-        )
+
         return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
     }
 
