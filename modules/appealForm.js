@@ -11,7 +11,8 @@ const appealForm = new mongoose.Schema(
         description: {required: false, type: String},
         imagesFileArray: [String],
         response: String,
-        userUUID: String
+        userUUID: String,
+        tel_number: String
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 

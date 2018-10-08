@@ -1,4 +1,5 @@
 const appealFormModel = require('../modules/appealForm').appealFormModel;
+const userAccountModel = require('../modules/userAccount').userAccountModel;
 const picController = require('../controllers/picController');
 const isEmpty = require('../config/tools').isEmpty;
 //const logger = require('../logging/logger');
@@ -13,11 +14,12 @@ exports.addAppealForm = (req, res) => {
     appealFormObject.imagesFileArray = req.body.imagesFileArray;
     appealFormObject.description = req.body.description;
     appealFormObject.userUUID = req.user.uuid;
-
+    appealFormObject.tel_number = req.user.tel_number;
     appealFormObject.save((err) => {
         if (err) {
             return res.status(503).json({error_msg: `503`, error_code: "Error input"});
         }
+
         return res.status(200).json({error_msg: `200`, error_code: "OK！", data: appealFormObject});
     })
 
@@ -49,7 +51,8 @@ exports.getMyAppealForm = async (req, res) => {
     try {
         let result = await appealFormModel.find({userUUID: req.user.uuid}, {
             __v: 0,
-            _id: 0
+            _id: 0,
+            userUUID: 0
         });
         return res.status(200).send({error_code: 0, data: result, nofdata: result.length});
     } catch (e) {
@@ -75,13 +78,24 @@ exports.findAppealForm = async (req, res) => {
             command['L3_Issue'] = req.body.L3_Issue;
         }
 
-        if (!isEmpty(req.body.appealFormID)) {
+        let wanwan_phone_reg = /^1(3|4|5|7|8)\d{9}$/;
+        let mainland_reg = /^1[3|4|5|7|8][0-9]{9}$/;
+        if (wanwan_phone_reg.test(req.body.appealFormID) || mainland_reg.test(req.body.appealFormID)) {
+
+            let user = await userAccountModel.findOne({tel_number: req.body.appealFormID});
+            command['userUUID'] = user.uuid;
+        } else if (!isEmpty(req.body.appealFormID)) {
+
             command['appealFormID'] = req.body.appealFormID;
-        }
+
+        } 
+
         if (!isEmpty(req.body.userUUID)) {
             command['userUUID'] = req.body.userUUID;
         }
-
+        if (!isEmpty(req.body.tel_number)) {
+            command['tel_number'] = req.body.tel_number;
+        }
         if (!isEmpty(req.body['createdAt'])) {
             command['created_at'] = {};
             if (req.body[`createdAt`]['beforeDate'] < req.body[`createdAt`]['afterDate']) {
@@ -121,7 +135,8 @@ exports.findAppealForm = async (req, res) => {
 
         let result = await appealFormModel.find(command, {
             __v: 0,
-            _id: 0
+            _id: 0,
+            userUUID: 0
         }, operator);
         let count = await appealFormModel.count(command);
 

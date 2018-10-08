@@ -92,7 +92,10 @@ dgBillSchema.set('toJSON', {
                 ret.created_at = new Date().getTime();
                 ret.updated_at = new Date().getTime();
             }
-            ret.dealDate = doc.dealDate.getTime();
+            if (typeof doc.dealDate !== `undefined`) {
+                ret.dealDate = doc.dealDate.getTime();
+            }
+
         }
     }
 );

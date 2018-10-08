@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
-const debug = require('debug')('http');
+//const debug = require('debug')('http');
 const mailController = require('./controllers/mailController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
@@ -91,7 +91,8 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-
+app.post('/adv/setDFpage', advertisingController.setDFpage);
+app.get('/adv/getDFpage', advertisingController.getDFpage);
 app.post('/adv/setHomepage', advertisingController.setHomepage);
 app.get('/adv/getHomepage', advertisingController.getHomepage);
 
@@ -123,7 +124,7 @@ app.post('/addReplacePostageBill', isAuthenticated('User'), dgPayment.addReplace
 app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
 app.post('/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
 
-app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
+//app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
 
 app.post('/addAnnouncement', announcementController.addAnnouncement);
 app.post('/findAnnouncement', announcementController.findAnnouncement);
@@ -167,10 +168,12 @@ app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
 });
 app.post('/getSetting', isAuthenticated('User'), manageSettingController.getSetting);
 app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSetting);
+
 app.post('/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addRcoinChargeBills);
 app.post('/addChargeBill', isAuthenticated('User'), rechargeController.addChargeBills);
 app.post('/findChargeBill', isAuthenticated('User'), rechargeController.findChargeBills);
 app.post('/msg/send_massage', massageChecker.smsSend);
+
 app.post('/msg/check_massage', massageChecker.check_code);
 
 app.post('/mail/send_mail', mailController.sendConfirmationEmail);

@@ -2,6 +2,7 @@ const dgBillModel = require('../modules/dgBill').dgBillModel;
 const replacePostageBillModel = require('../modules/dgBill').replacePostageBillModel;
 const baseRateModelModel = require('../modules/managerConfigFeatures').baseRateModel;
 const userModel = require('../modules/userAccount').userAccountModel;
+const searchModel = require('../controllers/searchModel');
 const manageSettingController = require('../controllers/manageSettingController');
 const tool = require('../config/tools');
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
@@ -104,55 +105,61 @@ exports.getThisUserRcoinRate = async (req, res) => {
 
 };
 
-exports.findThisUserRcoinRecord = async (req, res) => {
 
-    try {
+let findTradeDAO = async (req, res, searchArgs, operator) => {
 
-        let operator = {sort: {updated_at: -1}};
-        if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
-            operator.skip = (parseInt(req.body['page']) - 1) * parseInt(req.body['unit']);
-            operator.limit = parseInt(req.body['unit']);
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            let chargeResult = await chargeBillModel.find(
+                searchArgs.searchCondition,
+                searchArgs.showCondition,
+                operator);
+
+            let dgBillResult = await dgBillModel.find(
+                searchArgs.searchCondition,
+                searchArgs.showCondition,
+                operator);
+
+            let resultArray2 = chargeResult.concat(dgBillResult);
+
+        } catch (err) {
+            reject(err);
         }
 
-        let chargeResult = await chargeBillModel.find({userUUid: req.user.uuid, typeStr: `R币充值`},
-            {_id: 0}, operator);
 
-        let dgBillResult = await dgBillModel.find({
-            userUUid: req.user.uuid,
-            $or: [
-                {"typeStr": `R币代购`},
-                {"typeStr": `R币代付`}
-            ]
-        }, {_id: 0}, operator);
+    });
 
-        //let resultArray = {RcoinsConsume: dgBillResult, RcoinsRecharge: chargeResult};
-        // if (!tools.isEmpty(req.body['updatedAt'])) {
-        //     command['updated_at'] = {};
-        //     if (!isEmpty(req.body[`updatedAt`]['beforeDate'])) {
-        //         command['updated_at'].$lte = new Date(req.body[`updatedAt`]['beforeDate']);
-        //     }
-        //     if (!isEmpty(req.body[`updatedAt`]['afterDate'])) {
-        //         command['updated_at'].$gte = new Date(req.body[`updatedAt`]['afterDate']);
-        //     }
-        // }
-        let resultArray = [{tradeType: `payment`, amount: 50, credit: 900, dealTime: 1538122531845},
-            {tradeType: `payment`, amount: 56, credit: 950, dealTime: 1538122531845},
-            {tradeType: `recharge`, amount: 100, credit: 1006, dealTime: 1538122531845},
-            {tradeType: `payment`, amount: 10, credit: 996, dealTime: 1538122531845},
-            {tradeType: `recharge`, amount: 96, credit: 1006, dealTime: 1538122531845},
-            {tradeType: `recharge`, amount: 110, credit: 910, dealTime: 1538122531845},
-            {tradeType: `payment`, amount: 200, credit: 800, dealTime: 1538122531845},
-            {tradeType: `recharge`, amount: 1000, credit: 1000, dealTime: 1538122531845}];
+
+};
+
+exports.findThisUserRcoinRecord = async (req, res) => {
+    let operator = searchModel.pageModel(req);
+    let searchCondition = {
+        userUUid: req.user.uuid,
+        $or: [
+            {"typeStr": `R币充值`},
+            {"typeStr": `R币代购`},
+            {"typeStr": `R币代付`}
+        ]
+    };
+    let showCondition = {typeStr: 1, billID: 1, RMBAmount: 1, rate: 1, NtdAmount: 1, dealState: 1, created_at: 1};
+    try {
+        let resultArray2 = await findTradeDAO(req, res, {
+            searchCondition: searchCondition,
+            showCondition: showCondition
+        }, operator);
+
         return res.status(200).send({
-            error_code: 0, error_msg: "OK", data: resultArray
+            error_code: 0, error_msg: "OK", data: resultArray2
         });
-
     } catch (e) {
-        console.log(e)
         return res.status(513).send({error_code: 513, error_msg: e});
     }
 
 };
+
+
 exports.addDGByALIBill = async (req, res) => {
 
     try {
@@ -294,53 +301,41 @@ exports.addDGRcoinsBill = async (req, res) => {
 exports.getBills = async (req, res) => {
     try {
 
-        let command = {};
+        let command = searchModel.reqSearchConditionsAssemble(req,
+            {"filedName": `typeStr`, "require": false},
+            {"filedName": `dealState`, "require": false}
+        );
         //command.userUUid = req.user.uuid;
-        if (req.body['beginLowPrice'] && req.body['beginHighPrice']) {
-            command['RMBAmount'] = {
-                $lt: new Date(req.query['beginLowPrice']),
-                $gt: new Date(req.query['beginHighPrice'])
-            };
-        }
-        if (!tool.isEmpty(req.body['typeStr'])) {
-            command['typeStr'] = req.body['typeStr'];
-        }
-        if (!tool.isEmpty(req.body['dealState'])) {
-            command['dealState'] = req.body['dealState'];
-        }
+        // if (req.body['beginLowPrice'] && req.body['beginHighPrice']) {
+        //     command['RMBAmount'] = {
+        //         $lt: new Date(req.query['beginLowPrice']),
+        //         $gt: new Date(req.query['beginHighPrice'])
+        //     };
+        // }
 
+        command = command.concat(searchModel.pageModel(req));
+        command = command.concat(searchModel.createAndUpdateTimeSearchModel(req));
+        let operator = searchModel.pageModel(req);
+        //
+        // if (req.body['order'] && req.body['sortBy']) {
+        //     operator.sort = {};
+        //     operator.sort[req.body['sortBy']] = parseInt(req.body['order']);
+        // }
 
-        if (!tool.isEmpty(req.body['beforeDate'])) {
-            command['created_at'].$lte = new Date(req.body['beforeDate']);
-        }
-        if (!tool.isEmpty(req.body['afterDate'])) {
-            command['created_at'].$gte = new Date(req.body['afterDate']);
-        }
-
-
-        let operator = {};
-        if (req.body['order'] && req.body['sortBy']) {
-            operator.sort = {};
-            operator.sort[req.body['sortBy']] = parseInt(req.body['order']);
-        }
-
-        if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
-            operator.skip = parseInt(req.body['page']) * parseInt(req.body['unit']);
-            operator.limit = parseInt(req.body['unit']);
-        }
+        findTradeDAO(req, res, command, operator);
 
         let billResult = await dgBillModel.find(command, {
             typeStr: 1, billID: 1, RMBAmount: 1, rate: 1, NtdAmount: 1, dealState: 1, created_at: 1, dealDate: 1
         }, operator);
-        let billCount = await dgBillModel.count({userUUid: req.user.uuid});
-        let resultArray = [{tradeType: `payment`, amount: 50, credit: 900, dealTime: 1538122531845},
-            {tradeType: `payment`, orderID: "Z12345696", amount: 56, credit: 950, dealTime: 1538122531845},
-            {tradeType: `recharge`, orderID: "Z12345692", amount: 100, credit: 1006, dealTime: 1538122531845},
-            {tradeType: `payment`, orderID: "Z12345691", amount: 10, credit: 996, dealTime: 1538122531845},
-            {tradeType: `recharge`, orderID: "Z12345698", amount: 96, credit: 1006, dealTime: 1538122531845},
-            {tradeType: `recharge`, orderID: "Z12345691", amount: 110, credit: 910, dealTime: 1538122531845},
-            {tradeType: `payment`, orderID: "Z12345692", amount: 200, credit: 800, dealTime: 1538122531845},
-            {tradeType: `recharge`, orderID: "Z12345691", amount: 1000, credit: 1000, dealTime: 1538122531845}];
+        let billCount = await dgBillModel.count(command);
+        // let resultArray = [{tradeType: `payment`, amount: 50, credit: 900, dealTime: 1538122531845},
+        //     {tradeType: `payment`, orderID: "Z12345696", amount: 56, credit: 950, dealTime: 1538122531845},
+        //     {tradeType: `recharge`, orderID: "Z12345692", amount: 100, credit: 1006, dealTime: 1538122531845},
+        //     {tradeType: `payment`, orderID: "Z12345691", amount: 10, credit: 996, dealTime: 1538122531845},
+        //     {tradeType: `recharge`, orderID: "Z12345698", amount: 96, credit: 1006, dealTime: 1538122531845},
+        //     {tradeType: `recharge`, orderID: "Z12345691", amount: 110, credit: 910, dealTime: 1538122531845},
+        //     {tradeType: `payment`, orderID: "Z12345692", amount: 200, credit: 800, dealTime: 1538122531845},
+        //     {tradeType: `recharge`, orderID: "Z12345691", amount: 1000, credit: 1000, dealTime: 1538122531845}];
         // return res.status(200).send({
         //     error_code: 0, error_msg: "OK", data: resultArray
         // });

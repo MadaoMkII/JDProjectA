@@ -9,7 +9,6 @@ exports.setSetting = async (req, res) => {
     let managerConfigsObject = new managerConfigsModel();
     managerConfigsObject.RcoinRate = !isEmpty(req.body.RcoinRate) ? req.body.RcoinRate : billResult.RcoinRate;
     managerConfigsObject.RcoinRate.sort(compare('beginAmount'));
-    console.log(isEmpty(req.body.AlipayAndWechatRate))
 
     managerConfigsObject.AlipayAndWechatRate = !isEmpty(req.body.AlipayAndWechatRate) ?
         req.body.AlipayAndWechatRate : billResult.AlipayAndWechatRate;
@@ -33,6 +32,7 @@ exports.setSetting = async (req, res) => {
 
     managerConfigsObject.models = !isEmpty(req.body.models) ? req.body.models : billResult.models;
     managerConfigsObject.feeRate = !isEmpty(req.body.feeRate) ? req.body.feeRate : billResult.feeRate;
+    managerConfigsObject.rate = !isEmpty(req.body.rate) ? req.body.rate : billResult.rate   ;
     managerConfigsObject.L1_Issue = !isEmpty(req.body.L1_Issue) ? req.body.L1_Issue : billResult.L1_Issue;
     managerConfigsObject.L2_Issue = !isEmpty(req.body.L2_Issue) ? req.body.L2_Issue : billResult.L2_Issue;
     managerConfigsObject.L3_Issue = !isEmpty(req.body.L3_Issue) ? req.body.L3_Issue : billResult.L3_Issue;
