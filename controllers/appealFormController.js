@@ -80,7 +80,7 @@ exports.getMyAppealForm = async (req, res) => {
         };
 
         command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
-            {"filedName": `userUUID`, "require": false}
+            {"filedName": `userUUID`, "require": false, custom: false}
         );
         let operator = searchModel.pageModel(req);
         command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req));
@@ -108,11 +108,8 @@ exports.getAppealFormById = async (req, res) => {
         command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
             {"filedName": `appealFormID`, "require": false}
         );
-        let operator = searchModel.pageModel(req, res);
-        command.searchCondition = Object.assign(command.searchCondition,
-            searchModel.createAndUpdateTimeSearchModel(req, res));
 
-        let [result, count] = await findAppealFormDAO(req, res, command, operator);
+        let [result, count] = await findAppealFormDAO(req, res, command);
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
 
     } catch (e) {
@@ -128,7 +125,9 @@ exports.findAppealForm = async (req, res) => {
         let command = {};
         command.showCondition = {
             __v: 0,
-            _id: 0
+            _id: 0,
+            response: 0,
+            imagesFileArray: 0
         };
 
         command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
