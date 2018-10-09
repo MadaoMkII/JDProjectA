@@ -36,7 +36,6 @@ exports.setDFpage = (req, res) => {
     logger.info(req.body);
 
 
-
     advertisingModel.findOneAndUpdate(searchCommand, {$set: {imageLink: req.body.imageLink}}, {
         upsert: true,
         new: true
@@ -55,7 +54,10 @@ exports.setHomepage = (req, res) => {
     searchCommand.L1_category = `首页`;
     searchCommand.L2_category = `头图`;
     searchCommand.advertisingID = `5e6da9c0-c7ea-11e8-a64e-5b52debd6872`;
-    advertisingModel.findOneAndUpdate(searchCommand, {$set: {imageLink: req.body.imageLink}}, {
+    if (isEmpty(req.body.imageLink)) {
+        return res.status(404).json({error_msg: `404`, error_code: "没有获取到imageLink,你的POST请求体为" + req.body});
+    }
+    advertisingModel.findOneAndUpdate(searchCommand, {$set: {"imageLink": req.body.imageLink}}, {
         upsert: true,
         new: true
     }, (err, data) => {
