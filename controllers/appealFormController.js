@@ -3,6 +3,7 @@ const userAccountModel = require('../modules/userAccount').userAccountModel;
 const picController = require('../controllers/picController');
 const isEmpty = require('../config/tools').isEmpty;
 //const logger = require('../logging/logger');
+const searchModel = require('../controllers/searchModel');
 
 exports.addAppealForm = (req, res) => {
 
@@ -46,16 +47,46 @@ exports.setResponseAppealForm = (req, res) => {
         }
     )
 };
+let findAppealFormDAO = async (req, res, searchArgs, operator) => {
 
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            let result = await appealFormModel.find(
+                searchArgs.searchCondition,
+                searchArgs.showCondition,
+                operator);
+
+
+            let count = await appealFormModel.count(searchArgs.searchCondition);
+
+            resolve([result, count]);
+        } catch (err) {
+            reject(err);
+        }
+
+    });
+
+
+};
 exports.getMyAppealForm = async (req, res) => {
     try {
-        let result = await appealFormModel.find({userUUID: req.user.uuid}, {
+
+        let command = {};
+        command.showCondition = {
             __v: 0,
             _id: 0,
             userUUID: 0
-        });
-        return res.status(200).send({error_code: 0, data: result, nofdata: result.length});
+        };
+
+        command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
+            {"filedName": `userUUID`, "require": false}
+        );
+        let operator = searchModel.pageModel(req);
+
+        return res.status(200).send({error_code: 0, data: result, nofdata: count});
     } catch (e) {
+        console.log(e)
         return res.status(500).send({error_code: 500, error_msg: "Error happen"});
     }
 
@@ -88,7 +119,7 @@ exports.findAppealForm = async (req, res) => {
 
             command['appealFormID'] = req.body.appealFormID;
 
-        } 
+        }
 
         if (!isEmpty(req.body.userUUID)) {
             command['userUUID'] = req.body.userUUID;
@@ -96,29 +127,36 @@ exports.findAppealForm = async (req, res) => {
         if (!isEmpty(req.body.tel_number)) {
             command['tel_number'] = req.body.tel_number;
         }
+
+
         if (!isEmpty(req.body['createdAt'])) {
-            command['created_at'] = {};
-            if (req.body[`createdAt`]['beforeDate'] < req.body[`createdAt`]['afterDate']) {
+            //command['created_at'] = {};
+            if (!isEmpty(req.body[`createdAt`]['beforeDate']) && !isEmpty(req.body[`createdAt`]['afterDate']) &&
+                req.body[`createdAt`]['beforeDate'] < req.body[`createdAt`]['afterDate']) {
                 return res.status(400).send({error_code: 400, error_msg: 'beforeDate can not less than afterDate'});
             }
+            console.log(isEmpty(req.body[`createdAt`]['beforeDate']))
             if (!isEmpty(req.body[`createdAt`]['beforeDate'])) {
-                command['created_at'].$lte = new Date(req.body[`createdAt`]['beforeDate']);
+                command['created_at'] = {$lte: new Date(req.body[`createdAt`]['beforeDate'])};
             }
+
+            console.log(req.body[`createdAt`]['afterDate'])
             if (!isEmpty(req.body[`createdAt`]['afterDate'])) {
-                command['created_at'].$gte = new Date(req.body[`createdAt`]['afterDate']);
+                command['created_at'] = {$gte: new Date(req.body[`createdAt`]['afterDate'])};
             }
 
         }
         if (!isEmpty(req.body['updatedAt'])) {
-            command['updated_at'] = {};
-            if (req.body[`updatedAt`]['beforeDate'] < req.body[`updatedAt`]['afterDate']) {
+
+            if (!isEmpty(req.body[`updatedAt`]['beforeDate']) && !isEmpty(req.body[`updatedAt`]['afterDate']) &&
+                req.body[`updatedAt`]['beforeDate'] < req.body[`updatedAt`]['afterDate']) {
                 return res.status(400).send({error_code: 400, error_msg: 'beforeDate can not less than afterDate'});
             }
             if (!isEmpty(req.body[`updatedAt`]['beforeDate'])) {
-                command['updated_at'].$lte = new Date(req.body[`updatedAt`]['beforeDate']);
+                command['updated_at'] = {$lte: new Date(req.body[`updatedAt`]['beforeDate'])};
             }
             if (!isEmpty(req.body[`updatedAt`]['afterDate'])) {
-                command['updated_at'].$gte = new Date(req.body[`updatedAt`]['afterDate']);
+                command['updated_at'] = {$gte: new Date(req.body[`updatedAt`]['afterDate'])};
             }
         }
 
@@ -142,6 +180,7 @@ exports.findAppealForm = async (req, res) => {
 
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
     } catch (e) {
+        console.log(e)
         return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
     }
 

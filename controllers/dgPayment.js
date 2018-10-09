@@ -121,12 +121,15 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
                 searchArgs.showCondition,
                 operator);
 
-            let resultArray2 = chargeResult.concat(dgBillResult);
 
+            let count = await dgBillModel.count(searchArgs.searchCondition) +
+                await chargeBillModel.count(searchArgs.searchCondition);
+
+            let resultArray = chargeResult.concat(dgBillResult);
+            resolve([resultArray, count]);
         } catch (err) {
             reject(err);
         }
-
 
     });
 
@@ -145,13 +148,13 @@ exports.findThisUserRcoinRecord = async (req, res) => {
     };
     let showCondition = {typeStr: 1, billID: 1, RMBAmount: 1, rate: 1, NtdAmount: 1, dealState: 1, created_at: 1};
     try {
-        let resultArray2 = await findTradeDAO(req, res, {
+        let [resultArray2, count] = await findTradeDAO(req, res, {
             searchCondition: searchCondition,
             showCondition: showCondition
         }, operator);
 
         return res.status(200).send({
-            error_code: 0, error_msg: "OK", data: resultArray2
+            error_code: 0, error_msg: "OK", data: resultArray2, nofdata: count
         });
     } catch (e) {
         return res.status(513).send({error_code: 513, error_msg: e});
@@ -299,47 +302,25 @@ exports.addDGRcoinsBill = async (req, res) => {
 };
 
 exports.getBills = async (req, res) => {
+
     try {
 
-        let command = searchModel.reqSearchConditionsAssemble(req,
+        let command = {};
+        command.showCondition = {
+            typeStr: 1, billID: 1, RMBAmount: 1, rate: 1, NtdAmount: 1, dealState: 1, created_at: 1, dealDate: 1
+        };
+
+        command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
             {"filedName": `typeStr`, "require": false},
             {"filedName": `dealState`, "require": false}
         );
-        //command.userUUid = req.user.uuid;
-        // if (req.body['beginLowPrice'] && req.body['beginHighPrice']) {
-        //     command['RMBAmount'] = {
-        //         $lt: new Date(req.query['beginLowPrice']),
-        //         $gt: new Date(req.query['beginHighPrice'])
-        //     };
-        // }
 
-        command = command.concat(searchModel.pageModel(req));
-        command = command.concat(searchModel.createAndUpdateTimeSearchModel(req));
+        command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req));
         let operator = searchModel.pageModel(req);
-        //
-        // if (req.body['order'] && req.body['sortBy']) {
-        //     operator.sort = {};
-        //     operator.sort[req.body['sortBy']] = parseInt(req.body['order']);
-        // }
 
-        findTradeDAO(req, res, command, operator);
+        let [result, count] = await findTradeDAO(req, res, command, operator);
 
-        let billResult = await dgBillModel.find(command, {
-            typeStr: 1, billID: 1, RMBAmount: 1, rate: 1, NtdAmount: 1, dealState: 1, created_at: 1, dealDate: 1
-        }, operator);
-        let billCount = await dgBillModel.count(command);
-        // let resultArray = [{tradeType: `payment`, amount: 50, credit: 900, dealTime: 1538122531845},
-        //     {tradeType: `payment`, orderID: "Z12345696", amount: 56, credit: 950, dealTime: 1538122531845},
-        //     {tradeType: `recharge`, orderID: "Z12345692", amount: 100, credit: 1006, dealTime: 1538122531845},
-        //     {tradeType: `payment`, orderID: "Z12345691", amount: 10, credit: 996, dealTime: 1538122531845},
-        //     {tradeType: `recharge`, orderID: "Z12345698", amount: 96, credit: 1006, dealTime: 1538122531845},
-        //     {tradeType: `recharge`, orderID: "Z12345691", amount: 110, credit: 910, dealTime: 1538122531845},
-        //     {tradeType: `payment`, orderID: "Z12345692", amount: 200, credit: 800, dealTime: 1538122531845},
-        //     {tradeType: `recharge`, orderID: "Z12345691", amount: 1000, credit: 1000, dealTime: 1538122531845}];
-        // return res.status(200).send({
-        //     error_code: 0, error_msg: "OK", data: resultArray
-        // });
-        return res.status(200).send({error_code: 200, error_msg: billResult, nofdata: billCount});
+        return res.status(200).send({error_code: 200, error_msg: result, nofdata: count});
 
     } catch (err) {
         console.log(err)

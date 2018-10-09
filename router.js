@@ -91,6 +91,8 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+app.post('/test', dgPayment.getBills);
+
 app.post('/adv/setDFpage', advertisingController.setDFpage);
 app.get('/adv/getDFpage', advertisingController.getDFpage);
 app.post('/adv/setHomepage', advertisingController.setHomepage);

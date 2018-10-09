@@ -1,5 +1,6 @@
 const config = require('../config/develop');
 const userModel = require('../modules/userAccount').userAccountModel;
+const searchModel = require('../controllers/searchModel');
 const refererModel = require('../modules/userAccount').refererModel;
 const logger = require('../logging/logger');
 const uuidv1 = require('uuid/v1');
@@ -124,6 +125,30 @@ exports.setUserRole = async (req, res) => {
     }
 
 };
+
+let findUserDAO = async (req, res, searchArgs, operator) => {
+
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            let result = await userModel.find(
+                searchArgs.searchCondition,
+                searchArgs.showCondition,
+                operator);
+
+
+            let count = await userModel.count(searchArgs.searchCondition);
+
+            resolve([result, count]);
+        } catch (err) {
+            reject(err);
+        }
+
+    });
+
+
+};
+
 exports.findUserReferer = async (req, res) => {
     try {
         let operator = {};
@@ -162,14 +187,11 @@ exports.findUserReferer = async (req, res) => {
 
 };
 exports.findUser = async (req, res) => {
+
     try {
-        let operator = {};
-        if (!tools.isEmpty(req.body['page']) && !tools.isEmpty(req.body['unit'])) {
-            operator.skip = (req.body['page'] - 1) * req.body['unit'];
-            operator.limit = parseInt(req.body['unit']);
-        }
-        let billCount = await userModel.count();
-        let result = await  userModel.find({}, {
+
+        let command = {};
+        command.showCondition = {
             role: 1,
             tel_number: 1,
             email_address: 1,
@@ -179,35 +201,66 @@ exports.findUser = async (req, res) => {
             growthPoints: 1,
             Rcoins: 1,
             referrer: 1
-        }, operator);
-        // for (let userEntity of result) {
-        //
-        //     if (!tools.isEmpty(userEntity.referrer)) {
-        //
-        //         if (userEntity.referrer.referrerUUID) {
-        //             let tempInfoObject = await userModel.findOne({uuid: userEntity.referrer.referrerUUID});
-        //             userEntity.referrer=tempInfoObject.realName
-        //
-        //
-        //         }
-        //         if (userEntity.referrer.referralsUUID) {
-        //         }
-        //     }
-        //
-        // }
+        };
 
+        command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
+            {"filedName": `role`, "require": false},
+            {"filedName": `tel_number`, "require": false},
+            {"filedName": `email`, "require": false}
+        );
+        if (!tools.isEmpty(req.body.vipLevel)) {
+            switch (req.body.vipLevel) {
+                case `VIP0`:
+                    Object.assign(command.searchCondition, {growthPoints: {$lt: 22}});
+                    break;
+                case `VIP1`:
+                    Object.assign(command.searchCondition, {growthPoints: {$lt: 25, $gte: 22}});
+                    break;
+                case `VIP2`:
+                    Object.assign(command.searchCondition, {growthPoints: {$lt: 40, $gte: 25}});
+                    break;
+                case `VIP3`:
+                    Object.assign(command.searchCondition, {growthPoints: {$lt: 70, $gte: 40}});
+                    break;
+                case `VIP4`:
+                    Object.assign(command.searchCondition, {growthPoints: {$lt: 130, $gte: 70}});
+                    break;
+                case `VIP5`:
+                    Object.assign(command.searchCondition, {growthPoints: {$lt: 180, $gte: 130}});
+                    break;
+                case `VIP6`:
+                    Object.assign(command.searchCondition, {growthPoints: {$lt: 260, $gte: 180}});
+                    break;
+                case `VIP7`:
+                    Object.assign(command.searchCondition, {growthPoints: {$lt: 340, $gte: 260}});
+                    break;
+                case `VIP8`:
+                    Object.assign(command.searchCondition, {growthPoints: {$lt: 460, $gte: 340}});
+                    break;
+                case `VIP9`:
+                    Object.assign(command.searchCondition, {growthPoints: {$lt: 560, $gte: 460}});
+                    break;
+                case `SVIP`:
+                    Object.assign(command.searchCondition, {growthPoints: {$gte: 560}});
+                    break;
 
-        return res.status(200).json({
-            "error_code": 0,
-            "data": result,
-            nofdata: billCount
-        });
-    } catch (e) {
-        console.log(e)
-        return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
+            }
+        }
+
+        command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req));
+        let operator = searchModel.pageModel(req);
+
+        let [result, count] = await findUserDAO(req, res, command, operator);
+
+        return res.status(200).send({error_code: 200, error_msg: result, nofdata: count});
+
+    } catch (err) {
+        console.log(err)
+        return res.status(503).send({error_code: 503, error_msg: err});
     }
 
 };
+
 exports.userSignUp = (req, res) => {
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
     let uuid = uuidv1();

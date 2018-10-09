@@ -1,6 +1,7 @@
 const mongoose = require('../db/db').mongoose;
 const bankAccount = require('../modules/bankAccount').bankAccount;
 const tool = require('../config/tools');
+
 const vipCoculart = (points) => {
     let vipLevel = `VIP0`;
     let vipArray = [22, 25, 40, 70, 130, 180, 260, 340, 460, 560];
@@ -133,7 +134,6 @@ userAccountSchema.set('toJSON', {
         delete ret._id;
         delete ret.id;
         delete ret.password;
-        delete ret.myBills;
         ret.Rcoins = doc.Rcoins;
         if (doc.created_at && doc.updated_at) {
             ret.created_at = new Date(doc.created_at).getTime();

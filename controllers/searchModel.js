@@ -17,10 +17,13 @@ exports.reqSearchConditionsAssemble = (req, ...conditions) => {
 
             throw new Error(`field ${entity.filedName} can not be empty`);
         }
-        if (entity.filedName === `uuid`) {
+        if (entity.filedName === `userUUID`) {
+            searchConditions[`userUUID`] = req.user.uuid;
+        } else if (entity.filedName === `uuid`) {
             searchConditions[`uuid`] = req.user.uuid;
-        } else {
+        } else if (!tool.isEmpty(req.body[`${entity.filedName}`])) {
             searchConditions[`${entity.filedName}`] = req.body[`${entity.filedName}`];
+
         }
 
     }
