@@ -83,7 +83,9 @@ exports.getMyAppealForm = async (req, res) => {
             {"filedName": `userUUID`, "require": false}
         );
         let operator = searchModel.pageModel(req);
+        command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req));
 
+        let [result, count] = await findAppealFormDAO(req, res, command, operator);
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
     } catch (e) {
         console.log(e)
