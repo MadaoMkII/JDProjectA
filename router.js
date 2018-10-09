@@ -138,6 +138,7 @@ app.get('/process', picController.getImgs);
 app.get('/appeal', picController.getImgs);
 app.get('/adv', picController.getImgs);
 
+app.post('/appealForm/getAppealFormById', isAuthenticated('User'), appealFormController.getAppealFormById);
 app.get('/appealForm/getMyAppealForm', isAuthenticated('User'), appealFormController.getMyAppealForm);
 app.post('/appealForm/addAppealForm', isAuthenticated('User'), appealFormController.addAppealForm);
 app.post('/appealForm/findAppealForm', isAuthenticated('Admin'), appealFormController.findAppealForm);

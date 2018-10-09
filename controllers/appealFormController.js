@@ -94,93 +94,59 @@ exports.getMyAppealForm = async (req, res) => {
 
 
 };
+
+
+exports.getAppealFormById = async (req, res) => {
+    try {
+
+        let command = {};
+        command.showCondition = {
+            __v: 0,
+            _id: 0
+        };
+
+        command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
+            {"filedName": `appealFormID`, "require": false}
+        );
+        let operator = searchModel.pageModel(req, res);
+        command.searchCondition = Object.assign(command.searchCondition,
+            searchModel.createAndUpdateTimeSearchModel(req, res));
+
+        let [result, count] = await findAppealFormDAO(req, res, command, operator);
+        return res.status(200).send({error_code: 0, data: result, nofdata: count});
+
+    } catch (e) {
+        console.log(e)
+        return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
+    }
+
+};
+
 exports.findAppealForm = async (req, res) => {
     try {
+
         let command = {};
-
-        if (!isEmpty(req.body.isSolved)) {
-            command['isSolved'] = {$eq: req.body.isSolved};
-        }
-        if (!isEmpty(req.body.L1_Issue)) {
-            command['L1_Issue'] = {$eq: req.body.L1_Issue};
-        }
-        if (!isEmpty(req.body.L2_Issue)) {
-            command['L2_Issue'] = {$eq: req.body.L2_Issue};
-        }
-        if (!isEmpty(req.body.L3_Issue)) {
-            command['L3_Issue'] = req.body.L3_Issue;
-        }
-
-        let wanwan_phone_reg = /^1(3|4|5|7|8)\d{9}$/;
-        let mainland_reg = /^1[3|4|5|7|8][0-9]{9}$/;
-        if (wanwan_phone_reg.test(req.body.appealFormID) || mainland_reg.test(req.body.appealFormID)) {
-
-            let user = await userAccountModel.findOne({tel_number: req.body.appealFormID});
-            command['userUUID'] = user.uuid;
-        } else if (!isEmpty(req.body.appealFormID)) {
-
-            command['appealFormID'] = req.body.appealFormID;
-
-        }
-
-        if (!isEmpty(req.body.userUUID)) {
-            command['userUUID'] = req.body.userUUID;
-        }
-        if (!isEmpty(req.body.tel_number)) {
-            command['tel_number'] = req.body.tel_number;
-        }
-
-
-        if (!isEmpty(req.body['createdAt'])) {
-            //command['created_at'] = {};
-            if (!isEmpty(req.body[`createdAt`]['beforeDate']) && !isEmpty(req.body[`createdAt`]['afterDate']) &&
-                req.body[`createdAt`]['beforeDate'] < req.body[`createdAt`]['afterDate']) {
-                return res.status(400).send({error_code: 400, error_msg: 'beforeDate can not less than afterDate'});
-            }
-            console.log(isEmpty(req.body[`createdAt`]['beforeDate']))
-            if (!isEmpty(req.body[`createdAt`]['beforeDate'])) {
-                command['created_at'] = {$lte: new Date(req.body[`createdAt`]['beforeDate'])};
-            }
-
-            console.log(req.body[`createdAt`]['afterDate'])
-            if (!isEmpty(req.body[`createdAt`]['afterDate'])) {
-                command['created_at'] = {$gte: new Date(req.body[`createdAt`]['afterDate'])};
-            }
-
-        }
-        if (!isEmpty(req.body['updatedAt'])) {
-
-            if (!isEmpty(req.body[`updatedAt`]['beforeDate']) && !isEmpty(req.body[`updatedAt`]['afterDate']) &&
-                req.body[`updatedAt`]['beforeDate'] < req.body[`updatedAt`]['afterDate']) {
-                return res.status(400).send({error_code: 400, error_msg: 'beforeDate can not less than afterDate'});
-            }
-            if (!isEmpty(req.body[`updatedAt`]['beforeDate'])) {
-                command['updated_at'] = {$lte: new Date(req.body[`updatedAt`]['beforeDate'])};
-            }
-            if (!isEmpty(req.body[`updatedAt`]['afterDate'])) {
-                command['updated_at'] = {$gte: new Date(req.body[`updatedAt`]['afterDate'])};
-            }
-        }
-
-        let operator = {};
-
-        if (!isEmpty(req.body['page']) && !isEmpty(req.body['unit'])) {
-            operator.skip = (parseInt(req.body['page']) - 1) * parseInt(req.body['unit']);
-            operator.limit = parseInt(req.body['unit']);
-        }
-        if ((!isEmpty(req.body['order']) && (!isEmpty(req.body['sortBy'])))) {
-            operator.sort = {};
-            operator.sort[req.body['sortBy']] = parseInt(req.body['order']);
-        }
-
-        let result = await appealFormModel.find(command, {
+        command.showCondition = {
             __v: 0,
-            _id: 0,
-            userUUID: 0
-        }, operator);
-        let count = await appealFormModel.count(command);
+            _id: 0
+        };
 
+        command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
+            {"filedName": `userUUID`, "require": false, custom: true},//custom 表明值来自前端 ，false表明来自登录用户
+            {"filedName": `isSolved`, "require": false},
+            {"filedName": `L1_Issue`, "require": false},
+            {"filedName": `L2_Issue`, "require": false},
+            {"filedName": `L3_Issue`, "require": false},
+            {"filedName": `appealFormID`, "require": false},
+            {"filedName": `tel_number`, "require": false}
+        );
+        let operator = searchModel.pageModel(req, res);
+        command.searchCondition = Object.assign(command.searchCondition,
+            searchModel.createAndUpdateTimeSearchModel(req, res));
+
+        let [result, count] = await findAppealFormDAO(req, res, command, operator);
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
+
     } catch (e) {
         console.log(e)
         return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
