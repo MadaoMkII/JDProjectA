@@ -2,7 +2,7 @@ const advertisingModel = require('../modules/advertising').advertisingModel;
 const picController = require('../controllers/picController');
 const uuidv1 = require('uuid/v1');
 const isEmpty = require('../config/tools').isEmpty;
-
+const logger = require('../logging/logger');
 exports.getDFpage = (req, res) => {
     let searchCommand = {};
     searchCommand.L1_category = `代付页`;
@@ -31,6 +31,12 @@ exports.setDFpage = (req, res) => {
     searchCommand.L1_category = `代付页`;
     searchCommand.L2_category = `头图`;
     searchCommand.advertisingID = `91f43ba0-c863-11e8-8ab2-055a1fa329cb`;
+
+    logger.error('setDFpage data check');
+    logger.info(req.body);
+
+
+
     advertisingModel.findOneAndUpdate(searchCommand, {$set: {imageLink: req.body.imageLink}}, {
         upsert: true,
         new: true
@@ -114,16 +120,19 @@ exports.addAdvertising = (req, res) => {
 
     let advertisingObject = new advertisingModel();
     advertisingObject.referer = req.body.referrer;
-    advertisingObject.L1_category = req.body.L1_category;
-    advertisingObject.L2_category = req.body.L2_category;
+    advertisingObject.L1_category = "首页";
+    advertisingObject.L2_category = "商品推荐";
     advertisingObject.advertisingLink = req.body.advertisingLink;
     advertisingObject.imageLink = req.body.imageLink;
     advertisingObject.item_name = req.body.item_name;
+
+    advertisingObject.item_name = req.body.item_name;
+
     advertisingObject.topic = req.body.topic;
     advertisingObject.advertisingID = uuidv1();
     advertisingObject.save(err => {
         if (err) {
-            console.log(err)
+
             if (err.message.toString().includes(`duplicate`)) {
                 return res.status(400).json({error_msg: `400`, error_code: "advertisingLink can not be duplicated"});
             }
