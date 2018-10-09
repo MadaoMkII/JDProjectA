@@ -2,7 +2,9 @@ const advertisingModel = require('../modules/advertising').advertisingModel;
 const picController = require('../controllers/picController');
 const uuidv1 = require('uuid/v1');
 const isEmpty = require('../config/tools').isEmpty;
-const logger = require('../logging/logger');
+
+
+
 exports.getDFpage = (req, res) => {
     let searchCommand = {};
     searchCommand.L1_category = `代付页`;
@@ -31,10 +33,9 @@ exports.setDFpage = (req, res) => {
     searchCommand.L1_category = `代付页`;
     searchCommand.L2_category = `头图`;
     searchCommand.advertisingID = `91f43ba0-c863-11e8-8ab2-055a1fa329cb`;
-
-    logger.error('setDFpage data check');
-    logger.info(req.body);
-
+    if (isEmpty(req.body.imageLink)) {
+        return res.status(404).json({error_msg: `404`, error_code: "没有获取到imageLink,你的POST请求体为" + req.body});
+    }
 
     advertisingModel.findOneAndUpdate(searchCommand, {$set: {imageLink: req.body.imageLink}}, {
         upsert: true,
@@ -88,28 +89,12 @@ exports.getHomepage = (req, res) => {
     })
 
 };
-exports.findAdvertising = (req, res) => {
-    let searchCommand = {};
-    if (!isEmpty(req.body.advertisingID)) {
 
-        searchCommand.advertisingID = req.body.advertisingID;
-    }
-    if (!isEmpty(req.body.L1_category)) {
+exports.getHomepageItems = (req, res) => {
 
-        searchCommand.L1_category = req.body.L1_category;
-    }
-    if (!isEmpty(req.body.L2_category)) {
-
-        searchCommand.L2_category = req.body.L2_category;
-    }
-    if (!isEmpty(req.body.referer)) {
-
-        searchCommand.referer = req.body.referer;
-    }
-
-    advertisingModel.find(searchCommand, (err, data) => {
+    advertisingModel.find({L1_category: "首页", L2_category: "商品推荐"}, {L2_category: 0, L1_category: 0}, (err, data) => {
         if (err) {
-            return res.json({error_msg: `400`, error_code: "advertising Error"});
+            return res.status(400).json({error_msg: `400`, error_code: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
         }
@@ -117,8 +102,7 @@ exports.findAdvertising = (req, res) => {
 
 };
 
-exports.addAdvertising = (req, res) => {
-
+exports.addHomepageItems = (req, res) => {
 
     let advertisingObject = new advertisingModel();
     advertisingObject.referer = req.body.referrer;
@@ -127,10 +111,10 @@ exports.addAdvertising = (req, res) => {
     advertisingObject.advertisingLink = req.body.advertisingLink;
     advertisingObject.imageLink = req.body.imageLink;
     advertisingObject.item_name = req.body.item_name;
-
-    advertisingObject.item_name = req.body.item_name;
-
-    advertisingObject.topic = req.body.topic;
+    advertisingObject.price = req.body.price;
+    if (isNaN(req.body.price) || req.body.price < 0) {
+        return res.status(400).json({error_msg: `400`, error_code: "price must be a Number and bigger than 0"});
+    }
     advertisingObject.advertisingID = uuidv1();
     advertisingObject.save(err => {
         if (err) {

@@ -8,7 +8,8 @@ const advertising = new mongoose.Schema(
         advertisingID: {type: String, required: true, unique: true, sparse: true},
         referer: {type: String},
         advertisingLink: {type: String, sparse: true},
-        imageLink: String
+        imageLink: String,
+        price: Number
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 

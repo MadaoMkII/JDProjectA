@@ -145,8 +145,8 @@ app.post('/appealForm/findAppealForm', isAuthenticated('Admin'), appealFormContr
 app.post('/appealForm/setResponseAppealForm', appealFormController.setResponseAppealForm);
 app.post('/appealForm/delAppealForm', appealFormController.delAppealForm);
 
-app.post('/addAdvertising', advertisingController.addAdvertising);
-app.post('/findAdvertising', advertisingController.findAdvertising);
+app.post('/adv/addHomepageItems', advertisingController.addHomepageItems);
+app.get('/adv/getHomepageItems', advertisingController.getHomepageItems);
 app.post('/delAdvertising', advertisingController.delAdvertising);
 
 app.get('/index', picController.getImgs);
