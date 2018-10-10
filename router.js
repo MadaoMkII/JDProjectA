@@ -94,6 +94,7 @@ app.use(function (req, res, next) {
 app.post('/test', dgPayment.getBills);
 app.post('/adv/addHomepageItems', advertisingController.addHomepageItems);
 app.post('/adv/getHomepageItems', advertisingController.getHomepageItems);
+app.post('/adv/getHomepageItemsList', advertisingController.getHomepageItemsList);
 app.post('/adv/setDFpage', advertisingController.setDFpage);
 app.get('/adv/getDFpage', advertisingController.getDFpage);
 app.post('/adv/setHomepage', advertisingController.setHomepage);

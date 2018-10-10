@@ -87,7 +87,27 @@ exports.getHomepage = (req, res) => {
     })
 
 };
+exports.getHomepageItemsList = async (req, res) => {
 
+    try {
+        let operator = searchModel.pageModel(req, res);
+        operator = Object.assign(operator, {sort: {priority: 1}});
+
+        let count = await advertisingModel.count({L1_category: "首页", L2_category: "商品推荐"});
+        let result = await advertisingModel.find({L1_category: "首页", L2_category: "商品推荐"}, {
+            item_name: 1,
+            referer: 1,
+            priority:1
+        }, operator);
+
+        return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: count});
+
+    } catch (e) {
+        return res.status(400).json({error_msg: `400`, error_code: "advertising Error"});
+    }
+
+
+};
 exports.getHomepageItems = async (req, res) => {
 
     try {
