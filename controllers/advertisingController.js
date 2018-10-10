@@ -92,11 +92,15 @@ exports.getHomepageItems = async (req, res) => {
 
     try {
         let operator = searchModel.pageModel(req, res);
+        operator = Object.assign(operator, {sort: {priority: 1}});
+
+        let count = await advertisingModel.count({L1_category: "首页", L2_category: "商品推荐"});
         let result = await advertisingModel.find({L1_category: "首页", L2_category: "商品推荐"}, {
             L2_category: 0,
             L1_category: 0
         }, operator);
-        return res.json({error_msg: `OK`, error_code: "0", data: result});
+
+        return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: count});
 
     } catch (e) {
         return res.status(400).json({error_msg: `400`, error_code: "advertising Error"});
@@ -115,6 +119,8 @@ exports.addHomepageItems = (req, res) => {
     advertisingObject.imageLink = req.body.imageLink;
     advertisingObject.item_name = req.body.item_name;
     advertisingObject.price = req.body.price;
+    advertisingObject.priority = req.body.priority;
+
     if (isNaN(req.body.price) || req.body.price < 0) {
         return res.status(400).json({error_msg: `400`, error_code: "price must be a Number and bigger than 0"});
     }

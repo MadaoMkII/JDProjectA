@@ -92,7 +92,8 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 app.post('/test', dgPayment.getBills);
-
+app.post('/adv/addHomepageItems', advertisingController.addHomepageItems);
+app.post('/adv/getHomepageItems', advertisingController.getHomepageItems);
 app.post('/adv/setDFpage', advertisingController.setDFpage);
 app.get('/adv/getDFpage', advertisingController.getDFpage);
 app.post('/adv/setHomepage', advertisingController.setHomepage);
@@ -145,8 +146,7 @@ app.post('/appealForm/findAppealForm', isAuthenticated('Admin'), appealFormContr
 app.post('/appealForm/setResponseAppealForm', appealFormController.setResponseAppealForm);
 app.post('/appealForm/delAppealForm', appealFormController.delAppealForm);
 
-app.post('/adv/addHomepageItems', advertisingController.addHomepageItems);
-app.get('/adv/getHomepageItems', advertisingController.getHomepageItems);
+
 app.post('/delAdvertising', advertisingController.delAdvertising);
 
 app.get('/index', picController.getImgs);
