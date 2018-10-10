@@ -1,9 +1,7 @@
 const advertisingModel = require('../modules/advertising').advertisingModel;
-const picController = require('../controllers/picController');
 const uuidv1 = require('uuid/v1');
 const isEmpty = require('../config/tools').isEmpty;
-
-
+const searchModel = require('../controllers/searchModel');
 
 exports.getDFpage = (req, res) => {
     let searchCommand = {};
@@ -90,15 +88,20 @@ exports.getHomepage = (req, res) => {
 
 };
 
-exports.getHomepageItems = (req, res) => {
+exports.getHomepageItems = async (req, res) => {
 
-    advertisingModel.find({L1_category: "首页", L2_category: "商品推荐"}, {L2_category: 0, L1_category: 0}, (err, data) => {
-        if (err) {
-            return res.status(400).json({error_msg: `400`, error_code: "advertising Error"});
-        } else {
-            return res.json({error_msg: `OK`, error_code: "0", data: data});
-        }
-    })
+    try {
+        let operator = searchModel.pageModel(req, res);
+        let result = await advertisingModel.find({L1_category: "首页", L2_category: "商品推荐"}, {
+            L2_category: 0,
+            L1_category: 0
+        }, operator);
+        return res.json({error_msg: `OK`, error_code: "0", data: result});
+
+    } catch (e) {
+        return res.status(400).json({error_msg: `400`, error_code: "advertising Error"});
+    }
+
 
 };
 
@@ -131,17 +134,14 @@ exports.addHomepageItems = (req, res) => {
 //return res.status(403).json({"error_code": 403, error_massage: "Not yet verified"});
 exports.delAdvertising = (req, res) => {
 
-    picController.deleteImgs(req, res, () => {
+    let item_id = req.body.advertisingID;
 
-            let item_id = req.body.advertisingID;
-
-            advertisingModel.remove({advertisingID: item_id}, (err) => {
-                if (err) {
-                    return res.json({error_msg: `400`, error_code: "advertising Error"});
-                } else {
-                    return res.json({error_msg: `OK`, error_code: "0"});
-                }
-            })
+    advertisingModel.remove({advertisingID: item_id}, (err) => {
+        if (err) {
+            return res.json({error_msg: `400`, error_code: "advertising Error"});
+        } else {
+            return res.json({error_msg: `OK`, error_code: "0"});
         }
-    )
+    });
+
 };
