@@ -435,7 +435,7 @@ exports.getUserInfo = async (req, res) => {
 
         return res.status(200).json({error_code: 0, error_massage: `OK`, data: userInfo});
     } catch (e) {
-
+console.log(e)
         return res.status(503).json({error_code: 503, error_massage: e});
     }
 
