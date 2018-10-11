@@ -1,7 +1,7 @@
 const config = require('../config/develop');
 const userModel = require('../modules/userAccount').userAccountModel;
 const searchModel = require('../controllers/searchModel');
-const refererModel = require('../modules/userAccount').refererModel;
+//const refererModel = require('../modules/userAccount').refererModel;
 const logger = require('../logging/logger');
 const uuidv1 = require('uuid/v1');
 const redis = require("redis");
@@ -47,8 +47,8 @@ exports.setReferer = async (req, res) => {
 
         let search = {};
         let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
-        let wanwan_phone_reg = /^1(3|4|5|7|8)\d{9}$/;
-        let mainland_reg = /^1[3|4|5|7|8][0-9]{9}$/;
+        let wanwan_phone_reg = /^1([3 4578])\d{9}$/;
+        let mainland_reg = /^1[3|4578][0-9]{9}$/;
         ///^(09)[0-9]{8}$/;
         if (!tools.isEmpty(req.body.referer)) {
 
@@ -181,7 +181,7 @@ exports.findUserReferer = async (req, res) => {
             nofdata: billCount
         });
     } catch (e) {
-        console.log(e)
+
         return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
     }
 
@@ -200,6 +200,7 @@ exports.findUser = async (req, res) => {
             bankAccounts: 1,
             growthPoints: 1,
             Rcoins: 1,
+            uuid: 1,
             referrer: 1
         };
 
@@ -255,7 +256,7 @@ exports.findUser = async (req, res) => {
         return res.status(200).send({error_code: 200, error_msg: result, nofdata: count});
 
     } catch (err) {
-        console.log(err)
+
         return res.status(503).send({error_code: 503, error_msg: err});
     }
 
@@ -431,7 +432,7 @@ exports.getUserInfo = async (req, res) => {
 
         return res.status(201).json({error_code: 500, error_massage: `OK`, data: userInfo});
     } catch (e) {
-        console.log(e)
+
         return res.status(503).json({error_code: 503, error_massage: e});
     }
 
