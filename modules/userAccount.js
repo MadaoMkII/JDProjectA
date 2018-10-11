@@ -45,7 +45,6 @@ myEvent.set('toJSON', {
         delete ret._id;
         delete ret.id;
         delete ret.password;
-        delete ret.myBills;
         ret.amount = parseInt(tool.decrypt(doc.amount));
         if (doc.created_at && doc.updated_at) {
             ret.created_at = new Date(doc.created_at).getTime();
@@ -104,6 +103,7 @@ let userAccountSchema = new mongoose.Schema({
     nickName: {type: String, default: '无名氏'},
     realName: String,
     realIDNumber: String,
+    publishTime: Date,
     whatHappenedToMe: [myEvent],
     Rcoins: {type: String, required: true, set: tool.encrypt, get: tool.decrypt},
     returnCoins: {type: Number, default: 0},

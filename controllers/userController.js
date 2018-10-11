@@ -110,6 +110,9 @@ exports.setReferer = async (req, res) => {
 exports.setUserRole = async (req, res) => {
 
     try {
+        if (req.body.uuid === req.user.uuid) {
+            return res.status(401).json({"error_code": 401, error_massage: "You can not set yourself role"});
+        }
         let role = ``;
         if (req.body[`roleCode`] === 1) {
             role = `Admin`;
@@ -430,9 +433,9 @@ exports.getUserInfo = async (req, res) => {
     try {
         let userInfo = req.user;
 
-        return res.status(201).json({error_code: 500, error_massage: `OK`, data: userInfo});
+        return res.status(200).json({error_code: 0, error_massage: `OK`, data: userInfo});
     } catch (e) {
-
+console.log(e)
         return res.status(503).json({error_code: 503, error_massage: e});
     }
 
@@ -520,7 +523,8 @@ exports.addUserRealName = async (req, res) => {
         await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
             $set: {
                 realName: req.body.realName,
-                realIDNumber: req.body.realIDNumber
+                realIDNumber: req.body.realIDNumber,
+                publishTime: req.body.publishTime
             },
             $inc: {growthPoints: 10}, $push: {whatHappenedToMe: myEvent}
         }, {new: true});
