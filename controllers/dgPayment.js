@@ -137,15 +137,33 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
 };
 
 exports.findThisUserRcoinRecord = async (req, res) => {
-    let operator = searchModel.pageModel(req);
-    let searchCondition = {
-        userUUid: req.user.uuid,
-        $or: [
+    let operator = searchModel.pageModel(req, res);
+    let searchArray = [];
+
+    if (req.body.tradeType === `支出`) {
+        searchArray = [
+            {"typeStr": `R币代购`},
+            {"typeStr": `R币代付`}
+        ]
+    } else if (req.body.tradeType === `充值`) {
+        searchArray = [
+            {"typeStr": `R币充值`}
+        ]
+    } else {
+
+        searchArray = [
             {"typeStr": `R币充值`},
             {"typeStr": `R币代购`},
             {"typeStr": `R币代付`}
         ]
+
+    }
+
+    let searchCondition = {
+        userUUid: req.body.userUUid,
+        $or: searchArray
     };
+
     let showCondition = {typeStr: 1, billID: 1, RMBAmount: 1, rate: 1, NtdAmount: 1, dealState: 1, created_at: 1};
     try {
         let [resultArray2, count] = await findTradeDAO(req, res, {

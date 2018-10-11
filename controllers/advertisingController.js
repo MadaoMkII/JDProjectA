@@ -97,7 +97,7 @@ exports.getHomepageItemsList = async (req, res) => {
         let result = await advertisingModel.find({L1_category: "首页", L2_category: "商品推荐"}, {
             item_name: 1,
             referer: 1,
-            priority:1
+            priority: 1
         }, operator);
 
         return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: count});
