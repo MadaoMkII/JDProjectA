@@ -84,13 +84,15 @@ exports.setReferer = async (req, res) => {
         await userModel.update({uuid: referrals.uuid}, {
             $set: {
                 "userStatus.isRefereed": true,
-                "referrer.referrerUUID": req.user.uuid
+                "referrer.referrerUUID": req.user.uuid,
+                "referrer.referrer_tel_number": req.user.tel_number
             }
         }, {upsert: true});//被推荐人
 
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
             $set: {
                 "referrer.referralsUUID": referrals.uuid,
+                "referrer.referrals_tel_number": referrals.tel_number,
                 "referrer.addTime": new Date().getTime()
             }, $inc: {growthPoints: 10}
         }, {new: true});//推荐人
@@ -435,7 +437,7 @@ exports.getUserInfo = async (req, res) => {
 
         return res.status(200).json({error_code: 0, error_massage: `OK`, data: userInfo});
     } catch (e) {
-console.log(e)
+        console.log(e)
         return res.status(503).json({error_code: 503, error_massage: e});
     }
 
