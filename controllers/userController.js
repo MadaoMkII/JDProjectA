@@ -47,8 +47,8 @@ exports.setReferer = async (req, res) => {
 
         let search = {};
         let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
-        let wanwan_phone_reg = /^1([3 4578])\d{9}$/;
-        let mainland_reg = /^1[3|4578][0-9]{9}$/;
+        let wanwan_phone_reg = /^1(3|4|5|7|8)\d{9}$/;
+        let mainland_reg = /^1[3|4|5|7|8][0-9]{9}$/;
         ///^(09)[0-9]{8}$/;
         if (!tools.isEmpty(req.body.referer)) {
 
