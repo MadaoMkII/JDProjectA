@@ -45,7 +45,10 @@ myEvent.set('toJSON', {
         delete ret._id;
         delete ret.id;
         delete ret.password;
-        ret.amount = parseInt(tool.decrypt(doc.amount));
+        if (!tool.isEmpty(doc.amount)) {
+            ret.amount = parseInt(tool.decrypt(doc.amount));
+        }
+
         if (doc.created_at && doc.updated_at) {
             ret.created_at = new Date(doc.created_at).getTime();
             ret.updated_at = new Date(doc.updated_at).getTime();
