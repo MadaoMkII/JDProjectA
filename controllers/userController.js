@@ -524,7 +524,7 @@ exports.addUserRealName = async (req, res) => {
 
         let myEvent = {
             eventType: `growthPoint`,
-            amount: 10,
+            amount: tools.encrypt(10),
             behavior: `Add RealName`
         };
 
@@ -539,14 +539,8 @@ exports.addUserRealName = async (req, res) => {
 
         res.status(200).json({error_code: 200, error_massage: 'OK'});
 
-    }
-    catch
-        (e) {
-
+    } catch (e) {
         return res.status(400).json({error_code: 400, error_massage: 'Error happen'});
     }
-
-
-}
-;
+};
 
