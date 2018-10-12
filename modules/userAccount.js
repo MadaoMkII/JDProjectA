@@ -19,8 +19,8 @@ const vipCoculart = (points) => {
 const referer = new mongoose.Schema(
     {
         referrerUUID: {type: String, unique: true, sparse: true},
-        referrer_tel_number:String,
-        referrals_tel_number:String,
+        referrer_email:String,
+        referrals_email:String,
         referralsUUID: {type: String, required: true},
         addTime: Number
     }, {_id: false}, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}

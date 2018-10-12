@@ -85,14 +85,14 @@ exports.setReferer = async (req, res) => {
             $set: {
                 "userStatus.isRefereed": true,
                 "referrer.referrerUUID": req.user.uuid,
-                "referrer.referrer_tel_number": req.user.tel_number
+                "referrer.referrer_email": req.user.email_address
             }
         }, {upsert: true});//被推荐人
 
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
             $set: {
                 "referrer.referralsUUID": referrals.uuid,
-                "referrer.referrals_tel_number": referrals.tel_number,
+                "referrer.referrals_email": referrals.email_address,
                 "referrer.addTime": new Date().getTime()
             }, $inc: {growthPoints: 10}
         }, {new: true});//推荐人
@@ -500,15 +500,21 @@ exports.delUserBank = async (req, res) => {
 
 exports.addUserRealName = async (req, res) => {
     try {
-        for (let index in req.body) {
-
-            if (tools.isEmpty(req.body[index])) {
-                return res.status(400).json({error_code: 400, error_massage: 'Empty input value'});
-            }
-        }
+        // for (let index in req.body) {
+        //
+        //     if (tools.isEmpty(req.body[index])) {
+        //         return res.status(400).json({error_code: 400, error_massage: 'Empty input value'});
+        //     }
+        // }
 
         if (!tools.isEmpty(req.user.realIDNumber)) {
             return res.status(400).json({error_code: 400, error_massage: 'Already have a ID Number'});
+        }
+        if (tools.isEmpty(req.body.realName)) {
+            return res.status(400).json({error_code: 400, error_massage: 'realName input null value'});
+        }
+        if (tools.isEmpty(req.body.realIDNumber)) {
+            return res.status(400).json({error_code: 400, error_massage: 'realIDNumber input null value'});
         }
         const reg = /^[a-zA-Z][0-9]{9}$/;
         let result_reg = reg.test(req.body.realIDNumber);
@@ -524,20 +530,23 @@ exports.addUserRealName = async (req, res) => {
 
         await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
             $set: {
+                isRealName: true,
                 realName: req.body.realName,
-                realIDNumber: req.body.realIDNumber,
-                publishTime: req.body.publishTime
+                realIDNumber: req.body.realIDNumber
             },
             $inc: {growthPoints: 10}, $push: {whatHappenedToMe: myEvent}
         }, {new: true});
 
         res.status(200).json({error_code: 200, error_massage: 'OK'});
 
-    } catch (e) {
+    }
+    catch
+        (e) {
 
         return res.status(400).json({error_code: 400, error_massage: 'Error happen'});
     }
 
 
-};
+}
+;
 
