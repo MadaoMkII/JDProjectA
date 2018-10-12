@@ -530,7 +530,7 @@ exports.addUserRealName = async (req, res) => {
 
         await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
             $set: {
-                isRealName: true,
+                "userStatus.isRealName": true,
                 realName: req.body.realName,
                 realIDNumber: req.body.realIDNumber
             },
