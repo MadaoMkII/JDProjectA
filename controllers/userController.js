@@ -73,7 +73,7 @@ exports.setReferer = async (req, res) => {
         let userA = await userModel.findOne(search);
 
         if (tools.isEmpty(userA)) {
-            return res.status(204).json({error_massage: 'Can not find your referer', error_code: 204});
+            return res.status(202).json({error_massage: 'Can not find your referer', error_code: 202});
         }
         // if (referrals.userStatus.isRefereed) {
         //
