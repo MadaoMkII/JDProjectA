@@ -91,9 +91,8 @@ exports.setReferer = async (req, res) => {
 
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
             $set: {
-                "referrer.referralsUUID": referrals.uuid,
-                "referrer.referrals_email": referrals.email_address,
-                "referrer.addTime": new Date().getTime()
+                "referrer.addTime": new Date().getTime(),
+                $push: {referrals: {referrals_email: referrals.email_address, referralsUUID: referrals.uuid}}
             }, $inc: {growthPoints: 10}
         }, {new: true});//推荐人
         req.user = user;

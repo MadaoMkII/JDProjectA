@@ -5,6 +5,7 @@ const config = require('../config/develop');
 let isEmpty = (obj) => {
     if (obj === "") return true;
     if (obj === {}) return true;
+    if (obj === []) return true;
     if (obj === null) return true;
     if (obj === undefined) return true;
     if (obj.constructor.name === "Array" || obj.constructor.name === "String") return obj.length === 0;
