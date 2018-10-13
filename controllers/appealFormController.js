@@ -18,7 +18,16 @@ exports.addAppealForm = (req, res) => {
     appealFormObject.tel_number = req.user.tel_number;
     appealFormObject.save((err) => {
         if (err) {
-            return res.status(503).json({error_msg: `503`, error_code: "Error input"});
+            let errorResult = '';
+            for (let errorField in err.errors) {
+                if (err.errors[errorField].hasOwnProperty('message')) {
+                    errorResult = err.errors[errorField].message;
+                }
+            }
+            return res.status(503).json({
+                error_msg: `503`,
+                error_code: errorResult === '' ? 'error happen' : errorResult
+            });
         }
 
         return res.status(200).json({error_msg: `200`, error_code: "OK！", data: appealFormObject});
@@ -108,6 +117,9 @@ exports.getAppealFormById = async (req, res) => {
         command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
             {"filedName": `appealFormID`, "require": false}
         );
+        if (req.user.role === `User`) {
+            Object.assign(command.searchCondition, {userUUID: req.user.uuid})
+        }
 
         let [result, count] = await findAppealFormDAO(req, res, command);
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
