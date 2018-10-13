@@ -5,9 +5,9 @@ const appealForm = new mongoose.Schema(
     {
         appealFormID: {type: String, unique: true},
         isSolved: {type: Boolean, default: false},
-        L1_Issue: {required: true, type: String},
-        L2_Issue: {required: true, type: String},
-        L3_Issue: {required: true, type: String},
+        L1_Issue: {type: String},
+        L2_Issue: {type: String},
+        L3_Issue: {type: String},
         description: {required: false, type: String},
         imagesFileArray: [String],
         response: String,

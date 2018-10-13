@@ -50,36 +50,36 @@ exports.setReferer = async (req, res) => {
         let wanwan_phone_reg = /^1(3|4|5|7|8)\d{9}$/;
         let mainland_reg = /^1[3|4|5|7|8][0-9]{9}$/;
         ///^(09)[0-9]{8}$/;
-        if (!tools.isEmpty(req.body.referer)) {
-
-            if (email_reg.test(req.body.referer)) {
-                search = {email_address: req.body.referer};
-
-            } else if (wanwan_phone_reg.test(req.body.referer) || mainland_reg.test(req.body.referer)) {
-                search = {tel_number: req.body.referer};
-
-            } else {
-
-                return res.status(404).json({error_code: 404, error_massage: 'Wrong inputType'});
-            }
-        } else {
-            return res.status(406).json({error_code: 406, error_massage: 'referer is null'});
-        }
-
-        if (!tools.isEmpty(req.user.referrer) && !tools.isEmpty(req.user.referrer.referralsUUID)) {
-
-            return res.status(201).json({error_massage: 'you already has a referrer', error_code: 201});
-        }
+        // if (!tools.isEmpty(req.body.referer)) {
+        //
+        //     if (email_reg.test(req.body.referer)) {
+        //         search = {email_address: req.body.referer};
+        //
+        //     } else if (wanwan_phone_reg.test(req.body.referer) || mainland_reg.test(req.body.referer)) {
+        //         search = {tel_number: req.body.referer};
+        //
+        //     } else {
+        //
+        //         return res.status(404).json({error_code: 404, error_massage: 'Wrong inputType'});
+        //     }
+        // } else {
+        //     return res.status(406).json({error_code: 406, error_massage: 'referer is null'});
+        // }
+        //
+        // if (!tools.isEmpty(req.user.referrer) && !tools.isEmpty(req.user.referrer.referralsUUID)) {
+        //
+        //     return res.status(201).json({error_massage: 'you already has a referrer', error_code: 201});
+        // }
 
         let referrals = await userModel.findOne(search);
 
         if (tools.isEmpty(referrals)) {
             return res.status(204).json({error_massage: 'Can not find your referer', error_code: 204});
         }
-        if (referrals.userStatus.isRefereed) {
-
-            return res.status(208).json({error_massage: 'target user already has been referred', error_code: 208});
-        }
+        // if (referrals.userStatus.isRefereed) {
+        //
+        //     return res.status(208).json({error_massage: 'target user already has been referred', error_code: 208});
+        // }
 
         await userModel.update({uuid: referrals.uuid}, {
             $set: {
@@ -91,9 +91,10 @@ exports.setReferer = async (req, res) => {
 
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
             $set: {
-                "referrer.addTime": new Date().getTime(),
-                $push: {referrals: {referrals_email: referrals.email_address, referralsUUID: referrals.uuid}}
-            }, $inc: {growthPoints: 10}
+                "referrer.addTime": new Date().getTime()
+            },
+            $inc: {growthPoints: 10},
+            $push: {referrals: {referrals_email: referrals.email_address, referralsUUID: referrals.uuid}}
         }, {new: true});//推荐人
         req.user = user;
         return res.status(200).json({error_massage: 'OK', error_code: 0, data: user});
