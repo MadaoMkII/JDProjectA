@@ -20,8 +20,9 @@ const referer = new mongoose.Schema(
     {
         referrerUUID: {type: String, unique: true, sparse: true},
         referrer_email: String,
-        referrals: [{referrals_email: String, referralsUUID: {type: String, required: true}}],
-        addTime: Number
+        referrer_tel_number:String,
+        referrals: [{addTime: Date,referrals_tel_number:String, referrals_email: String, referralsUUID: String}],
+        addTime: Date
     }, {_id: false}, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 

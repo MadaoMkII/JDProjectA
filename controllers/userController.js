@@ -44,36 +44,35 @@ exports.zhuce = async (req, res) => {
 exports.setReferer = async (req, res) => {
 
     try {
-
         let search = {};
         let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
         let wanwan_phone_reg = /^1(3|4|5|7|8)\d{9}$/;
         let mainland_reg = /^1[3|4|5|7|8][0-9]{9}$/;
         ///^(09)[0-9]{8}$/;
-        // if (!tools.isEmpty(req.body.referer)) {
-        //
-        //     if (email_reg.test(req.body.referer)) {
-        //         search = {email_address: req.body.referer};
-        //
-        //     } else if (wanwan_phone_reg.test(req.body.referer) || mainland_reg.test(req.body.referer)) {
-        //         search = {tel_number: req.body.referer};
-        //
-        //     } else {
-        //
-        //         return res.status(404).json({error_code: 404, error_massage: 'Wrong inputType'});
-        //     }
-        // } else {
-        //     return res.status(406).json({error_code: 406, error_massage: 'referer is null'});
-        // }
-        //
-        // if (!tools.isEmpty(req.user.referrer) && !tools.isEmpty(req.user.referrer.referralsUUID)) {
-        //
-        //     return res.status(201).json({error_massage: 'you already has a referrer', error_code: 201});
-        // }
+        if (!tools.isEmpty(req.body.referer)) {
 
-        let referrals = await userModel.findOne(search);
+            if (email_reg.test(req.body.referer)) {
+                search = {email_address: req.body.referer};
 
-        if (tools.isEmpty(referrals)) {
+            } else if (wanwan_phone_reg.test(req.body.referer) || mainland_reg.test(req.body.referer)) {
+                search = {tel_number: req.body.referer};
+
+            } else {
+
+                return res.status(404).json({error_code: 404, error_massage: 'Wrong inputType'});
+            }
+        } else {
+            return res.status(406).json({error_code: 406, error_massage: 'referer is null'});
+        }
+        //
+        if (req.user.userStatus.isRefereed) {
+
+            return res.status(201).json({error_massage: 'you already has a referrer', error_code: 201});
+        }
+
+        let userA = await userModel.findOne(search);
+
+        if (tools.isEmpty(userA)) {
             return res.status(204).json({error_massage: 'Can not find your referer', error_code: 204});
         }
         // if (referrals.userStatus.isRefereed) {
@@ -81,28 +80,34 @@ exports.setReferer = async (req, res) => {
         //     return res.status(208).json({error_massage: 'target user already has been referred', error_code: 208});
         // }
 
-        await userModel.update({uuid: referrals.uuid}, {
+        let userB = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
             $set: {
                 "userStatus.isRefereed": true,
-                "referrer.referrerUUID": req.user.uuid,
-                "referrer.referrer_email": req.user.email_address
-            }
-        }, {upsert: true});//被推荐人
-
-        let user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
-            $set: {
+                "referrer.referrerUUID": userA.uuid,
+                "referrer.referrer_tel_number": userA.tel_number,
+                "referrer.referrer_email": userA.email_address,
                 "referrer.addTime": new Date().getTime()
-            },
-            $inc: {growthPoints: 10},
-            $push: {referrals: {referrals_email: referrals.email_address, referralsUUID: referrals.uuid}}
-        }, {new: true});//推荐人
-        req.user = user;
-        return res.status(200).json({error_massage: 'OK', error_code: 0, data: user});
-    } catch (e) {
-        if (e.toString().indexOf(`E11000`)) {
+            }
+        }, {upsert: true, new: true});//被推荐人 userB
+
+        await userModel.findOneAndUpdate({uuid: userA.uuid}, {
+            $push: {
+                "referrer.referrals": {
+                    referrals_tel_number: req.user.tel_number,
+                    referrals_email: req.user.email_address,
+                    addTime: new Date().getTime(),
+                    referralsUUID: req.user.uuid
+                }
+            }
+        }, {new: true});//推荐人 userA
+
+        return res.status(200).json({error_massage: 'OK', error_code: 0, data: userB});
+    } catch (err) {
+        console.log(err)
+        if (err.toString().indexOf(`E11000`)) {
             return res.status(400).json({
                 error_code: 400, error_massage: 'referrer ID is duplicate,' +
-                'please recommend another user'
+                    'please recommend another user'
             });
         }
         return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
@@ -261,7 +266,6 @@ exports.findUser = async (req, res) => {
         return res.status(200).send({error_code: 200, error_msg: result, nofdata: count});
 
     } catch (err) {
-
         return res.status(503).send({error_code: 503, error_msg: err});
     }
 
@@ -274,6 +278,7 @@ exports.userSignUp = (req, res) => {
         uuid: uuid,
         password: result,
         role: 'User',
+        growthPoints: 10,
         Rcoins: '0',
         tel_number: req.body.tel_number,
         email_address: req.body.email
