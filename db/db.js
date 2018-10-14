@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const logger = require('../logging/logger');
+
 const config = require('../config/develop');
 const autoIncrement = require('mongoose-auto-increment');
 
@@ -16,10 +16,7 @@ mongoose.connect(mongodbUri, options);
 if (connection !== "undefined") {
     //console.log(connection.readyState.toString());
     connection.once("open", () => {
-        logger.log('Host:' + db.host
-            + ' port: ' + db.host, ' user: '
-            + db.user + ' pass: ' + db.pass +
-            ' name: ' + db.name);
+
         console.log("Connection Open");
     });
 } else {
@@ -30,18 +27,14 @@ if (connection !== "undefined") {
 let db = mongoose.connection;
 
 db.on('error', (error) => {
-    logger.error(error);
-    logger.trace('Host:' + db.host
-        + ' port: ' + db.host, ' user: '
-        + db.user + ' pass: ' + db.pass +
-        ' name: ' + db.name);
+
     console.error('Error in MongoDb connection: ' + error);
     mongoose.disconnect();
 });
 
 db.on('close', (info) => {
     console.log('Disconnected');
-    logger.warn('Db has dissconnected: ' + info);
+
 });
 autoIncrement.initialize(mongoose.connection);
 mongoose.Promise = global.Promise;

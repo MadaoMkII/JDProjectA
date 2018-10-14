@@ -1,4 +1,4 @@
-const logger = require('../logging/logger');
+const logger = require('../logging/logging').logger;
 const nodemailer = require('nodemailer');
 const config = require('../config/develop');
 const redis = require("redis"),

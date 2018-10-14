@@ -2,37 +2,44 @@ const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 const manageSettingController = require('../controllers/manageSettingController');
 const dgPayment = require('../controllers/dgPayment');
 const tool = require('../config/tools');
+const logger = require('../logging/logging').logger;
+const searchModel = require('../controllers/searchModel');
 
-exports.findChargeBills = async (req, res) => {
+exports.findMyChargeBills = async (req, res) => {
+    try {
+
+        let command = {};
+        command.userUUid = req.user.uuid;
+        if (req.body['beginData'] && req.body['endData']) {
+            command['created_at'] = {
+                $gte: new Date(req.query['beginData']),
+                $lte: new Date(req.query['endData'])
+            };
+        }
 
 
-    let command = {};
-    command.userUUid = req.user.uuid;
-    if (req.body['beginData'] && req.body['endData']) {
-        command['created_at'] = {
-            $lt: new Date(req.query['beginData']),
-            $gt: new Date(req.query['endData'])
-        };
+        let operator = searchModel.pageModel(req);
+
+        let billResult = await chargeBillModel.find(command, {
+            __v: 0,
+            _id: 0
+        }, operator);
+        let billCount = await chargeBillModel.count({userUUid: req.user.uuid});
+
+        return res.status(200).send({error_code: 200, error_msg: billResult, nofdata: billCount});
+    } catch (err) {
+        logger.error("findMyChargeBills", {
+            level: req.user.role,
+            response: `findMyChargeBills Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+
+        return res.status(503).send({error_code: 503, error_msg: `Search Failed`});
     }
 
-    let operator = {};
-    if (req.body['order'] && req.body['sortBy']) {
-        operator.sort = {};
-        operator.sort[req.body['sortBy']] = parseInt(req.body['order']);
-    }
-
-    if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
-        operator.skip = (parseInt(req.body['page']) - 1) * parseInt(req.body['unit']);
-        operator.limit = parseInt(req.body['unit']);
-    }
-
-    let billResult = await chargeBillModel.find(command, {
-        __v: 0,
-        _id: 0
-    }, operator);
-    let billCount = await chargeBillModel.count({userUUid: req.user.uuid});
-
-    return res.status(200).send({error_code: 200, error_msg: billResult, nofdata: billCount});
 };
 
 
@@ -44,6 +51,9 @@ exports.addRcoinChargeBills = async (req, res) => {
         let billObject = new chargeBillModel();
         billObject.typeStr = 'R币充值';
         billObject.billID = 'CHAR' + (Math.random() * Date.now() * 10).toFixed(0);
+        if (tool.isEmpty(req.body.RMBAmount)) {
+            return res.status(404).send({error_code: 404, error_msg: `RMBAmount can not be null`});
+        }
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
@@ -65,10 +75,24 @@ exports.addRcoinChargeBills = async (req, res) => {
         billObject.fee = feeAmount;
         billObject.comment = req.body.comment;
         billObject.save();
+        logger.info("addRcoinChargeBills", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
         return res.status(200).send({error_code: 0, error_msg: billObject});
-    } catch (e) {
-        console.log(e)
-        return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
+    } catch (err) {
+        logger.error("addRcoinChargeBills", {
+            level: req.user.role,
+            response: `addRcoinChargeBills Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+        return res.status(503).send({error_code: 503, error_msg: 'Add ChargeBill Failed'});
     }
 
 
@@ -125,8 +149,27 @@ exports.addChargeBills = async (req, res) => {
         billObject.feeRate = feeRate;
         billObject.comment = req.body.comment;
         billObject.save();
+
+
+        logger.info("addChargeBills", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+
+
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
     } catch (e) {
+        logger.error("addChargeBills", {
+            level: req.user.role,
+            response: `addChargeBills Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
         return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
     }
 

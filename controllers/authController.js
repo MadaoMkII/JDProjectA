@@ -1,9 +1,9 @@
 const passport = require('passport');
-const logger = require('../logging/logger');
+const logger = require('../logging/logging').logger;
 const userModel = require('../modules/userAccount').userAccountModel;
 exports.logoutUser = (req, res) => {
     if (req.user) {
-        logger.debug(req.user + ' has been logout for new loggin');
+
         req.logout();
         return res.status(200).json({error_code: 0, error_msg: 'logout succeeded'});
     } else {
@@ -14,19 +14,18 @@ exports.logoutUser = (req, res) => {
 exports.loginUser = (req, res, next) => {
     passport.authenticate('local', (err, user) => {
         if (req.user) {
-            logger.debug(req.user + ' has been logout for new login');
+
             req.logout();
         }
         if (err) {
-            logger.trace(req.body);
-            logger.error('Error location : Class: authController, function: loginUser. ' + err);
-            logger.error('Response code:401, message: Login faild');
+            logger.error('\'Response code:401, message: Login faild\'+' +
+                '`Error location : Class: authController, function: loginUser. ' + err);
+
             return res.status(401).json({error_code: 401, error_msg: 'Login faild'});// will generate a 500 error
         }
         // Generate a JSON response reflecting authentication status
         if (!user) {
-            logger.error('Error location : Class: authController, function: loginUser. ' + err);
-            logger.error('Response code:401, message: Authentication faild, please check username and password');
+
             return res.status(401).json({
                 error_code: 401, error_msg:
                     'Authentication failed, please check username and password'
@@ -37,7 +36,11 @@ exports.loginUser = (req, res, next) => {
                 logger.error('Error location : Class: authController, function: loginUser. ' + err);
                 return next(err);
             }
-
+            let ip = (req.headers['x-forwarded-for'] || '').split(',').pop() ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress;
+            logger.info(req.user.tel_number + ' has been login in. IP is ' + ip);
             userModel.update({tel_number: req.user.tel_number}, {$set: {last_login_time: Date.now()}}, (err) => {
                 if (err) {
 
@@ -91,6 +94,7 @@ exports.isAuthenticated = (privilegeName) => {
             }
             return next();
         } else {
+
             return res.status(401).json(
                 {error_code: 401, error_msg: 'Authentication failed, need login first'}
             );

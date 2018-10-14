@@ -2,6 +2,7 @@ const advertisingModel = require('../modules/advertising').advertisingModel;
 const uuidv1 = require('uuid/v1');
 const isEmpty = require('../config/tools').isEmpty;
 const searchModel = require('../controllers/searchModel');
+const logger = require('../logging/logging').logger;
 
 exports.getDFpage = (req, res) => {
     let searchCommand = {};
@@ -18,6 +19,17 @@ exports.getDFpage = (req, res) => {
         advertisingID: 0
     }, (err, data) => {
         if (err) {
+
+            logger.error("getDFpage", {
+                level: req.user.role,
+                response: `advertising Error`,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body,
+                error: err
+            });
+
             return res.json({error_msg: `400`, error_code: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
@@ -39,7 +51,25 @@ exports.setDFpage = (req, res) => {
         upsert: true,
         new: true
     }, (err, data) => {
+
+        logger.info("setDFpage", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+
         if (err) {
+            logger.error("setDFpage", {
+                level: req.user.role,
+                response: `advertising Error`,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body,
+                error: err
+            });
             return res.json({error_msg: `400`, error_code: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
@@ -60,7 +90,25 @@ exports.setHomepage = (req, res) => {
         upsert: true,
         new: true
     }, (err, data) => {
+
+        logger.info("setHomepage", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+
         if (err) {
+            logger.error("setHomepage", {
+                level: req.user.role,
+                response: `advertising Error`,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body,
+                error:err
+            });
             return res.json({error_msg: `400`, error_code: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
@@ -80,6 +128,16 @@ exports.getHomepage = (req, res) => {
         "L2_category": 0
     }, (err, data) => {
         if (err) {
+            logger.error("getHomepage", {
+                level: req.user.role,
+                response: `setSetting Failed`,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body,
+                error:err
+            });
+
             return res.json({error_msg: `400`, error_code: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
@@ -102,7 +160,17 @@ exports.getHomepageItemsList = async (req, res) => {
 
         return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: count});
 
-    } catch (e) {
+    } catch (err) {
+        logger.error("getHomepageItemsList", {
+            level: req.user.role,
+            response: `setSetting Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error:err
+        });
+
         return res.status(400).json({error_msg: `400`, error_code: "advertising Error"});
     }
 
@@ -122,7 +190,17 @@ exports.getHomepageItems = async (req, res) => {
 
         return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: count});
 
-    } catch (e) {
+    } catch (err) {
+        logger.error("getHomepageItems", {
+            level: req.user.role,
+            response: `setSetting Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error:err
+        });
+
         return res.status(400).json({error_msg: `400`, error_code: "advertising Error"});
     }
 
@@ -147,12 +225,28 @@ exports.addHomepageItems = (req, res) => {
     advertisingObject.advertisingID = uuidv1();
     advertisingObject.save(err => {
         if (err) {
+            logger.error("addHomepageItems", {
+                level: req.user.role,
+                response: `addHomepageItems Failed`,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body,
+                error:err
+            });
 
             if (err.message.toString().includes(`duplicate`)) {
                 return res.status(400).json({error_msg: `400`, error_code: "advertisingLink can not be duplicated"});
             }
             return res.status(500).json({error_msg: `500`, error_code: "advertising Error"});
         } else {
+            logger.info("addHomepageItems", {
+                level: req.user.role,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body
+            });
             return res.json({error_msg: `OK`, error_code: "0"});
         }
     })
@@ -164,6 +258,16 @@ exports.delAdvertising = (req, res) => {
 
     advertisingModel.remove({advertisingID: item_id}, (err) => {
         if (err) {
+
+            logger.error("delAdvertising", {
+                level: req.user.role,
+                response: `advertising Failed`,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body,
+                error:err
+            });
             return res.json({error_msg: `400`, error_code: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0"});

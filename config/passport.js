@@ -1,7 +1,7 @@
 const passport = require('passport');
 const config = require('../config/develop');
 const userAccountModel = require('../modules/userAccount').userAccountModel;
-const logger = require('../logging/logger');
+const logger = require('../logging/logging');
 const LocalStrategy = require('passport-local').Strategy;
 
 

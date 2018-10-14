@@ -3,9 +3,9 @@ const crypto = require('crypto');
 const multer = require('multer');
 const GridFsStorage = require('multer-gridfs-storage');
 const mongoose = require('../db/db').mongoose;
-const logger = require('../logging/logger');
+const logger = require('../logging/logging').logger;
 const grid = require('gridfs-stream');
-const tool = require('../config/tools');
+
 let gridfs = {};
 mongoose.connection.once("open", () => {
     grid.mongo = mongoose.mongo;
@@ -58,7 +58,15 @@ exports.uploadImgForEndpoint = async (req, res) => {
 
         const [returnReq] = await uploadImgAsync(req, res);
 
-        logger.info(returnReq.file);
+
+        logger.info("uploadImgForEndpoint", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+
         // if (tool.isEmpty(returnReq.file)) {
         //     return res.status(400).json({error_msg: `图片获取为空`, error_code: "400"});
         // }
@@ -69,11 +77,17 @@ exports.uploadImgForEndpoint = async (req, res) => {
         });
 
     }
-    catch (e) {
-        logger.info(req.body);
-        logger.error('Error location : Class: picController, function: getOrderForm. ');
-        logger.error(e);
-        console.log(e)
+    catch (err) {
+        logger.error("uploadImgForEndpoint", {
+            level: req.user.role,
+            response: `uploadImgForEndpoint Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+
+
         return res.status(400).json({error_msg: `400`, error_code: "upload Images Error"});
     }
 
@@ -131,6 +145,15 @@ exports.deleteImpsForController = (req, res) => {
     }
     gridfs.remove({filename: filename, root: 'images'}, (err) => {
         if (err) {
+            logger.error("deleteImpsForController", {
+                level: req.user.role,
+                response: `deleteImpsForController Failed`,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body
+            });
+
             return res.status(404).json({err: err});
         }
         return res.status(200).json({error_msg: `200`, error_code: "OK！"});
@@ -145,11 +168,21 @@ exports.deleteImgs = (req, res, callback) => {
     } else if (req.body.filename) {
         filename = req.body.filename;
     } else {
+
         return res.status(404).json("filename is not here");
     }
-    console.log(filename)
+
     gridfs.remove({filename: filename, root: 'images'}, (err) => {
         if (err) {
+            logger.error("deleteImgs", {
+                level: req.user.role,
+                response: `deleteImgs Failed`,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body
+            });
+
             return res.status(404).json({err: err});
         }
         callback();

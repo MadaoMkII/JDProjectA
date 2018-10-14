@@ -5,10 +5,11 @@ const userModel = require('../modules/userAccount').userAccountModel;
 const searchModel = require('../controllers/searchModel');
 const manageSettingController = require('../controllers/manageSettingController');
 const tool = require('../config/tools');
+const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 let getBaseRate = (req, res) => {
     return new Promise((resolve, reject) => {
-
+            console.log(res);
             baseRateModelModel.findOne({VIPLevel: req.user.VIPLevel}, (err, data) => {
 
                 if (err) {
@@ -140,12 +141,12 @@ exports.findThisUserRcoinRecord = async (req, res) => {
     let operator = searchModel.pageModel(req, res);
     let searchArray = [];
 
-    if (req.body.tradeType === `支出`) {
+    if (req.body[`tradeType`] === `支出`) {
         searchArray = [
             {"typeStr": `R币代购`},
             {"typeStr": `R币代付`}
         ]
-    } else if (req.body.tradeType === `充值`) {
+    } else if (req.body[`tradeType`] === `充值`) {
         searchArray = [
             {"typeStr": `R币充值`}
         ]
@@ -240,11 +241,27 @@ exports.addDGByALIBill = async (req, res) => {
         userObject.growthPoints = req.user.growthPoints;
         billObject.userInfo = userObject;
         await billObject.save();
+
+        logger.info("addDGByALIBill", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
-    catch (e) {
-
-        return res.status(513).send({error_code: 513, error_msg: e});
+    catch (err) {
+        logger.error("addDGByALIBill", {
+            level: req.user.role,
+            response: `addDGByALIBill Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(500).send({error_code: 500, error_msg: `addDGByALIBill Failed`});
     }
 };
 exports.addDGRcoinsBill = async (req, res) => {
@@ -311,15 +328,30 @@ exports.addDGRcoinsBill = async (req, res) => {
         await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$set: {Rcoins: tool.encrypt(`` + recentRcoins)}}, {new: true});
 
+        logger.info("addDGRcoinsBill", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
-    catch (e) {
-
-        return res.status(513).send({error_code: 513, error_msg: e});
+    catch (err) {
+        logger.error("addDGRcoinsBill", {
+            level: req.user.role,
+            response: `addDGRcoinsBill Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(500).send({error_code: 500, error_msg: `addDGRcoinsBill Failed`});
     }
 };
 
-exports.getBills = async (req, res) => {
+exports.adminGetBills = async (req, res) => {
 
     try {
 
@@ -341,7 +373,15 @@ exports.getBills = async (req, res) => {
         return res.status(200).send({error_code: 200, error_msg: result, nofdata: count});
 
     } catch (err) {
-        console.log(err)
+        logger.error("adminGetBills", {
+            level: req.user.role,
+            response: `adminGetBills Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
         return res.status(503).send({error_code: 503, error_msg: err});
     }
 
@@ -365,10 +405,25 @@ exports.addReplacePostageBill = async (req, res) => {
         if (!dgBillEntity) {
             return res.status(200).json({error_msg: `OK, but nothing has been changed`, error_code: "0"});
         }
+        logger.info("addReplacePostageBill", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
-    } catch (e) {
-
-        return res.status(500).json({error_msg: e, error_code: "500"});
+    } catch (err) {
+        logger.error("addReplacePostageBill", {
+            level: req.user.role,
+            response: `addReplacePostageBill Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(500).json({error_msg: `addReplacePostageBill Failed`, error_code: "500"});
 
     }
 
@@ -392,10 +447,26 @@ exports.payReplacePostage = async (req, res) => {
         if (!dgBillEntity) {
             return res.status(200).json({error_msg: `OK, but nothing has been changed`, error_code: "0"});
         }
+        logger.info("payReplacePostage", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
-    } catch (e) {
+    } catch (err) {
 
-        return res.status(500).json({error_msg: e, error_code: "500"});
+        logger.error("payReplacePostage", {
+            level: req.user.role,
+            response: `payReplacePostage Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(500).json({error_msg: `Pay Replace Postage Failed`, error_code: "500"});
 
     }
 

@@ -1,25 +1,11 @@
 const config = require('../config/develop');
 const userModel = require('../modules/userAccount').userAccountModel;
 const searchModel = require('../controllers/searchModel');
-//const refererModel = require('../modules/userAccount').refererModel;
-const logger = require('../logging/logger');
+const logger = require('../logging/logging').logger;
 const uuidv1 = require('uuid/v1');
 const redis = require("redis");
 const tools = require("../config/tools");
-exports.getAdmin = async (req, res) => {
 
-    let result = require('crypto').createHash('md5').update("123456" + config.saltword).digest('hex');
-    let user = await userModel.findOneAndUpdate({tel_number: req.body.tel_number}, {$set: {password: result}});
-
-    return res.status(200).json({
-        "error_code": 0,
-        "data": {
-            role: user,
-            tel_number: req.body.tel_number
-        }
-    });
-
-};
 
 exports.zhuce = async (req, res) => {
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
@@ -100,38 +86,67 @@ exports.setReferer = async (req, res) => {
                 }
             }
         }, {new: true});//推荐人 userA
-
+        logger.info("(new Error().stack).split(\"at \")[3]", {
+            level: `USER`,
+            user: req.user.uuid,
+            action: `setReferer`,
+            body: req.body
+        });
         return res.status(200).json({error_massage: 'OK', error_code: 0, data: userB});
     } catch (err) {
-        console.log(err)
+        logger.error("Error: setReferer", {
+            status: 503,
+            level: `USER`,
+            response: `Set Referer Failed`,
+            user: req.user.uuid,
+            action: `setReferer`,
+            body: req.body,
+            error: err
+        });
         if (err.toString().indexOf(`E11000`)) {
             return res.status(400).json({
                 error_code: 400, error_massage: 'referrer ID is duplicate,' +
-                    'please recommend another user'
+                'please recommend another user'
             });
         }
-        return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
+        return res.status(503).json({error_code: 503, error_massage: 'Set Referer Failed'});
     }
 };
 
 exports.setUserRole = async (req, res) => {
 
+
+    if (req.body.uuid === req.user.uuid) {
+        return res.status(401).json({"error_code": 401, error_massage: "You can not set yourself role"});
+    }
+    let role = ``;
+    if (req.body[`roleCode`] === 1) {
+        role = `Admin`;
+    }
+    if (req.body[`roleCode`] === 0) {
+        role = `User`;
+    }
     try {
-        if (req.body.uuid === req.user.uuid) {
-            return res.status(401).json({"error_code": 401, error_massage: "You can not set yourself role"});
-        }
-        let role = ``;
-        if (req.body[`roleCode`] === 1) {
-            role = `Admin`;
-        }
-        if (req.body[`roleCode`] === 0) {
-            role = `User`;
-        }
         let result = await userModel.findOneAndUpdate({uuid: req.body.uuid}, {$set: {role: role}}, {new: true});
-        req.user = result;
+        logger.info("setUserRole", {
+            level: `USER`,
+            user: req.user.uuid,
+            action: `setUserRole`,
+            body: req.body
+        });
         return res.status(200).json({"error_code": 200, error_massage: "OK", data: result});
-    } catch (e) {
-        return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
+    } catch (err) {
+
+        logger.error("Error: setUserRole", {
+            status: 503,
+            level: `USER`,
+            response: `Set UserRole Failed`,
+            user: req.user.uuid,
+            action: `setUserRole`,
+            body: req.body,
+            error: err
+        });
+        return res.status(503).json({"error_code": 503, error_massage: "Set UserRole Failed`"});
     }
 
 };
@@ -168,7 +183,7 @@ exports.findUserReferer = async (req, res) => {
         }//
         let billCount = await userModel.find({"referrer.referrerUUID": {$exists: true}}).count();
         let result = await userModel.find({"referrer.referrerUUID": {$exists: true}}, {
-            email_address: 1,
+            email_address: 1,tel_number:1,
             Rcoins: 1, realName: 1, referrer: 1
         });
         let finalResult = [];
@@ -184,15 +199,22 @@ exports.findUserReferer = async (req, res) => {
 
         }
 
-
         return res.status(200).json({
             "error_code": 0,
             "data": finalResult,
             nofdata: billCount
         });
-    } catch (e) {
-
-        return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
+    } catch (err) {
+        logger.error(err.error_massage, {
+            status: 503,
+            level: `USER`,
+            response: `find User Referer Failed`,
+            user: req.user.uuid,
+            action: `findUserReferer`,
+            body: req.body,
+            error: err
+        });
+        return res.status(503).json({"error_code": 503, error_massage: "findUserReferer failed"});
     }
 
 };
@@ -266,7 +288,16 @@ exports.findUser = async (req, res) => {
         return res.status(200).send({error_code: 200, error_msg: result, nofdata: count});
 
     } catch (err) {
-        return res.status(503).send({error_code: 503, error_msg: err});
+        logger.error("Error: findUser", {
+            status: 503,
+            level: `USER`,
+            response: `find User Failed`,
+            user: req.user.uuid,
+            action: `findUser`,
+            body: req.body,
+            error: err
+        });
+        return res.status(503).send({error_code: 503, error_msg: `Find User Failed`});
     }
 
 };
@@ -289,9 +320,17 @@ exports.userSignUp = (req, res) => {
         if (result === 'OK') {
             new userModel(userInfo).save((err) => {
                 if (err) {
-                    logger.info(req.body);
-                    logger.error('Error location : Class: userController, function: addAgent. ' + err);
-                    logger.error('Response code:503, message: Error Happened , please check input data');
+
+                    logger.error("Error: userSignUp", {
+                        status: 503,
+                        level: `USER`,
+                        response: `user Sign Up Failed`,
+                        user: req.user.uuid,
+                        action: `userSignUp`,
+                        body: req.body,
+                        error: err
+                    });
+
 
                     if (err.toString().includes('duplicate')) {
 
@@ -317,6 +356,7 @@ exports.userSignUp = (req, res) => {
                 });
             });
         } else {
+
             return res.status(403).json({"error_code": 403, error_massage: "Not yet verified"});
         }
     })
@@ -324,63 +364,23 @@ exports.userSignUp = (req, res) => {
 };
 
 
-exports.updateGeneralData = (req, res) => {
-
-
-    let command = {};
-    if (req.body.referrer) {
-        command['referrer'] = req.body.referrer;
-    }
-    if (req.body.nickName) {
-        command['nickName'] = req.body.nickName;
-    }
-
-
-    userModel.findOne({tel_number: req.user.tel_number}, {password: 0}, (err, data) => {
-
-            if (err) {
-
-                return res.status(500).json({"error_code": 500, error_massage: "Error when trying to update DB"});
-            }
-
-            if (data) {
-
-                if (data.referrer && command['referrer']) {
-                    return res.status(400).json({"error_code": 400, error_massage: "This user already has a referrer"});
-                }
-                userModel.update({tel_number: req.user.tel_number}, {$set: command}, (err) => {
-                    if (err) {
-
-                        return res.status(500).json({"error_code": 500, error_massage: "Error when trying to update DB"});
-                    }
-                    userModel.findOneAndUpdate({email_address: req.user.email_address}, {$inc: {numberOfReferrers: 1}}).exec().then((data) => {
-
-                        if (!data) {
-                            return res.status(406).json({"error_code": 406, error_massage: "Can not find Referrer"});
-                        }
-
-                        return res.status(200).json({"error_code": 0, error_massage: "OK"});
-
-                    }).catch(error => {
-                        console.error(`Error: ${ error }\n${ error.stack }`);
-
-                    });
-
-                })
-            }
-
-        }
-    );
-};
-
-exports.update_password = (req, res) => {
+exports.update_password = (req, res) => {//chongxie
     let hashedPassword =
         require('crypto').createHash('md5').update(req.body['newpassword'] + config.saltword).digest('hex');
     let hashedCurrentPassword = require('crypto').createHash('md5').update(req.body['currentpassword'] + config.saltword).digest('hex');
     userModel.findOne({'tel_number': req.user.tel_number}, {password: 1}, (err, data) => {
         if (err) {
-            logger.error('user controller updatepassword: ' + err);
-            return res.status(500).json({error_code: 500, error_massage: 'Error When Trying To Verify User'});
+            logger.error("Error: update_password", {
+                status: 503,
+                level: `USER`,
+                response: `update password Failed`,
+                user: req.user.uuid,
+                action: `update_password`,
+                body: req.body,
+                error: err
+            });
+
+            return res.status(503).json({error_code: 503, error_massage: 'update password Failed'});
         }
         if (!data) return res.status(404).json({error_code: 404, error_massage: 'Can Not Find user'});
         if (hashedCurrentPassword !== data.password) {
@@ -388,8 +388,17 @@ exports.update_password = (req, res) => {
         }
         userModel.update({tel_number: req.user.tel_number}, {$set: {password: hashedPassword}}, (err) => {
             if (err) {
-                return res.status(404).json({error_code: 404, error_massage: 'Can not find anything'});
+                logger.error("Error: update_password", {
+                    status: 503,
+                    response: `update_password Failed`,
+                    user: req.user.uuid,
+                    action: `update_password`,
+                    body: req.body,
+                    error: err
+                });
+                return res.status(503).json({error_code: 503, error_massage: 'update_password Failed'});
             }
+            logger.info("update_password", {user: req.user.uuid, action: `update_password`, body: req.body});
             req.logOut();
             return res.status(200).json({error_code: 200, error_massage: 'Please re-login'});
         });
@@ -422,8 +431,27 @@ exports.updatePhoneNumber = (req, res) => {
                     } else {
                         userModel.update({tel_number: req.user.tel_number}, {$set: {tel_number: tel}}, (err) => {
                             if (err) {
-                                return res.status(404).json({error_code: 404, error_massage: 'Can not find anything'});
+                                logger.error("Error: updatePhoneNumber", {
+                                    status: 503,
+                                    level: `USER`,
+                                    response: `updatePhoneNumber Failed`,
+                                    user: req.user.uuid,
+                                    action: `updatePhoneNumber`,
+                                    body: req.body,
+                                    error: err
+                                });
+                                return res.status(503).json({
+                                    error_code: 503,
+                                    error_massage: 'updatePhoneNumber Failed'
+                                });
                             }
+                            logger.info("updatePhoneNumber", {
+                                status: 200,
+                                level: `USER`,
+                                user: req.user.uuid,
+                                action: `updatePhoneNumber`,
+                                body: req.body
+                            });
                             req.logOut();
                             return res.status(200).json({error_code: 0, error_massage: 'Please relogin'});
                         });
@@ -438,12 +466,21 @@ exports.updatePhoneNumber = (req, res) => {
 
 exports.getUserInfo = async (req, res) => {
     try {
+
         let userInfo = req.user;
 
         return res.status(200).json({error_code: 0, error_massage: `OK`, data: userInfo});
-    } catch (e) {
-        console.log(e)
-        return res.status(503).json({error_code: 503, error_massage: e});
+    } catch (err) {
+        logger.error("Error: getUserInfo", {
+            status: 503,
+            level: `USER`,
+            response: `getUserInfo Failed`,
+            user: req.user.uuid,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(503).json({error_code: 503, error_massage: `Get User Info Failed`});
     }
 
 
@@ -481,10 +518,25 @@ exports.addUserBank = async (req, res) => {
         }
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$push: {bankAccounts: bankObject}}, {password: 0, new: true});
-        res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
-    } catch (e) {
+        logger.info("addUserBank", {
+            level: `USER`,
+            user: req.user.uuid,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
 
-        return res.status(500).json({error_code: 500, error_massage: 'Failed to add'});
+        res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
+    } catch (err) {
+        logger.error("Error: addUserBank", {
+            status: 503,
+            level: `USER`,
+            response: `addUserBank Failed`,
+            user: req.user.uuid,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(500).json({error_code: 500, error_massage: `Add User Bank Failed`});
     }
 
 };
@@ -495,8 +547,23 @@ exports.delUserBank = async (req, res) => {
 
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$pull: {bankAccounts: {last6digital: last6digital}}}, {password: 0, new: true});
+        logger.info("delUserBank", {
+            level: `USER`,
+            user: req.user.uuid,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
         res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
-    } catch (e) {
+    } catch (err) {
+        logger.error("Error: delUserBank", {
+            status: 503,
+            level: `USER`,
+            response: `delUserBank Failed`,
+            user: req.user.uuid,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
         return res.status(500).json({error_code: 500, error_massage: 'Failed to del'});
     }
 
@@ -505,12 +572,6 @@ exports.delUserBank = async (req, res) => {
 
 exports.addUserRealName = async (req, res) => {
     try {
-        // for (let index in req.body) {
-        //
-        //     if (tools.isEmpty(req.body[index])) {
-        //         return res.status(400).json({error_code: 400, error_massage: 'Empty input value'});
-        //     }
-        // }
 
         if (!tools.isEmpty(req.user.realIDNumber)) {
             return res.status(400).json({error_code: 400, error_massage: 'Already have a ID Number'});
@@ -542,10 +603,25 @@ exports.addUserRealName = async (req, res) => {
             $inc: {growthPoints: 10}, $push: {whatHappenedToMe: myEvent}
         }, {new: true});
 
+        logger.info("addUserRealName", {
+            level: `USER`,
+            user: req.user.uuid,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
         res.status(200).json({error_code: 200, error_massage: 'OK'});
 
-    } catch (e) {
-        return res.status(400).json({error_code: 400, error_massage: 'Error happen'});
+    } catch (err) {
+        logger.error("Error: addUserRealName", {
+            status: 503,
+            level: `USER`,
+            response: `addUserRealName Failed`,
+            user: req.user.uuid,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(400).json({error_code: 400, error_massage: 'Add User`s Real Name Failed'});
     }
 };
 

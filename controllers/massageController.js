@@ -4,7 +4,7 @@ const userAccountModel = require('../modules/userAccount').userAccountModel;
 //const regex = /^(09)[0-9]{8}$/;
 const MessageXSend = require('../lib/SUBMAIL/intersmsXsend');
 const message = new MessageXSend();
-
+const logger = require('../logging/logging').logger;
 
 /**
  * 发送短信验证
@@ -46,6 +46,16 @@ exports.smsSend = (req, res) => {
                         multi.set('registerNumber:' + tel, verity_code, 'EX', 1000)
                             .exec(function (err) {
                                 if (err) {
+                                    logger.error("smsSend", {
+                                        level: `N/A`,
+                                        response: `smsSend Failed`,
+                                        user: ``,
+                                        email: ``,
+                                        location: (new Error().stack).split("at ")[1],
+                                        error: err,
+                                        body: req.body,
+                                    });
+
                                     return res.status(503).json({
                                         error_msg: "Internal Service Error",
                                         error_code: "503"
@@ -90,6 +100,16 @@ exports.check_code = function (req, res) {
             multi.set('registerNumber:' + tel, "OK", 'EX', 3600)
                 .exec(function (err) {
                     if (err) {
+                        logger.error("check_code", {
+                            level: `N/A`,
+                            response: `check_code Failed`,
+                            user: ``,
+                            email: ``,
+                            location: (new Error().stack).split("at ")[1],
+                            body: req.body,
+                            error: err
+                        });
+
                         return res.status(503).json({
                             error_msg: "Internal Service Error",
                             error_code: "503"

@@ -18,6 +18,15 @@ exports.addAppealForm = (req, res) => {
     appealFormObject.tel_number = req.user.tel_number;
     appealFormObject.save((err) => {
         if (err) {
+            logger.error("setSetting", {
+                level: req.user.role,
+                response: `setSetting Failed`,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body,
+                error:err
+            });
             let errorResult = '';
             for (let errorField in err.errors) {
                 if (err.errors[errorField].hasOwnProperty('message')) {

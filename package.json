@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/MadaoMkII/NaProject.git"
   },
-  "license": "UNLICENSED",
+  "license": "LICENSED",
   "dependencies": {
     "babel-preset-env": ">= 0.1.4",
     "body-parser": "^1.13.3",
@@ -23,7 +23,7 @@
     "express-session": "^1.11.3",
     "formidable": "^1.0.0",
     "gridfs-stream": "^1.1.1",
-    "log4js": "^3.0.5",
+    "log4js": "^3.0.6",
     "mongoose": "^4.13.6",
     "mongoose-auto-increment": "5.0.1",
     "morgan": "^1.6.1",
@@ -40,6 +40,8 @@
     "request": "*",
     "topsdk": "^1.0.10",
     "uuid": "^3.3.2",
+    "winston-mongodb": "^3.0.1",
+    "winston": "^2.4.4",
     "debug": "^4.0.1"
   }
 }

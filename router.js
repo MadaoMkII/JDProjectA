@@ -91,11 +91,11 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-app.post('/test', dgPayment.getBills);
-app.post('/adv/addHomepageItems', advertisingController.addHomepageItems);
+
+app.post('/adv/addHomepageItems', isAuthenticated('Admin'), advertisingController.addHomepageItems);
 app.post('/adv/getHomepageItems', advertisingController.getHomepageItems);
 app.post('/adv/getHomepageItemsList', advertisingController.getHomepageItemsList);
-app.post('/adv/setDFpage', advertisingController.setDFpage);
+app.post('/adv/setDFpage', isAuthenticated('Admin'),advertisingController.setDFpage);
 app.get('/adv/getDFpage', advertisingController.getDFpage);
 app.post('/adv/setHomepage', advertisingController.setHomepage);
 app.get('/adv/getHomepage', advertisingController.getHomepage);
@@ -117,25 +117,25 @@ app.get('/getBaseRate', isAuthenticated('User'), dgPayment.getBaseRateOutside);
 
 app.post('/delbank', isAuthenticated('User'), userController.delUserBank);
 app.post('/addbank', isAuthenticated('User'), userController.addUserBank);
-app.post('/addBankAccounts', manageSettingController.addBankAccounts);
-app.get('/getBankAccounts', manageSettingController.getBankAccounts);
+app.post('/addBankAccounts', isAuthenticated('Super_Admin'), manageSettingController.addBankAccounts);
+app.get('/getBankAccounts', isAuthenticated('User'), manageSettingController.getBankAccounts);
 
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
-app.post('/getBills', isAuthenticated('User'), dgPayment.getBills);
+app.post('/getBills', isAuthenticated('Admin'), dgPayment.adminGetBills);
 
-app.post('/addProcessOrder', processOrderController.addProcessOrder);
+app.post('/addProcessOrder', isAuthenticated('Admin'), processOrderController.addProcessOrder);
 app.post('/addReplacePostageBill', isAuthenticated('User'), dgPayment.addReplacePostageBill);
 app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
 app.post('/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
 
 //app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
 
-app.post('/addAnnouncement', announcementController.addAnnouncement);
-app.post('/findAnnouncement', announcementController.findAnnouncement);
-app.post('/updateAnnouncement', announcementController.updateAnnouncement);
-app.post('/delAnnouncement', announcementController.delAnnouncement);
+app.post('/addAnnouncement', isAuthenticated('SAdmin'), announcementController.addAnnouncement);
+app.post('/findAnnouncement', isAuthenticated('Admin'), announcementController.findAnnouncement);
+app.post('/updateAnnouncement', isAuthenticated('Admin'), announcementController.updateAnnouncement);
+app.post('/delAnnouncement', isAuthenticated('Admin'), announcementController.delAnnouncement);
 
-app.get('/getAppealIssues', manageSettingController.getAppealTopics);
+app.get('/getAppealIssues', isAuthenticated('Admin'), manageSettingController.getAppealTopics);
 app.get('/process', picController.getImgs);
 app.get('/appeal', picController.getImgs);
 app.get('/adv', picController.getImgs);
@@ -144,20 +144,20 @@ app.post('/appealForm/getAppealFormById', isAuthenticated('User'), appealFormCon
 app.get('/appealForm/getMyAppealForm', isAuthenticated('User'), appealFormController.getMyAppealForm);
 app.post('/appealForm/addAppealForm', isAuthenticated('User'), appealFormController.addAppealForm);
 app.post('/appealForm/findAppealForm', isAuthenticated('Admin'), appealFormController.findAppealForm);
-app.post('/appealForm/setResponseAppealForm', appealFormController.setResponseAppealForm);
-app.post('/appealForm/delAppealForm', appealFormController.delAppealForm);
+app.post('/appealForm/setResponseAppealForm', isAuthenticated('Admin'), appealFormController.setResponseAppealForm);
+app.post('/appealForm/delAppealForm', isAuthenticated('Admin'), appealFormController.delAppealForm);
 
 
-app.post('/delAdvertising', advertisingController.delAdvertising);
+app.post('/delAdvertising', isAuthenticated('Admin'), advertisingController.delAdvertising);
 
 app.get('/index', picController.getImgs);
 app.get('/image/:filename', picController.findImgById);
-app.post('/upload', appealFormController.addAppealForm);
-app.get('/delImage/:filename', picController.deleteImpsForController);
-app.post('/setSetting', manageSettingController.setSetting);
-app.get('/getSetting', manageSettingController.getSetting);
-app.get('/get3level', manageSettingController.find3L);
-app.get('/checkhealth', isAuthenticated('User'), function (req, res) {
+app.post('/upload', isAuthenticated('User'), appealFormController.addAppealForm);
+app.get('/delImage/:filename', isAuthenticated('Admin'), picController.deleteImpsForController);
+app.post('/setSetting', isAuthenticated('Super_Admin'), manageSettingController.setSetting);
+app.get('/getSetting', isAuthenticated('User'), manageSettingController.getSetting);
+app.get('/get3level', isAuthenticated('User'), manageSettingController.find3L);
+app.get('/checkhealth', function (req, res) {
     if (req.user) {
         return res.status(200).json({
             success: true,
@@ -175,7 +175,7 @@ app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSett
 
 app.post('/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addRcoinChargeBills);
 app.post('/addChargeBill', isAuthenticated('User'), rechargeController.addChargeBills);
-app.post('/findChargeBill', isAuthenticated('User'), rechargeController.findChargeBills);
+app.post('/findChargeBill', isAuthenticated('User'), rechargeController.findMyChargeBills);
 app.post('/msg/send_massage', massageChecker.smsSend);
 
 app.post('/msg/check_massage', massageChecker.check_code);
@@ -186,7 +186,6 @@ app.post('/mail/getbackmail', mailController.getBackFromEmail);
 
 //app.post('/sendemail', mailController.sendConfirmationEmail);//done
 app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.updatePhoneNumber);
-app.post('/user/updateGeneral', isAuthenticated('User'), userController.updateGeneralData);//done
 app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
 
