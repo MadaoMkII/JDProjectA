@@ -16,21 +16,24 @@ const vipCoculart = (points) => {
 
     return vipLevel;
 };
+const referrals = new mongoose.Schema(
+    {
+        addTime: Date,
+        referrals_tel_number: String,
+        referrals_email: String,
+        referralsUUID: String
+    }, {_id: false}
+);
 const referer = new mongoose.Schema(
     {
         referrerUUID: {type: String, default: ""},
         referrer_email: {type: String, default: ""},
         referrer_tel_number: {type: String, default: ""},
         referrals: {
-            type: [{
-                addTime: Date,
-                referrals_tel_number: String,
-                referrals_email: String,
-                referralsUUID: String
-            }],
-            default: [{addTime: "", referrals_tel_number: "", referrals_email: "", referralsUUID: ""}]
+            type: [referrals],
+            default: [{addTime: null, referrals_tel_number: "", referrals_email: "", referralsUUID: ""}]
         },
-        addTime: {type: Date, default: ""}
+        addTime: {type: Date, default: null}
     }, {_id: false}, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 

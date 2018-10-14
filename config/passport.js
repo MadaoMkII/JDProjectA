@@ -20,8 +20,9 @@ passport.deserializeUser(function (username, callback) {
 passport.use(new LocalStrategy('local', (username, password, callback) => {
 
         let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
-        let phone_reg = /^1(3|4|5|7|8)\d{9}$/;
-        ///^(09)[0-9]{8}$/;
+        let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
+            ///^1(3|4|5|7|8)\d{9}$/;
+
         let command = {};
 
         if (username) {
@@ -29,7 +30,7 @@ passport.use(new LocalStrategy('local', (username, password, callback) => {
             if (email_reg.test(username)) {
                 command['email_address'] = username;
 
-            } else if (phone_reg.test(username)) {
+            } else if (wanwan_phone_reg.test(username)) {
                 command['tel_number'] = username;
 
             } else{

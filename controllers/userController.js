@@ -1,5 +1,6 @@
 const config = require('../config/develop');
 const userModel = require('../modules/userAccount').userAccountModel;
+const refererModel = require('../modules/userAccount').refererModel;
 const searchModel = require('../controllers/searchModel');
 const logger = require('../logging/logging').logger;
 const uuidv1 = require('uuid/v1');
@@ -16,7 +17,7 @@ exports.zhuce = async (req, res) => {
         role: 'Super_Admin',
         Rcoins: 188,
         tel_number: req.body.tel_number,
-        email_address: req.body.email
+        email_address: req.body.email, referrer: new refererModel()
     };
 
     let a = await new userModel(userInfo).save();
@@ -32,15 +33,19 @@ exports.setReferer = async (req, res) => {
     try {
         let search = {};
         let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
-        let wanwan_phone_reg = /^1(3|4|5|7|8)\d{9}$/;
-        let mainland_reg = /^1[3|4|5|7|8][0-9]{9}$/;
+        let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
+        //let mainland_reg = /^1[3|4|5|7|8][0-9]{9}$/;
         ///^(09)[0-9]{8}$/;
+
+        if (`` + req.user.tel_number === `` + req.body.referer) {
+            return res.status(400).json({error_code: 400, error_massage: 'You can not refer yourself'});
+        }
         if (!tools.isEmpty(req.body.referer)) {
 
             if (email_reg.test(req.body.referer)) {
                 search = {email_address: req.body.referer};
 
-            } else if (wanwan_phone_reg.test(req.body.referer) || mainland_reg.test(req.body.referer)) {
+            } else if (wanwan_phone_reg.test(req.body.referer)) {
                 search = {tel_number: req.body.referer};
 
             } else {
@@ -85,7 +90,10 @@ exports.setReferer = async (req, res) => {
                     referralsUUID: req.user.uuid
                 }
             }
-        }, {new: true});//推荐人 userA
+        });//推荐人 userA
+        await userModel.findOneAndUpdate({uuid: userA.uuid}, {
+            $pull: {"referrer.referrals": {referrals_tel_number: ""}}
+        });//推荐人 userA
         logger.info("(new Error().stack).split(\"at \")[3]", {
             level: `USER`,
             user: req.user.uuid,
@@ -181,9 +189,9 @@ exports.findUserReferer = async (req, res) => {
             operator.skip = (req.body['page'] - 1) * req.body['unit'];
             operator.limit = parseInt(req.body['unit']);
         }//
-        let billCount = await userModel.find({"referrer.referrerUUID": {$exists: true}}).count();
-        let result = await userModel.find({"referrer.referrerUUID": {$exists: true}}, {
-            email_address: 1,tel_number:1,
+        let billCount = await userModel.find({"userStatus.isRefereed": true}).count();
+        let result = await userModel.find({"userStatus.isRefereed": true}, {
+            email_address: 1, tel_number: 1,
             Rcoins: 1, realName: 1, referrer: 1
         });
         let finalResult = [];
@@ -305,6 +313,14 @@ exports.findUser = async (req, res) => {
 exports.userSignUp = (req, res) => {
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
     let uuid = uuidv1();
+    let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+    let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
+    if (email_reg.test(req.body.email)) {
+        return res.status(400).send({error_code: 400, error_msg: `wrong input email`});
+    }
+    if (wanwan_phone_reg.test(req.body.tel_number)) {
+        return res.status(400).send({error_code: 400, error_msg: `wrong input tel_number`});
+    }
     let userInfo = {
         uuid: uuid,
         password: result,
