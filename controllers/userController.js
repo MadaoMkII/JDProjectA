@@ -37,7 +37,7 @@ exports.setReferer = async (req, res) => {
         //let mainland_reg = /^1[3|4|5|7|8][0-9]{9}$/;
         ///^(09)[0-9]{8}$/;
 
-        if (`` + req.user.tel_number === `` + req.body.referer) {
+        if (`` + req.user.tel_number === `` + req.body.referer || req.user.email_address === req.body.referer) {
             return res.status(400).json({error_code: 400, error_massage: 'You can not refer yourself'});
         }
         if (!tools.isEmpty(req.body.referer)) {

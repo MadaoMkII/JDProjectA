@@ -159,6 +159,9 @@ app.get('/getSetting', isAuthenticated('User'), manageSettingController.getSetti
 app.get('/get3level', isAuthenticated('User'), manageSettingController.find3L);
 app.get('/checkhealth', function (req, res) {
     if (req.user) {
+        if (req.user.role === `Admin` || req.user.role === `Super_Admin`) {
+            return res.redirect(301, 'http://www.baidu.com');
+        }
         return res.status(200).json({
             success: true,
             message: req.user
