@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/MadaoMkII/NaProject.git"
   },
-  "license": "LICENSED",
+  "license": "UNLICENSED",
   "dependencies": {
     "babel-preset-env": ">= 0.1.4",
     "body-parser": "^1.13.3",
