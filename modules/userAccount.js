@@ -40,6 +40,7 @@ referer.set('toJSON', {
     virtuals: true,
     transform: (doc, ret) => {
         delete ret._id;
+        delete ret.id;
         if (doc.referrals.length === 0) {
             ret.referrals.push({addTime: null, referrals_tel_number: null, referrals_email: null, referralsUUID: null});
         }
