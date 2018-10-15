@@ -195,8 +195,8 @@ app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
 
 app.post('/signup', userController.userSignUp);
 
-app.post('/login', loginUser.loginUser);
-app.post('/logout', loginUser.logoutUser);
+app.post('/user/login', loginUser.loginUser);
+app.post('/user/logout', loginUser.logoutUser);
 
 app.listen(3000);
 
