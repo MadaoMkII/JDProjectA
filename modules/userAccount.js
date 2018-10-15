@@ -30,13 +30,22 @@ const referer = new mongoose.Schema(
         referrer_email: {type: String, default: ""},
         referrer_tel_number: {type: String, default: ""},
         referrals: {
-            type: [referrals],
-            default: [{addTime: null, referrals_tel_number: "", referrals_email: "", referralsUUID: ""}]
+            type: [referrals]
+            //default: [{addTime: null, referrals_tel_number: "", referrals_email: "", referralsUUID: ""}]
         },
         addTime: {type: Date, default: null}
     }, {_id: false}, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
+referer.set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret) => {
+        delete ret._id;
+        if (doc.referrals.length === 0) {
+            ret.referrals.push({addTime: null, referrals_tel_number: "", referrals_email: "", referralsUUID: ""});
+        }
 
+    }
+});
 let refererModel = mongoose.model('referer', referer);
 
 
