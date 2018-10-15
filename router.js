@@ -26,7 +26,7 @@ let app = express();
 
 
 //
-app.options(DOMAIN, cors());
+app.options(`http://www.yubaopay.com.tw`, cors());
 app.use(json_body_parser);
 app.use(urlencoded_body_parser);
 app.use(session({
