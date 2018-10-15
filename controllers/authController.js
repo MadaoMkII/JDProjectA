@@ -49,9 +49,9 @@ exports.loginUser = (req, res, next) => {
 
                 //return res.status(200).json({succeed: true, message: 'Please relogin'});
             });
-            // if (req.user.role === `Admin` || req.user.role === `Super_Admin`) {
-            //    return res.redirect(301, 'http://www.baidu.com');
-            // }
+            if (req.user.role === `Admin` || req.user.role === `Super_Admin`) {
+               return res.redirect(301, 'http://www.baidu.com');
+            }
             return res.status(200).json({
                 "error_code": 0,
                 "data": {
