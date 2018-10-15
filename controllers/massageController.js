@@ -11,71 +11,124 @@ const logger = require('../logging/logging').logger;
  * @param req
  * @param res
  */
-exports.smsSend = (req, res) => {
-    const tel = req.body.tel;
-    //if (!tel || !regex.exec(tel)) return res.json({errMsg: "tel is no true", errCode: "400"});
-    //生成6位数字的随机数
-    let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
-    //检查用户是否已经注册
-    userAccountModel.findOne({tel: tel}).exec().then((err, user) => {
-        if (user) {
+
+exports.smsSend = async (req, res) => {
+    try {
+        const tel = req.body.tel;
+        let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
+        if (!wanwan_phone_reg.test(tel)) {
+            return res.status(400).json({
+                error_msg: "Wrong cell phone number",
+                error_code: "400"
+            });
+        }
+        let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
+        let foundUser = await userAccountModel.findOne({tel_number: tel});
+        if (foundUser) {
             return res.status(208).json({
                 error_msg: "This tel number has already been registered yet",
                 error_code: "208"
             });
         }
 
-        redisClient.exists("registerNumber:" + tel, function (err, result) {
-            if (err) {
-                return res.status(503).json({error_msg: "Internal Service Error", error_code: "503"});
-            }
-            if (result === 1) {
-                return res.status(405).json({error_msg: "Too many tries at this moment", error_code: "405"});
-            } else {
+        let result = await redisClient.exists("registerNumber:" + tel);
+        if (result === 1) {
+            return res.status(405).json({error_msg: "Too many tries at this moment", error_code: "405"});
+        }
+        message.set_to(tel);
+        message.set_project('WnDSX2');
+        message.add_var('code', verity_code);
+        message.add_var('time', '1分鐘');
+        await message.xsend();
 
-                message.set_to(tel);
-                message.set_project('WnDSX2');
-                message.add_var('code', verity_code);
-                message.add_var('time', '60sec');
-                message.xsend(() => {
-
-                    if (!err) {
-                        //发送成功
-                        let multi = redisClient.multi();
-                        //限制访问频率60秒
-                        multi.set('registerNumber:' + tel, verity_code, 'EX', 1000)
-                            .exec(function (err) {
-                                if (err) {
-                                    logger.error("smsSend", {
-                                        level: `N/A`,
-                                        response: `smsSend Failed`,
-                                        user: ``,
-                                        email: ``,
-                                        location: (new Error().stack).split("at ")[1],
-                                        error: err,
-                                        body: req.body,
-                                    });
-
-                                    return res.status(503).json({
-                                        error_msg: "Internal Service Error",
-                                        error_code: "503"
-                                    });
-                                } else {
-
-                                    return res.json({
-                                        error_msg: "OK",
-                                        error_code: "0",
-                                        verificationCode: verity_code
-                                    });
-                                }
-
-                            });
-                    }
-                })
-            }
+        //限制访问频率60秒
+        await redisClient.multi().set('registerNumber:' + tel, verity_code, 'EX', 1000);
+        return res.json({
+            error_msg: "OK",
+            error_code: "0",
+            verificationCode: verity_code
         });
-    });
+
+    } catch (err) {
+        logger.error("smsSend", {
+            response: `smsSend Failed`,
+            location: (new Error().stack).split("at ")[1],
+            error: err,
+            body: req.body,
+        });
+        return res.status(503).json({
+            error_msg: "Internal Service Error",
+            error_code: "503"
+        });
+    }
+
+
 };
+// exports.smsSend = (req, res) => {
+//     const tel = req.body.tel;
+//     //if (!tel || !regex.exec(tel)) return res.json({errMsg: "tel is no true", errCode: "400"});
+//     //生成6位数字的随机数
+//     let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
+//     //检查用户是否已经注册
+//     userAccountModel.findOne({tel: tel}).exec().then((err, user) => {
+//         if (user) {
+//             return res.status(208).json({
+//                 error_msg: "This tel number has already been registered yet",
+//                 error_code: "208"
+//             });
+//         }
+//
+//         redisClient.exists("registerNumber:" + tel, function (err, result) {
+//             if (err) {
+//                 return res.status(503).json({error_msg: "Internal Service Error", error_code: "503"});
+//             }
+//             if (result === 1) {
+//                 return res.status(405).json({error_msg: "Too many tries at this moment", error_code: "405"});
+//             } else {
+//
+//                 message.set_to(tel);
+//                 message.set_project('WnDSX2');
+//                 message.add_var('code', verity_code);
+//                 message.add_var('time', '60sec');
+//                 message.xsend(() => {
+//
+//                     if (!err) {
+//                         //发送成功
+//                         let multi = redisClient.multi();
+//                         //限制访问频率60秒
+//                         multi.set('registerNumber:' + tel, verity_code, 'EX', 1000)
+//                             .exec(function (err) {
+//                                 if (err) {
+//                                     logger.error("smsSend", {
+//                                         level: `N/A`,
+//                                         response: `smsSend Failed`,
+//                                         user: ``,
+//                                         email: ``,
+//                                         location: (new Error().stack).split("at ")[1],
+//                                         error: err,
+//                                         body: req.body,
+//                                     });
+//
+//                                     return res.status(503).json({
+//                                         error_msg: "Internal Service Error",
+//                                         error_code: "503"
+//                                     });
+//                                 } else {
+//
+//                                     return res.json({
+//                                         error_msg: "OK",
+//                                         error_code: "0",
+//                                         verificationCode: verity_code
+//                                     });
+//                                 }
+//
+//                             });
+//                     }
+//                 })
+//             }
+//         });
+//     });
+// };
 /**
  * 检验验证码
  * @param req
