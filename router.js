@@ -34,7 +34,6 @@ app.use(session({
     saveUninitialized: true
 }));
 
-const DOMAIN = 'http://www.yubaopay.com.tw';
 app.use(express.static('public'));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -43,7 +42,7 @@ app.set('view engine', 'ejs');
 app.use(function (req, res, next) {
 
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', DOMAIN);
+    res.setHeader('Access-Control-Allow-Origin', `http://www.yubaopay.com.tw`);
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
