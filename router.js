@@ -90,6 +90,8 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+app.post('/msg/testemail', isAuthenticated('User'), mailController.testEmail);
+
 
 app.post('/adv/addHomepageItems', isAuthenticated('Admin'), advertisingController.addHomepageItems);
 app.post('/adv/getHomepageItems', advertisingController.getHomepageItems);

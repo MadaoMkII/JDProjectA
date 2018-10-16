@@ -41,11 +41,51 @@ let sendEmail = (emailAddress, massage) => {
         if (error) {
             return console.log(error);
         }
-        console.log('Message sent: %s', info.messageId);
+        //console.log('Message sent: %s', info.messageId);
         // Preview only available when sending through an Ethereal account
-        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+        //console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
 
     });
+};
+let func_send_Email = async (req, res, category) => {
+    try {
+        let email_address = req.body.email_address;
+        let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
+        let existsResult = await redisClient.exists(`category:${category},email_address:${email_address}`);
+        if (existsResult === 1) {
+            return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
+        }
+        await sendEmail(email_address, `注册码是${verity_code}`);
+        await redisClient.multi().set(`category:${category},email_address:${email_address}`, verity_code, 'EX', 1000);
+
+        logger.info("send_Email", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+        return res.json({error_msg: "OK", error_code: "0", verity_code: verity_code});
+    } catch (err) {
+        logger.error("send_Email", {
+            level: req.user.role,
+            response: `Internal Service Error`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(503).json({
+            error_msg: "Internal Service Error",
+            error_code: "503"
+        });
+    }
+
+};
+exports.testEmail = async (req, res) => {
+
+    await func_send_Email(req, res, `testShihi`);
 };
 
 exports.sendConfirmationEmail = (req, res) => {
