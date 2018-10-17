@@ -49,9 +49,9 @@ exports.loginUser = (req, res, next) => {
 
                 //return res.status(200).json({succeed: true, message: 'Please relogin'});
             });
-            // if (req.user.role === `Admin` || req.user.role === `Super_Admin`) {
-            //    return res.redirect(301, 'http://www.yubaopay.com.tw/administrator_appeal');
-            // }
+            if (req.user.role === `Admin` || req.user.role === `Super_Admin`) {
+               return res.redirect(301, 'http://www.yubaopay.com.tw/administrator_appeal');
+            }
             return res.status(200).json({
                 "error_code": 0,
                 "data": {
