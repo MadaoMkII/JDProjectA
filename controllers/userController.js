@@ -1,10 +1,12 @@
 const config = require('../config/develop');
 const userModel = require('../modules/userAccount').userAccountModel;
+const massager = require('../controllers/massageController');
+const redis = require("redis"),
+    redisClient = redis.createClient();
 const refererModel = require('../modules/userAccount').refererModel;
 const searchModel = require('../controllers/searchModel');
 const logger = require('../logging/logging').logger;
 const uuidv1 = require('uuid/v1');
-const redis = require("redis");
 const tools = require("../config/tools");
 
 
@@ -422,63 +424,6 @@ exports.update_password = (req, res) => {//chongxie
 
 };
 
-exports.updatePhoneNumber = (req, res) => {
-    let code = req.body.code;
-    let tel = req.body.tel;
-    redis.createClient().get("registerNumber:" + tel, (err, result) => {
-
-        if (err) return res.status(500).json({error_msg: "Internal Server Error", error_code: "500"});
-        //服务器不存在校验码或已被删除
-        if (!result) {
-            return res.status(404).json({error_msg: "No verification code", error_code: "404"});
-        }
-
-        if (parseInt(code) === parseInt(result)) {
-
-            let multi = redis.createClient().multi();
-            //限制访问频率60秒
-            multi.set('registerNumber:' + tel, "OK", 'EX', 3600)
-                .exec((err) => {
-                    if (err) {
-                        return res.status(503).json({
-                            error_msg: "Internal Service Error",
-                            error_code: "503"
-                        });
-                    } else {
-                        userModel.update({tel_number: req.user.tel_number}, {$set: {tel_number: tel}}, (err) => {
-                            if (err) {
-                                logger.error("Error: updatePhoneNumber", {
-                                    status: 503,
-                                    level: `USER`,
-                                    response: `updatePhoneNumber Failed`,
-                                    user: req.user.uuid,
-                                    action: `updatePhoneNumber`,
-                                    body: req.body,
-                                    error: err
-                                });
-                                return res.status(503).json({
-                                    error_code: 503,
-                                    error_massage: 'updatePhoneNumber Failed'
-                                });
-                            }
-                            logger.info("updatePhoneNumber", {
-                                status: 200,
-                                level: `USER`,
-                                user: req.user.uuid,
-                                action: `updatePhoneNumber`,
-                                body: req.body
-                            });
-                            req.logOut();
-                            return res.status(200).json({error_code: 0, error_massage: 'Please relogin'});
-                        });
-                    }
-                });
-
-        } else {
-            return res.status(404).json({error_msg: "No verification code found", error_code: "404"});
-        }
-    });
-};
 
 exports.getUserInfo = async (req, res) => {
     try {
@@ -640,4 +585,61 @@ exports.addUserRealName = async (req, res) => {
         return res.status(400).json({error_code: 400, error_massage: 'Add User`s Real Name Failed'});
     }
 };
+
+exports.change_number_send = async (req, res) => {
+
+    await massager.shin_smsSend(req, res, `changeNumber`);
+};
+// exports.change_number_confirm = async (req, res) => {
+//
+//     await massager.confirm_smsMassage(req, res, `changeNumber`);
+// };
+exports.updatePhoneNumber = async (req, res) => {
+
+    try {
+        let code = req.body.code;
+        let tel_number = req.body.tel_number;
+        let category = `changeNumber`;
+        let key = `category:${category},tel_number:${req.user.tel_number}`;
+
+        let result = redisClient.get(key);
+
+        if (!result) {
+            return res.status(404).json({error_msg: "No verification code", error_code: "404"});
+        } else if (parseInt(code) === parseInt(result)) {
+            //限制访问频率60秒
+            redisClient.set(`category:${category},tel_number:${req.user.tel_number}`, "USED", 'EX', 1800);
+            userModel.update({tel_number: req.user.tel_number}, {$set: {tel_number: tel_number}});
+            req.logOut();
+
+            logger.info("updatePhoneNumber", {
+                level: req.user.role,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body
+            });
+
+            return res.status(200).json({error_code: 0, error_massage: 'Please re-login'});
+        } else {
+            return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
+        }
+
+    } catch (err) {
+        logger.error("updatePhoneNumber", {
+            level: req.user.role,
+            response: `Internal Service Error`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(503).json({
+            error_code: 503,
+            error_massage: 'updatePhoneNumber Failed'
+        });
+    }
+};
+
 

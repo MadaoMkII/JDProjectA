@@ -9,7 +9,7 @@ const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 let getBaseRate = (req, res) => {
     return new Promise((resolve, reject) => {
-            console.log(res);
+
             baseRateModelModel.findOne({VIPLevel: req.user.VIPLevel}, (err, data) => {
 
                 if (err) {

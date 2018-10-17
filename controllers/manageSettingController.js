@@ -274,4 +274,47 @@ exports.getBankAccounts = async (req, res) => {
     }
 
 };
+//获取银行列表
+exports.dujiuxing = async (req, res) => {
+    return res.status(200).json({
+        "error_code": 0,
+        "data": {
+            "bank": [
+                {"value": "004", "label": "004 台灣銀行"},
+                {"value": "005", "label": "005 土地銀行"},
+                {"value": "006", "label": "006 合作金庫"},
+                {"value": "007", "label": "007 第一銀行"},
+                {"value": "008", "label": "008 華南銀行"},
+                {"value": "009", "label": "009 彰化銀行"},
+                {"value": "011", "label": "011 上海銀行"},
+                {"value": "012", "label": "012 台北富邦銀行"},
+                {"value": "013", "label": "013 國泰世華銀行"},
+                {"value": "016", "label": "016 高雄銀行"},
+                {"value": "017", "label": "017 兆豐商銀"},
+                {"value": "020", "label": "020 瑞實銀行"},
+                {"value": "021", "label": "021 花旗"},
+                {"value": "025", "label": "025 首都銀行"}
+            ],
+            "postOffice": [
+                {"value": "700", "label": "700 郵局"}
+            ],
+            "cooperative": [
+                {"value": "104", "label": "104 台北五信"},
+                {"value": "106", "label": "106 台北九信"}
+            ],
+            "association": [
+                {"value": "600", "label": "600 農金資中心"},
+                {"value": "603", "label": "603 基隆市農會"}
+            ],
+            "fishing": [
+                {"value": "503", "label": "503 基隆漁會"},
+                {"value": "504", "label": "504 瑞芳漁會"}
+            ]
+        }
+
+
+    });
+
+
+};
 exports.findCurrentSetting = findCurrentSetting;

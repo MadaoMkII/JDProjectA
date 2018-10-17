@@ -90,8 +90,12 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-app.post('/msg/testemail', isAuthenticated('User'), mailController.testEmail);
 
+app.post('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing);
+
+app.post('/msg/testemail', isAuthenticated('User'), mailController.testEmail);
+app.post('/msg/send_massage',isAuthenticated('User'), userController.change_number_send);
+app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.updatePhoneNumber);
 
 app.post('/adv/addHomepageItems', isAuthenticated('Admin'), advertisingController.addHomepageItems);
 app.post('/adv/getHomepageItems', advertisingController.getHomepageItems);
@@ -189,7 +193,7 @@ app.post('/mail/check_mail', mailController.checkConfirmationEmail);
 app.post('/mail/getbackmail', mailController.getBackFromEmail);
 
 //app.post('/sendemail', mailController.sendConfirmationEmail);//done
-app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.updatePhoneNumber);
+
 app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
 
