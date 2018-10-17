@@ -5,7 +5,7 @@ const userAccountModel = require('../modules/userAccount').userAccountModel;
 const MessageXSend = require('../lib/SUBMAIL/intersmsXsend');
 const message = new MessageXSend();
 const logger = require('../logging/logging').logger;
-
+const tools = require("../config/tools");
 /**
  * 发送短信验证
  * @param req
@@ -15,19 +15,27 @@ const logger = require('../logging/logging').logger;
 exports.shin_smsSend = async (req, res, category) => {
     try {
         const tel_number = req.body.tel_number;
-        // let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
-        // if (!wanwan_phone_reg.test(tel_number)) {
-        //     return res.status(400).json({
-        //         error_msg: "Wrong cell phone number",
-        //         error_code: "400"
-        //     });
-        // }
-        let key = `category:${category},tel_number:${tel_number}`;
+        if (tools.isEmpty(tel_number)) {
+            return res.status(400).json({
+                error_msg: "tel_number can not be null",
+                error_code: "400"
+            });
+        }
+        let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
+        if (!wanwan_phone_reg.test(tel_number)) {
+            return res.status(400).json({
+                error_msg: "Wrong cell phone number",
+                error_code: "400"
+            });
+        }
+
+        let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
+        let key = `category:${category},verity_code:${verity_code}`;
         let existsResult = await redisClient.exists(key);
         if (existsResult === 1) {
             return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
         }
-        let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
+
         // let foundUser = await userAccountModel.findOne({tel_number: tel});
         // if (foundUser) {
         //     return res.status(208).json({
@@ -43,7 +51,7 @@ exports.shin_smsSend = async (req, res, category) => {
         //await message.xsend();
 
         //限制访问频率60秒
-        await redisClient.set(key, verity_code, 'EX', 3600, redis.print);
+        await redisClient.set(key, tel_number, 'EX', 3600, redis.print);
 
         return res.json({
             error_msg: "OK",

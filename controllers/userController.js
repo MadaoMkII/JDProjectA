@@ -3,6 +3,7 @@ const userModel = require('../modules/userAccount').userAccountModel;
 const massager = require('../controllers/massageController');
 const redis = require("redis"),
     redisClient = redis.createClient();
+const {promisify} = require('util');
 const refererModel = require('../modules/userAccount').refererModel;
 const searchModel = require('../controllers/searchModel');
 const logger = require('../logging/logging').logger;
@@ -590,47 +591,47 @@ exports.change_number_send = async (req, res) => {
 
     await massager.shin_smsSend(req, res, `changeNumber`);
 };
-// exports.change_number_confirm = async (req, res) => {
-//
-//     await massager.confirm_smsMassage(req, res, `changeNumber`);
-// };
+
 exports.updatePhoneNumber = async (req, res) => {
 
     try {
-        let code = req.body.code;
-        let tel_number = req.body.tel_number;
-        let category = `changeNumber`;
-        let key = `category:${category},tel_number:${req.user.tel_number}`;
 
-        let result = redisClient.get(key);
+        let verity_code = req.body.code;
+
+        let category = `changeNumber`;
+        let key = `category:${category},verity_code:${verity_code}`;
+
+        const getAsync = promisify(redisClient.get).bind(redisClient);
+        let result = await getAsync(key);
 
         if (!result) {
-            return res.status(404).json({error_msg: "No verification code", error_code: "404"});
-        } else if (parseInt(code) === parseInt(result)) {
-            //限制访问频率60秒
-            redisClient.set(`category:${category},tel_number:${req.user.tel_number}`, "USED", 'EX', 1800);
-            userModel.update({tel_number: req.user.tel_number}, {$set: {tel_number: tel_number}});
-            req.logOut();
-
-            logger.info("updatePhoneNumber", {
-                level: req.user.role,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body
-            });
-
-            return res.status(200).json({error_code: 0, error_massage: 'Please re-login'});
-        } else {
             return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
         }
 
-    } catch (err) {
-        logger.error("updatePhoneNumber", {
+        //限制访问频率60秒
+        redisClient.set(key, "USED", 'EX', 1800);
+        await userModel.findOneAndUpdate({tel_number: req.user.tel_number},
+            {$set: {tel_number: result}}, {new: true});
+
+
+        logger.info("updatePhoneNumber", {
             level: req.user.role,
-            response: `Internal Service Error`,
             user: req.user.uuid,
             email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+        req.logOut();
+        return res.status(200).json({error_code: 0, error_massage: 'Please re-login'});
+
+
+    } catch (err) {
+
+        logger.error("updatePhoneNumber", {
+            // level: req.user.role,
+            response: `Internal Service Error`,
+            // user: req.user.uuid,
+            // email: req.user.email_address,
             location: (new Error().stack).split("at ")[1],
             body: req.body,
             error: err
