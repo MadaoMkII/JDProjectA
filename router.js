@@ -91,7 +91,7 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 
-app.post('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing);
+app.get('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing);
 
 app.post('/msg/testemail', isAuthenticated('User'), mailController.testEmail);
 app.post('/msg/send_massage',isAuthenticated('User'), userController.change_number_send);
