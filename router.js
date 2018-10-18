@@ -41,8 +41,13 @@ app.set('view engine', 'ejs');
 // Add headers
 app.use(function (req, res, next) {
 
+    let allowedOrigins = ['http://www.yubaopay.com.tw', 'http://localhost:8080'];
+    let origin = req.headers.origin;
+    if(allowedOrigins.indexOf(origin) > -1){
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', `*`);
+    //res.setHeader('Access-Control-Allow-Origin', `*`);
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
