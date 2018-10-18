@@ -47,7 +47,6 @@ exports.loginUser = (req, res, next) => {
                     return res.status(404).json({error_code: 404, error_msg: 'Can not find anything'});
                 }
 
-                //return res.status(200).json({succeed: true, message: 'Please relogin'});
             });
             // if (req.user.role === `Admin` || req.user.role === `Super_Admin`) {
             //    return res.redirect(301, 'http://www.yubaopay.com.tw/administrator_appeal');
