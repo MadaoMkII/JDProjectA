@@ -83,10 +83,6 @@ let func_send_Email = async (req, res, category) => {
     }
 
 };
-exports.testEmail = async (req, res) => {
-
-    await func_send_Email(req, res, `testShihi`);
-};
 
 exports.sendConfirmationEmail = async (req, res) => {
 
@@ -109,9 +105,15 @@ exports.sendConfirmationEmail = async (req, res) => {
             return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
         }
         await redisClient.set(key, email_address, 'EX', 3600, redis.print);
-        await sendEmail(email_address, `注册码是${verity_code}`);
+        await sendEmail(email_address, `注册码是${verity_code},请于一分钟内修改`);
 
-
+        logger.info("sendConfirmationEmail", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
         return res.json({error_msg: "OK", error_code: "0", verity_code: verity_code});
 
     }catch (err) {
