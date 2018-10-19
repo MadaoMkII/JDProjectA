@@ -43,7 +43,7 @@ app.use(function (req, res, next) {
 
     let allowedOrigins = ['http://www.yubaopay.com.tw', 'http://localhost:8080'];
     let origin = req.headers.origin;
-    if(allowedOrigins.indexOf(origin) > -1){
+    if (allowedOrigins.indexOf(origin) > -1) {
         res.setHeader('Access-Control-Allow-Origin', origin);
     }
     // Website you wish to allow to connect
@@ -99,16 +99,15 @@ app.use(function (req, res, next) {
 app.get('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing);
 
 app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
-app.post('/msg/update_password_sendMassage', isAuthenticated('User'), userController.update_password_sendMassage);
+app.post('/msg/updatePasswordSendMassage', isAuthenticated('User'), userController.update_password_sendMassage);
 
-app.post('/msg/testemail', isAuthenticated('User'), mailController.testEmail);
-app.post('/msg/send_massage',isAuthenticated('User'), userController.change_number_send);
-app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.updatePhoneNumber);
+app.post('/msg/updatePhoneNumber', isAuthenticated('User'), userController.update_phoneNumber);
+app.post('/user/updatePhoneNumberSendMassage', isAuthenticated('User'), userController.update_phoneNumber_sendMassage);
 
 app.post('/adv/addHomepageItems', isAuthenticated('Admin'), advertisingController.addHomepageItems);
 app.post('/adv/getHomepageItems', advertisingController.getHomepageItems);
 app.post('/adv/getHomepageItemsList', advertisingController.getHomepageItemsList);
-app.post('/adv/setDFpage', isAuthenticated('Admin'),advertisingController.setDFpage);
+app.post('/adv/setDFpage', isAuthenticated('Admin'), advertisingController.setDFpage);
 app.get('/adv/getDFpage', advertisingController.getDFpage);
 app.post('/adv/setHomepage', advertisingController.setHomepage);
 app.get('/adv/getHomepage', advertisingController.getHomepage);
