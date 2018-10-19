@@ -88,47 +88,49 @@ exports.testEmail = async (req, res) => {
     await func_send_Email(req, res, `testShihi`);
 };
 
-exports.sendConfirmationEmail = (req, res) => {
-    let email_address = req.body.email_address;
-    let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
+exports.sendConfirmationEmail = async (req, res) => {
+
+    try {
+        let email_address = req.body.email_address;
+        let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
+        let key = `category:updateEmail,verity_code:${verity_code}`;
 
 
-    userAccountModel.findOne({email_address: email_address}, {email_address: 1}).exec().then((err, user) => {
+        let user = await userAccountModel.findOne({email_address: email_address}, {email_address: 1});
         if (user) {
             return res.status(404).json({
                 error_msg: "This email_address has been registered yet",
                 error_code: "404"
             });
         }
+        let result = await redisClient.exists(key);
 
-        redisClient.exists("email_address:" + email_address, function (err, result) {
-            if (err) {
-                return res.status(503).json({error_msg: "Internal Service Error", error_code: "503"});
-            }
-            if (result === 1) {
-                return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
-            } else {
+        if (result === 1) {
+            return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
+        }
+        await redisClient.set(key, email_address, 'EX', 3600, redis.print);
+        await sendEmail(email_address, `注册码是${verity_code}`);
 
-                if (!err) {
-                    sendEmail(email_address, `注册码是${verity_code}`);
-                    //发送成功
-                    let multi = redisClient.multi();
-                    //限制访问频率60秒
-                    multi.set('email_address:' + email_address, verity_code, 'EX', 1000)
-                        .exec(function (err) {
-                            if (err) {
-                                return res.status(503).json({
-                                    error_msg: "Internal Service Error",
-                                    error_code: "503"
-                                });
-                            } else {
-                                return res.json({error_msg: "OK", error_code: "0", verity_code: verity_code});
-                            }
-                        });
-                }
-            }
-        })
-    });
+
+        return res.json({error_msg: "OK", error_code: "0", verity_code: verity_code});
+
+    }catch (err) {
+
+        logger.error("sendConfirmationEmail", {
+            level: req.user.role,
+            response: `Internal Service Error`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(503).json({
+            error_msg: "Internal Service Error",
+            error_code: "503"
+        });
+    }
+
 };
 
 

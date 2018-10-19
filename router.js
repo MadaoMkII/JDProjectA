@@ -98,6 +98,9 @@ app.use(function (req, res, next) {
 
 app.get('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing);
 
+app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
+app.post('/msg/update_password_sendMassage', isAuthenticated('User'), userController.update_password_sendMassage);
+
 app.post('/msg/testemail', isAuthenticated('User'), mailController.testEmail);
 app.post('/msg/send_massage',isAuthenticated('User'), userController.change_number_send);
 app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.updatePhoneNumber);
@@ -199,7 +202,7 @@ app.post('/mail/getbackmail', mailController.getBackFromEmail);
 
 //app.post('/sendemail', mailController.sendConfirmationEmail);//done
 
-app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
+
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
 
 

@@ -12,7 +12,7 @@ const tools = require("../config/tools");
  * @param res
  * @param category
  */
-exports.shin_smsSend = async (req, res, category) => {
+exports.shin_smsSend = async (req, res, category, resultValue) => {
     try {
         const tel_number = req.body.tel_number;
         if (tools.isEmpty(tel_number)) {
@@ -51,7 +51,7 @@ exports.shin_smsSend = async (req, res, category) => {
         //await message.xsend();
 
         //限制访问频率60秒
-        await redisClient.set(key, tel_number, 'EX', 3600, redis.print);
+        await redisClient.set(key, resultValue, 'EX', 3600, redis.print);
 
         return res.json({
             error_msg: "OK",

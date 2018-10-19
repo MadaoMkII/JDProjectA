@@ -383,48 +383,6 @@ exports.userSignUp = (req, res) => {
 };
 
 
-exports.update_password = (req, res) => {//chongxie
-    let hashedPassword =
-        require('crypto').createHash('md5').update(req.body['newpassword'] + config.saltword).digest('hex');
-    let hashedCurrentPassword = require('crypto').createHash('md5').update(req.body['currentpassword'] + config.saltword).digest('hex');
-    userModel.findOne({'tel_number': req.user.tel_number}, {password: 1}, (err, data) => {
-        if (err) {
-            logger.error("Error: update_password", {
-                status: 503,
-                level: `USER`,
-                response: `update password Failed`,
-                user: req.user.uuid,
-                action: `update_password`,
-                body: req.body,
-                error: err
-            });
-
-            return res.status(503).json({error_code: 503, error_massage: 'update password Failed'});
-        }
-        if (!data) return res.status(404).json({error_code: 404, error_massage: 'Can Not Find user'});
-        if (hashedCurrentPassword !== data.password) {
-            return res.status(406).json({error_code: 406, error_massage: 'Current Password Is Not Correct!'});
-        }
-        userModel.update({tel_number: req.user.tel_number}, {$set: {password: hashedPassword}}, (err) => {
-            if (err) {
-                logger.error("Error: update_password", {
-                    status: 503,
-                    response: `update_password Failed`,
-                    user: req.user.uuid,
-                    action: `update_password`,
-                    body: req.body,
-                    error: err
-                });
-                return res.status(503).json({error_code: 503, error_massage: 'update_password Failed'});
-            }
-            logger.info("update_password", {user: req.user.uuid, action: `update_password`, body: req.body});
-            req.logOut();
-            return res.status(200).json({error_code: 200, error_massage: 'Please re-login'});
-        });
-    });
-
-};
-
 
 exports.getUserInfo = async (req, res) => {
     try {
@@ -587,12 +545,12 @@ exports.addUserRealName = async (req, res) => {
     }
 };
 
-exports.change_number_send = async (req, res) => {
+exports.update_phoneNumber_sendMassage = async (req, res) => {
 
-    await massager.shin_smsSend(req, res, `changeNumber`);
+    await massager.shin_smsSend(req, res, `changeNumber`, req.body.tel_number);
 };
 
-exports.updatePhoneNumber = async (req, res) => {
+exports.update_phoneNumber = async (req, res) => {
 
     try {
 
@@ -643,4 +601,59 @@ exports.updatePhoneNumber = async (req, res) => {
     }
 };
 
+exports.update_password_sendMassage = async (req, res) => {
+
+    await massager.shin_smsSend(req, res, `updatePassword`, 'updatePassword');
+};
+
+exports.update_password = async (req, res) => {
+
+    try {
+        let verity_code = req.body.code;
+
+        let category = `updatePassword`;
+        let key = `category:${category},verity_code:${verity_code}`;
+
+        let hashedPassword =
+            require('crypto').createHash('md5').update(req.body['newPassword'] + config.saltword).digest('hex');
+        let hashedCurrentPassword = require('crypto').createHash('md5').update(req.body['currentPassword'] + config.saltword).digest('hex');
+
+        if (hashedCurrentPassword !== req.user.password) {
+            return res.status(406).json({error_code: 406, error_massage: 'Current Password Is Not Correct!'});
+        }
+
+        const getAsync = promisify(redisClient.get).bind(redisClient);
+        let result = await getAsync(key);
+
+        if (!result || result !== 'updatePassword') {
+            return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
+        }
+
+        //限制访问频率60秒
+        redisClient.set(key, "USED", 'EX', 1800);
+        await userModel.update({tel_number: req.user.tel_number}, {$set: {password: hashedPassword}});
+
+        logger.info("update_password", {user: req.user.uuid, action: `update_password`, body: req.body});
+        req.logOut();
+        return res.status(200).json({error_code: 200, error_massage: 'Please re-login'});
+
+
+    } catch (err) {
+        logger.error("Error: update_password", {
+            status: 503,
+            level: `USER`,
+            response: `update password Failed`,
+            user: req.user.uuid,
+            action: `update_password`,
+            body: req.body,
+            error: err
+        });
+        return res.status(503).json({error_code: 503, error_massage: 'update_password Failed'});
+    }
+};
+
+exports.update_email_sendMassage = async (req, res) => {
+
+    await massager.shin_smsSend(req, res, `updatePassword`, 'updatePassword');
+};
 
