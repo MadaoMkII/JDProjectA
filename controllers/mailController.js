@@ -90,7 +90,7 @@ exports.sendConfirmationEmail = async (req, res) => {
     try {
         let email_address = req.body.email_address;
         let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
-        let key = `category:updateEmail,verity_code:${verity_code}`;
+        let key = `category:updateEmail,email_address:${email_address}`;
 
 
         let user = await userAccountModel.findOne({email_address: email_address}, {email_address: 1});
@@ -105,7 +105,7 @@ exports.sendConfirmationEmail = async (req, res) => {
         if (result === 1) {
             return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
         }
-        await redisClient.set(key, email_address, 'EX', 3600, redis.print);
+        await redisClient.set(key, verity_code, 'EX', 3600, redis.print);
         //await sendEmail(email_address, `驗證碼是${verity_code},請於一分鐘內修改`);
 
         if (req.user) {
@@ -206,7 +206,7 @@ exports.checkConfirmationEmail = (req, res) => {
     let verity_code = req.body.code;
     let email_address = req.body.email_address;
 
-    let key = `category:updateEmail,verity_code:${verity_code}`;
+    let key = `category:updateEmail,email_address:${email_address}`;
     redisClient.get(key, function (err, result) {
 
         if (err) return res.status(500).json({error_msg: "Internal Server Error", error_code: "500"});
@@ -215,7 +215,7 @@ exports.checkConfirmationEmail = (req, res) => {
             return res.status(404).json({error_msg: "No verification code", error_code: "404"});
         }
 
-        if (code === req.user.email_address) {
+        if (verity_code === result) {
 
             userAccountModel.update({uuid: req.use.uuid}, {$set: {email_address: email_address}}, function (err) {
                 if (err) {

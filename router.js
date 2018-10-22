@@ -101,6 +101,9 @@ app.get('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing
 app.post('/user/updateNickname', isAuthenticated('User'), userController.update_nickName);
 app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
 
+app.post('/user/updateEmail', isAuthenticated('User'), userController.update_email);
+app.get('/msg/updateEmailMassage', isAuthenticated('User'), userController.update_email_sendMassage);
+
 app.post('/user/getBackUpdate', isAuthenticated('User'), userController.getBack_password_update);
 app.get('/msg/getBackSendMassage', isAuthenticated('User'), userController.getBack_password_sendMassage);
 
@@ -200,10 +203,10 @@ app.post('/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addR
 app.post('/addChargeBill', isAuthenticated('User'), rechargeController.addChargeBills);
 app.post('/findChargeBill', isAuthenticated('User'), rechargeController.findMyChargeBills);
 
-
-app.post('/mail/send_mail', mailController.sendConfirmationEmail);
-app.post('/mail/change_Email', mailController.checkConfirmationEmail);
-app.post('/mail/getbackmail', mailController.getBackFromEmail);
+//
+// app.post('/mail/send_mail', mailController.sendConfirmationEmail);
+// app.post('/mail/change_Email', mailController.checkConfirmationEmail);
+// app.post('/mail/getbackmail', mailController.getBackFromEmail);
 
 //app.post('/sendemail', mailController.sendConfirmationEmail);//done
 

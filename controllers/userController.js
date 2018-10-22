@@ -746,6 +746,56 @@ exports.update_password = async (req, res) => {
 
 exports.update_email_sendMassage = async (req, res) => {
 
-    await massager.shin_smsSend(req, res, `updatePassword`, 'updatePassword');
+    await massager.shin_smsSend(req, res, `update_email`,req.user.tel_number);
 };
 
+
+exports.update_email = async (req, res) => {
+
+    try {
+
+
+        let result = await massager.check_code(req, res, `update_email`, req.user.tel_number);
+
+        if (!result) {
+            return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
+        }
+
+        await userModel.findOneAndUpdate({tel_number: req.user.tel_number},
+            {$set: {email_address: req.body.email_address}}, {new: true});
+
+
+        logger.info("update_email", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+        req.logOut();
+        return res.status(200).json({error_code: 0, error_massage: 'Successfully update update_email,Please re-Login'});
+
+
+    } catch (err) {
+
+        logger.error("update_email", {
+            // level: req.user.role,
+            response: `Internal Service Error`,
+            // user: req.user.uuid,
+            // email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        if (err.message.toString().indexOf(`empty`) !== -1) {
+            return res.status(400).json({
+                error_code: 400,
+                error_massage: err.message
+            });
+        }
+        return res.status(503).json({
+            error_code: 503,
+            error_massage: 'updatePhoneNumber Failed'
+        });
+    }
+};
