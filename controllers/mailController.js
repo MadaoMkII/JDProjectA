@@ -24,7 +24,7 @@ transporter.verify((error, success) => {
 });
 
 
-let sendEmail = (emailAddress, massage) => {
+let sendEmail = async (emailAddress, massage) => {
 
     let mailOptions = {
         from: '邮箱验证提醒系统<baodan@usaboluo.com>', // sender address
@@ -37,15 +37,16 @@ let sendEmail = (emailAddress, massage) => {
         `<div>${massage}</div></td>` // html body
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            return console.log(error);
-        }
-        //console.log('Message sent: %s', info.messageId);
-        // Preview only available when sending through an Ethereal account
-        //console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-
-    });
+    await transporter.sendMail(mailOptions);
+    //     , (error, info) => {
+    //     if (error) {
+    //         return console.log(error);
+    //     }
+    //     //console.log('Message sent: %s', info.messageId);
+    //     // Preview only available when sending through an Ethereal account
+    //     //console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    //
+    // });
 };
 let func_send_Email = async (req, res, category) => {
     try {
@@ -105,16 +106,26 @@ exports.sendConfirmationEmail = async (req, res) => {
             return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
         }
         await redisClient.set(key, email_address, 'EX', 3600, redis.print);
-        await sendEmail(email_address, `驗證碼是${verity_code},請於一分鐘內修改`);
+        //await sendEmail(email_address, `驗證碼是${verity_code},請於一分鐘內修改`);
 
-        logger.info("sendConfirmationEmail", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
-        return res.json({error_msg: "OK", error_code: "0", verity_code: verity_code});
+        if (req.user) {
+            logger.info("sendConfirmationEmail", {
+                level: req.user.role,
+                user: req.user.uuid,
+                email: req.user.email_address,
+                location: (new Error().stack).split("at ")[1],
+                body: req.body
+            });
+        } else {
+
+            logger.info("sendConfirmationEmail", {
+                location: (new Error().stack).split("at ")[1],
+                body: req.body
+            });
+
+        }
+
+        return res.status(200).json({error_msg: "OK", error_code: "0", verity_code: verity_code});
 
     } catch (err) {
 
