@@ -546,8 +546,8 @@ exports.addUserRealName = async (req, res) => {
 
 
 exports.old_Number_sendMassage = async (req, res) => {
-    req.body.tel_number = req.user.tel_number;
-    await massager.shin_smsSend(req, res, `oldNumber`, req.body.tel_number);
+
+    await massager.shin_smsSend(req, res, `oldNumber`, req.user.tel_number, req.user.tel_number);
 };
 
 exports.old_Number_check_code = async (req, res) => {
@@ -557,9 +557,7 @@ exports.old_Number_check_code = async (req, res) => {
     if (!result) {
         return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
     }
-    let key = `category:oldNumber,tel_number:${req.user.tel_number}`;
 
-    await redisClient.set(key, "OK", 'EX', 3600);
     return res.status(200).json({
         error_msg: "OK",
         error_code: "0"
@@ -570,7 +568,7 @@ exports.update_phoneNumber_sendMassage = async (req, res) => {
     let key = `category:oldNumber,tel_number:${req.user.tel_number}`;
 
     let result = await getAsync(key);
-    if (!result || result !== `OK`) {
+    if (!result || result !== `CHECKED`) {
         return res.status(404).json({error_msg: "You need to verify current number first", error_code: "404"});
     }
     await massager.shin_smsSend(req, res, `changeNumber`, req.body.tel_number);
@@ -581,17 +579,13 @@ exports.update_phoneNumber = async (req, res) => {
 
     try {
 
-        let verity_code = req.body.code;
-        let result = await massager.check_code(req, res, `changeNumber`, req.user.tel_number);
+
+        let result = await massager.check_code(req, res, `changeNumber`, req.body.tel_number);
 
         if (!result) {
             return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
         }
 
-
-        let key = `category:changeNumber,verity_code:${verity_code}`;
-        //限制访问频率60秒
-        redisClient.set(key, "USED", 'EX', 1800);
         await userModel.findOneAndUpdate({tel_number: req.user.tel_number},
             {$set: {tel_number: req.body.tel_number}}, {new: true});
 
@@ -673,7 +667,6 @@ exports.getBack_password_update = async (req, res) => {
         }
 
         //限制访问频率60秒
-
 
 
         let hashedPassword =

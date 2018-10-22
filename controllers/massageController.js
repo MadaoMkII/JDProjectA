@@ -11,19 +11,18 @@ const tools = require("../config/tools");
  * @param req
  * @param res
  * @param category
- * @param resultValue
  */
-exports.shin_smsSend = async (req, res, category, resultValue) => {
+exports.shin_smsSend = async (req, res, category, tel_number_1) => {
     try {
-        const tel_number = req.body.tel_number;
-        if (tools.isEmpty(tel_number)) {
+
+        if (tools.isEmpty(tel_number_1)) {
             return res.status(400).json({
                 error_msg: "tel_number can not be null",
                 error_code: "400"
             });
         }
         let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
-        if (!wanwan_phone_reg.test(tel_number)) {
+        if (!wanwan_phone_reg.test(tel_number_1)) {
             return res.status(400).json({
                 error_msg: "Wrong cell phone number",
                 error_code: "400"
@@ -31,7 +30,7 @@ exports.shin_smsSend = async (req, res, category, resultValue) => {
         }
 
         let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
-        let key = `category:${category},verity_code:${verity_code}`;
+        let key = `category:${category},tel_number:${tel_number_1}`;
         let existsResult = await redisClient.exists(key);
         if (existsResult === 1) {
             return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
@@ -45,14 +44,14 @@ exports.shin_smsSend = async (req, res, category, resultValue) => {
         //     });
         // }
 
-        message.set_to(tel_number);
+        message.set_to(tel_number_1);
         message.set_project('WnDSX2');
         message.add_var('code', verity_code);
         message.add_var('time', '1分鐘');
         //await message.xsend();
 
         //限制访问频率60秒
-        await redisClient.set(key, resultValue, 'EX', 3600, redis.print);
+        await redisClient.set(key, verity_code, 'EX', 45, redis.print);
 
         return res.json({
             error_msg: "OK",
@@ -136,24 +135,29 @@ exports.shin_smsSend = async (req, res, category, resultValue) => {
  * @param req
  * @param res
  * @param category
- * @param resultValue
  */
-exports.check_code = async (req, res, category, resultValue) => {
+exports.check_code = async (req, res, category, tel_number) => {
 
 
     let verity_code = req.body.code;
-    console.log(verity_code)
     if (tools.isEmpty(verity_code)) {
 
         throw new Error("code can not be empty");
 
     }
-    let key = `category:${category},verity_code:${verity_code}`;
+    let key = `category:${category},tel_number:${tel_number}`;
 
     const getAsync = promisify(redisClient.get).bind(redisClient);
     let result = await getAsync(key);
-    redisClient.set(key, "USED", 'EX', 1800);
-    return !(!result || result !== resultValue);
+console.log(result)
+    if (verity_code === result) {
+        redisClient.set(key, "CHECKED", 'EX', 45);
+        return true;
+    } else {
+
+        return false;
+    }
+
 
 };
 
@@ -170,7 +174,7 @@ exports.confirm_smsMassage = async (req, res, category) => {
         }
         if (parseInt(code) === parseInt(result)) {
 
-            await  redisClient.multi().set('registerNumber:' + tel_number, "OK", 'EX', 3600);
+            await  redisClient.multi().set('registerNumber:' + tel_number, "OK", 'EX', 45);
 
             return res.status(200).json({error_msg: "Massage has been confirmed", error_code: "0"});
         } else {
