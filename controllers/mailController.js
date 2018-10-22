@@ -116,7 +116,7 @@ exports.sendConfirmationEmail = async (req, res) => {
         });
         return res.json({error_msg: "OK", error_code: "0", verity_code: verity_code});
 
-    }catch (err) {
+    } catch (err) {
 
         logger.error("sendConfirmationEmail", {
             level: req.user.role,
@@ -192,10 +192,11 @@ exports.getBackFromEmail = (req, res) => {
 };
 
 exports.checkConfirmationEmail = (req, res) => {
-    let code = req.body.code;
+    let verity_code = req.body.code;
     let email_address = req.body.email_address;
-    let tel_number = req.body.tel_number;
-    redisClient.get("email_address:" + email_address, function (err, result) {
+
+    let key = `category:updateEmail,verity_code:${verity_code}`;
+    redisClient.get(key, function (err, result) {
 
         if (err) return res.status(500).json({error_msg: "Internal Server Error", error_code: "500"});
         //服务器不存在校验码或已被删除
@@ -203,9 +204,9 @@ exports.checkConfirmationEmail = (req, res) => {
             return res.status(404).json({error_msg: "No verification code", error_code: "404"});
         }
 
-        if (parseInt(code) === parseInt(result)) {
+        if (code === req.user.email_address) {
 
-            userAccountModel.update({tel_number: tel_number}, {$set: {email_address: email_address}}, function (err) {
+            userAccountModel.update({uuid: req.use.uuid}, {$set: {email_address: email_address}}, function (err) {
                 if (err) {
                     return res.status(404).json({error_msg: "Bad happened", error_code: "404"});
                 }

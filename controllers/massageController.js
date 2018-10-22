@@ -141,19 +141,20 @@ exports.shin_smsSend = async (req, res, category, resultValue) => {
 exports.check_code = async (req, res, category, resultValue) => {
 
 
-        let verity_code = req.body.code;
-        if (tools.isEmpty(verity_code)) {
+    let verity_code = req.body.code;
+    console.log(verity_code)
+    if (tools.isEmpty(verity_code)) {
 
-            throw new Error("code can not be empty");
+        throw new Error("code can not be empty");
 
-        }
-        let key = `category:${category},verity_code:${verity_code}`;
+    }
+    let key = `category:${category},verity_code:${verity_code}`;
 
-        const getAsync = promisify(redisClient.get).bind(redisClient);
-        let result = await getAsync(key);
+    const getAsync = promisify(redisClient.get).bind(redisClient);
+    let result = await getAsync(key);
+    redisClient.set(key, "USED", 'EX', 1800);
+    return !(!result || result !== resultValue);
 
-        return !(!result || result !== resultValue);
-        s
 };
 
 

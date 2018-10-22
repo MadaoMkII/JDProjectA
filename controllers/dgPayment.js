@@ -7,7 +7,7 @@ const manageSettingController = require('../controllers/manageSettingController'
 const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
-let getBaseRate = (req, res) => {
+let getBaseRate = (req) => {
     return new Promise((resolve, reject) => {
 
             baseRateModelModel.findOne({VIPLevel: req.user.VIPLevel}, (err, data) => {

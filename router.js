@@ -6,7 +6,7 @@ const userController = require('./controllers/userController');
 const mailController = require('./controllers/mailController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
-const massageChecker = require('./controllers/massageController');
+//const massageChecker = require('./controllers/massageController');
 const picController = require('./controllers/picController');
 const advertisingController = require('./controllers/advertisingController');
 const rechargeController = require('./controllers/rechargeController');
@@ -98,11 +98,16 @@ app.use(function (req, res, next) {
 
 app.get('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing);
 
+app.post('/user/updateNickname', isAuthenticated('User'), userController.update_nickName);
 app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
-app.post('/msg/updatePasswordSendMassage', isAuthenticated('User'), userController.update_password_sendMassage);
+
+app.post('/user/getBackUpdate', isAuthenticated('User'), userController.getBack_password_update);
+app.get('/msg/getBackSendMassage', isAuthenticated('User'), userController.getBack_password_sendMassage);
 
 app.get('/msg/currentSendMassage', isAuthenticated('User'), userController.old_Number_sendMassage);
 app.post('/user/verifySendMassage', isAuthenticated('User'), userController.old_Number_check_code);
+
+app.post('/user/setNickname', isAuthenticated('User'), userController.old_Number_check_code);
 
 app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.update_phoneNumber);
 app.post('/msg/updatePhoneNumberSendMassage', isAuthenticated('User'), userController.update_phoneNumber_sendMassage);
@@ -139,7 +144,7 @@ app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoin
 app.post('/getBills', isAuthenticated('Admin'), dgPayment.adminGetBills);
 
 app.post('/addProcessOrder', isAuthenticated('Admin'), processOrderController.addProcessOrder);
-app.post('/addReplacePostageBill', isAuthenticated('User'), dgPayment.addReplacePostageBill);
+app.post('/addReplacePostageBill', isAuthenticated('Admin'), dgPayment.addReplacePostageBill);
 app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
 app.post('/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
 
@@ -197,7 +202,7 @@ app.post('/findChargeBill', isAuthenticated('User'), rechargeController.findMyCh
 
 
 app.post('/mail/send_mail', mailController.sendConfirmationEmail);
-app.post('/mail/check_mail', mailController.checkConfirmationEmail);
+app.post('/mail/change_Email', mailController.checkConfirmationEmail);
 app.post('/mail/getbackmail', mailController.getBackFromEmail);
 
 //app.post('/sendemail', mailController.sendConfirmationEmail);//done

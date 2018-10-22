@@ -74,7 +74,7 @@ exports.addAnnouncement = (req, res) => {
     announcementObject.save(err => {
         if (err) {
 
-            return res.status(400).json({error_msg: `400`, error_code: "announcemen Error"});
+            return res.status(400).json({error_msg: `400`, error_code: "announcement Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0"});
         }

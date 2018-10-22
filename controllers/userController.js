@@ -630,21 +630,89 @@ exports.update_phoneNumber = async (req, res) => {
         });
     }
 };
+exports.update_nickName = async (req, res) => {
 
-exports.update_password_sendMassage = async (req, res) => {
-    let hashedCurrentPassword = require('crypto').createHash('md5').update(req.body['currentPassword'] + config.saltword).digest('hex');
-    await massager.shin_smsSend(req, res, `updatePassword`, hashedCurrentPassword);
+    try {
+        await userModel.update({uuid: req.user.uuid}, {$set: {nickName: req.body.nickName}});
+        logger.info("update_nickName", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1]
+        });
+
+        return res.status(200).json({error_code: 200, error_massage: 'OK'});
+
+    } catch (err) {
+        logger.error("Error: update_password", {
+            status: 503,
+            level: `USER`,
+            response: `update password Failed`,
+            user: req.user.uuid,
+            action: `update_password`,
+            body: req.body,
+            error: err
+        });
+        return res.status(503).json({error_code: 503, error_massage: 'update_password Failed'});
+    }
 };
 
+
+exports.getBack_password_sendMassage = async (req, res) => {
+    req.body.tel_number = req.user.tel_number;
+    await massager.shin_smsSend(req, res, `getBack_password`, `OK`);
+};
+exports.getBack_password_update = async (req, res) => {
+
+    try {
+
+        let result = await massager.check_code(req, res, `getBack_password`, `OK`);
+
+        if (!result) {
+            return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
+        }
+
+        //限制访问频率60秒
+
+
+
+        let hashedPassword =
+            require('crypto').createHash('md5').update(req.body['newPassword'] + config.saltword).digest('hex');
+        await userModel.update({uuid: req.user.uuid}, {$set: {password: hashedPassword}});
+
+
+        logger.info("getBack_password_update", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1]
+        });
+        req.logOut();
+        return res.status(200).json({error_code: 200, error_massage: 'Please re-login'});
+
+
+    } catch (err) {
+        logger.error("Error: getBack_password_update", {
+            status: 503,
+            level: `USER`,
+            response: `update password Failed`,
+            user: req.user.uuid,
+            action: `update_password`,
+            body: req.body,
+            error: err
+        });
+        return res.status(503).json({error_code: 503, error_massage: err.message});
+    }
+};
 exports.update_password = async (req, res) => {
 
     try {
 
 
-        let verity_code = req.body.code;
-
-        let category = `updatePassword`;
-        let key = `category:${category},verity_code:${verity_code}`;
+        // let verity_code = req.body.code;
+        //
+        // let category = `updatePassword`;
+        // let key = `category:${category},verity_code:${verity_code}`;
 
         let hashedPassword =
             require('crypto').createHash('md5').update(req.body['newPassword'] + config.saltword).digest('hex');
@@ -654,17 +722,23 @@ exports.update_password = async (req, res) => {
             return res.status(406).json({error_code: 406, error_massage: 'Current Password Is Not Correct!'});
         }
 
-        let result = await getAsync(key);
+        // let result = await getAsync(key);
+        //
+        // if (!result || result !== hashedCurrentPassword) {
+        //     return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
+        // }
+        //
+        // //限制访问频率60秒
+        // redisClient.set(key, "USED", 'EX', 1800);
+        await userModel.update({uuid: req.user.uuid}, {$set: {password: hashedPassword}});
 
-        if (!result || result !== hashedCurrentPassword) {
-            return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
-        }
 
-        //限制访问频率60秒
-        redisClient.set(key, "USED", 'EX', 1800);
-        await userModel.update({tel_number: req.user.tel_number}, {$set: {password: hashedPassword}});
-
-        logger.info("update_password", {user: req.user.uuid, action: `update_password`, body: req.body});
+        logger.info("update_password", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1]
+        });
         req.logOut();
         return res.status(200).json({error_code: 200, error_massage: 'Please re-login'});
 
