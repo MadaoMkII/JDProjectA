@@ -701,11 +701,13 @@ exports.update_password = async (req, res) => {
 
     try {
 
+        if (tools.isEmpty(req.body['newPassword']) || tools.isEmpty(req.body['currentPassword'])) {
 
-        // let verity_code = req.body.code;
-        //
-        // let category = `updatePassword`;
-        // let key = `category:${category},verity_code:${verity_code}`;
+            return res.status(404).json({
+                error_code: 404,
+                error_massage: 'newPassword or currentPassword must not be empty'
+            });
+        }
 
         let hashedPassword =
             require('crypto').createHash('md5').update(req.body['newPassword'] + config.saltword).digest('hex');
@@ -715,14 +717,6 @@ exports.update_password = async (req, res) => {
             return res.status(406).json({error_code: 406, error_massage: 'Current Password Is Not Correct!'});
         }
 
-        // let result = await getAsync(key);
-        //
-        // if (!result || result !== hashedCurrentPassword) {
-        //     return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
-        // }
-        //
-        // //限制访问频率60秒
-        // redisClient.set(key, "USED", 'EX', 1800);
         await userModel.update({uuid: req.user.uuid}, {$set: {password: hashedPassword}});
 
 
