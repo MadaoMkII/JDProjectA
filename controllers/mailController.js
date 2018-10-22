@@ -105,7 +105,7 @@ exports.sendConfirmationEmail = async (req, res) => {
             return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
         }
         await redisClient.set(key, email_address, 'EX', 3600, redis.print);
-        await sendEmail(email_address, `注册码是${verity_code},请于一分钟内修改`);
+        await sendEmail(email_address, `驗證碼是${verity_code},請於一分鐘內修改`);
 
         logger.info("sendConfirmationEmail", {
             level: req.user.role,

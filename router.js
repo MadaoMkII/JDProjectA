@@ -101,8 +101,11 @@ app.get('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing
 app.post('/user/updatePassword', isAuthenticated('User'), userController.update_password);
 app.post('/msg/updatePasswordSendMassage', isAuthenticated('User'), userController.update_password_sendMassage);
 
-app.post('/msg/updatePhoneNumber', isAuthenticated('User'), userController.update_phoneNumber);
-app.post('/user/updatePhoneNumberSendMassage', isAuthenticated('User'), userController.update_phoneNumber_sendMassage);
+app.get('/msg/currentSendMassage', isAuthenticated('User'), userController.old_Number_sendMassage);
+app.post('/user/verifySendMassage', isAuthenticated('User'), userController.old_Number_check_code);
+
+app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.update_phoneNumber);
+app.post('/msg/updatePhoneNumberSendMassage', isAuthenticated('User'), userController.update_phoneNumber_sendMassage);
 
 app.post('/adv/addHomepageItems', isAuthenticated('Admin'), advertisingController.addHomepageItems);
 app.post('/adv/getHomepageItems', advertisingController.getHomepageItems);
@@ -191,9 +194,7 @@ app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSett
 app.post('/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addRcoinChargeBills);
 app.post('/addChargeBill', isAuthenticated('User'), rechargeController.addChargeBills);
 app.post('/findChargeBill', isAuthenticated('User'), rechargeController.findMyChargeBills);
-app.post('/msg/send_massage', massageChecker.smsSend);
 
-app.post('/msg/check_massage', massageChecker.check_code);
 
 app.post('/mail/send_mail', mailController.sendConfirmationEmail);
 app.post('/mail/check_mail', mailController.checkConfirmationEmail);

@@ -9,7 +9,7 @@ const searchModel = require('../controllers/searchModel');
 const logger = require('../logging/logging').logger;
 const uuidv1 = require('uuid/v1');
 const tools = require("../config/tools");
-
+const getAsync = promisify(redisClient.get).bind(redisClient);
 
 exports.zhuce = async (req, res) => {
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
@@ -383,7 +383,6 @@ exports.userSignUp = (req, res) => {
 };
 
 
-
 exports.getUserInfo = async (req, res) => {
     try {
 
@@ -545,31 +544,56 @@ exports.addUserRealName = async (req, res) => {
     }
 };
 
-exports.update_phoneNumber_sendMassage = async (req, res) => {
 
+exports.old_Number_sendMassage = async (req, res) => {
+    req.body.tel_number = req.user.tel_number;
+    await massager.shin_smsSend(req, res, `oldNumber`, req.body.tel_number);
+};
+
+exports.old_Number_check_code = async (req, res) => {
+
+    let result = await massager.check_code(req, res, `oldNumber`, req.user.tel_number);
+
+    if (!result) {
+        return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
+    }
+    let key = `category:oldNumber,tel_number:${req.user.tel_number}`;
+
+    await redisClient.set(key, "OK", 'EX', 3600);
+    return res.status(200).json({
+        error_msg: "OK",
+        error_code: "0"
+    });
+};
+
+exports.update_phoneNumber_sendMassage = async (req, res) => {
+    let key = `category:oldNumber,tel_number:${req.user.tel_number}`;
+
+    let result = await getAsync(key);
+    if (!result || result !== `OK`) {
+        return res.status(404).json({error_msg: "You need to verify current number first", error_code: "404"});
+    }
     await massager.shin_smsSend(req, res, `changeNumber`, req.body.tel_number);
 };
+
 
 exports.update_phoneNumber = async (req, res) => {
 
     try {
 
         let verity_code = req.body.code;
-
-        let category = `changeNumber`;
-        let key = `category:${category},verity_code:${verity_code}`;
-
-        const getAsync = promisify(redisClient.get).bind(redisClient);
-        let result = await getAsync(key);
+        let result = await massager.check_code(req, res, `changeNumber`, req.user.tel_number);
 
         if (!result) {
             return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
         }
 
+
+        let key = `category:changeNumber,verity_code:${verity_code}`;
         //限制访问频率60秒
         redisClient.set(key, "USED", 'EX', 1800);
         await userModel.findOneAndUpdate({tel_number: req.user.tel_number},
-            {$set: {tel_number: result}}, {new: true});
+            {$set: {tel_number: req.body.tel_number}}, {new: true});
 
 
         logger.info("updatePhoneNumber", {
@@ -579,8 +603,8 @@ exports.update_phoneNumber = async (req, res) => {
             location: (new Error().stack).split("at ")[1],
             body: req.body
         });
-        req.logOut();
-        return res.status(200).json({error_code: 0, error_massage: 'Please re-login'});
+
+        return res.status(200).json({error_code: 0, error_massage: 'OK'});
 
 
     } catch (err) {
@@ -594,6 +618,12 @@ exports.update_phoneNumber = async (req, res) => {
             body: req.body,
             error: err
         });
+        if (err.message.toString().indexOf(`empty`) !== -1) {
+            return res.status(400).json({
+                error_code: 400,
+                error_massage: err.message
+            });
+        }
         return res.status(503).json({
             error_code: 503,
             error_massage: 'updatePhoneNumber Failed'
@@ -602,13 +632,15 @@ exports.update_phoneNumber = async (req, res) => {
 };
 
 exports.update_password_sendMassage = async (req, res) => {
-
-    await massager.shin_smsSend(req, res, `updatePassword`, 'updatePassword');
+    let hashedCurrentPassword = require('crypto').createHash('md5').update(req.body['currentPassword'] + config.saltword).digest('hex');
+    await massager.shin_smsSend(req, res, `updatePassword`, hashedCurrentPassword);
 };
 
 exports.update_password = async (req, res) => {
 
     try {
+
+
         let verity_code = req.body.code;
 
         let category = `updatePassword`;
@@ -622,10 +654,9 @@ exports.update_password = async (req, res) => {
             return res.status(406).json({error_code: 406, error_massage: 'Current Password Is Not Correct!'});
         }
 
-        const getAsync = promisify(redisClient.get).bind(redisClient);
         let result = await getAsync(key);
 
-        if (!result || result !== 'updatePassword') {
+        if (!result || result !== hashedCurrentPassword) {
             return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
         }
 
