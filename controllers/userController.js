@@ -597,8 +597,8 @@ exports.update_phoneNumber = async (req, res) => {
             location: (new Error().stack).split("at ")[1],
             body: req.body
         });
-
-        return res.status(200).json({error_code: 0, error_massage: 'OK'});
+        req.logOut();
+        return res.status(200).json({error_code: 0, error_massage: 'Successfully update number,Please re-Login'});
 
 
     } catch (err) {
