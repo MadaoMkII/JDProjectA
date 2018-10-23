@@ -1,8 +1,19 @@
 const mongoose = require('../db/db').mongoose;
 
-const announcement = new mongoose.Schema(
+const anModel = new mongoose.Schema(
     {
         model_name: String,
+    }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
+);
+
+
+const announcement = new mongoose.Schema(
+    {
+        model_name: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'anModel'
+        },
+        location: String,
         announcementID: {type: String, required: true, unique: true},
         content: {type: String, required: true},
         link: {type: String, required: true, unique: true},
@@ -27,5 +38,6 @@ announcement.set('toJSON', {
         }
     }
 );
+mongoose.model('anModel', anModel);
 let announcementModel = mongoose.model('announcement', announcement);
 exports.announcementModel = announcementModel;

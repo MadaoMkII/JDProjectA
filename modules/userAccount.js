@@ -54,6 +54,7 @@ const myEvent = new mongoose.Schema(
     {
         eventType: {type: String, required: true},
         content: {type: String},
+        pointChange: Number,
         amount: {type: String, required: true, set: tool.encrypt, get: tool.decrypt},
         behavior: {type: String},
         referralsUUID: {type: String}

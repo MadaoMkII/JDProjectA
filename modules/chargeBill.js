@@ -1,5 +1,5 @@
 const mongoose = require('../db/db').mongoose;
-
+const processOrder = require('../modules/processOrder').processOrder;
 const chargeBillSchema = new mongoose.Schema(
     {
         typeStr: {type: String},
@@ -31,7 +31,7 @@ const chargeBillSchema = new mongoose.Schema(
             chargeMethod: {type: String},
             chargeFromAccount: {type: mongoose.Schema.Types.Object}
         },//alipay wechat Rcoin,
-        order_processing: {type: mongoose.Schema.Types.ObjectId, ref: 'processOrder'}
+        processOrder: {type: processOrder}
     }, {
         'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}
     }
@@ -44,7 +44,7 @@ chargeBillSchema.set('toJSON', {
             delete ret.uuid;
             delete ret._id;
             delete ret.id;
-           // delete re.chargeInfo.chargeFromAccount._id;
+            // delete re.chargeInfo.chargeFromAccount._id;
             delete ret.__v;
             if (doc.created_at && doc.updated_at) {
                 ret.created_at = new Date(doc.created_at).getTime();

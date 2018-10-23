@@ -2,9 +2,9 @@ const mongoose = require('../db/db').mongoose;
 const isEmpty = require('../config/tools').isEmpty;
 const bankAccount = new mongoose.Schema(
     {
-        bankCode: {type: String, required: true, unique: true, sparse: true},
-        bankType: {type: String, required: true, sparse: true},
-        bankName: {type: String, required: true, sparse: true},
+        bankCode: {type: String, required: true},
+        bankType: {type: String, required: true},
+        bankName: {type: String, required: true},
         accountName: {type: String, required: true, sparse: true},
         logoFileName: String,
         accountCode: {type: String, required: true, sparse: true},

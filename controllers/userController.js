@@ -653,14 +653,20 @@ exports.update_nickName = async (req, res) => {
 
 
 exports.getBack_password_sendMassage = async (req, res) => {
-    req.body.tel_number = req.user.tel_number;
-    await massager.shin_smsSend(req, res, `getBack_password`, `OK`);
+
+    let result = await userModel.findOne({tel_number: req.body.tel_number});
+    if (!result) {
+        return res.status(404).json({error_msg: "Can not send to this number", error_code: "404"});
+    }
+    await massager.shin_smsSend(req, res, `getBack_password`, req.body.tel_number);
+
 };
+
 exports.getBack_password_update = async (req, res) => {
 
     try {
 
-        let result = await massager.check_code(req, res, `getBack_password`, `OK`);
+        let result = await massager.check_code(req, res, `getBack_password`, req.body.tel_number);
 
         if (!result) {
             return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
@@ -671,16 +677,9 @@ exports.getBack_password_update = async (req, res) => {
 
         let hashedPassword =
             require('crypto').createHash('md5').update(req.body['newPassword'] + config.saltword).digest('hex');
-        await userModel.update({uuid: req.user.uuid}, {$set: {password: hashedPassword}});
+        await userModel.update({tel_number: req.body.tel_number}, {$set: {password: hashedPassword}});
 
 
-        logger.info("getBack_password_update", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1]
-        });
-        req.logOut();
         return res.status(200).json({error_code: 200, error_massage: 'Please re-login'});
 
 
@@ -689,7 +688,6 @@ exports.getBack_password_update = async (req, res) => {
             status: 503,
             level: `USER`,
             response: `update password Failed`,
-            user: req.user.uuid,
             action: `update_password`,
             body: req.body,
             error: err
@@ -746,7 +744,7 @@ exports.update_password = async (req, res) => {
 
 exports.update_email_sendMassage = async (req, res) => {
 
-    await massager.shin_smsSend(req, res, `update_email`,req.user.tel_number);
+    await massager.shin_smsSend(req, res, `update_email`, req.user.tel_number);
 };
 
 

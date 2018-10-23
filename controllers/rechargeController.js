@@ -111,11 +111,11 @@ exports.addChargeBills = async (req, res) => {
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
 
-        if (req.user.status.isFirstAlipayCharge === false &&
+        if (req.user.userStatus.isFirstAlipayCharge === false &&
             req.body.rechargeInfo.rechargeAccountType === "Alipay") {
             billObject.is_firstOrder = true;
         }
-        if (req.user.status.isFirstWechatCharge === false &&
+        if (req.user.userStatus.isFirstWechatCharge === false &&
             req.body.rechargeInfo.rechargeAccountType === "Wechat") {
             billObject.is_firstOrder = true;
         }
@@ -161,14 +161,16 @@ exports.addChargeBills = async (req, res) => {
 
 
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
-    } catch (e) {
+    } catch (err) {
+        console.log(err)
         logger.error("addChargeBills", {
             level: req.user.role,
             response: `addChargeBills Failed`,
             user: req.user.uuid,
             email: req.user.email_address,
             location: (new Error().stack).split("at ")[1],
-            body: req.body
+            body: req.body,
+            error_massage: err
         });
         return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
     }

@@ -3,7 +3,6 @@ const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
 //const debug = require('debug')('http');
-const mailController = require('./controllers/mailController');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
 //const massageChecker = require('./controllers/massageController');
@@ -104,8 +103,8 @@ app.post('/user/updatePassword', isAuthenticated('User'), userController.update_
 app.post('/user/updateEmail', isAuthenticated('User'), userController.update_email);
 app.get('/msg/updateEmailMassage', isAuthenticated('User'), userController.update_email_sendMassage);
 
-app.post('/user/getBackUpdate', isAuthenticated('User'), userController.getBack_password_update);
-app.get('/msg/getBackSendMassage', isAuthenticated('User'), userController.getBack_password_sendMassage);
+app.post('/user/getBackUpdate', userController.getBack_password_update);
+app.post('/msg/getBackSendMassage', userController.getBack_password_sendMassage);
 
 app.get('/msg/currentSendMassage', isAuthenticated('User'), userController.old_Number_sendMassage);
 app.post('/user/verifySendMassage', isAuthenticated('User'), userController.old_Number_check_code);
@@ -132,7 +131,7 @@ app.post('/findUser', isAuthenticated('User'), userController.findUser);
 app.post('/findThisUserRcoinRecord', isAuthenticated('User'), dgPayment.findThisUserRcoinRecord);
 
 app.post('/getDataAnalyst', isAuthenticated('User'), processOrderController.getDataAnalyst);
-app.post('/addProcessOrderForCharge', isAuthenticated('User'), processOrderController.addProcessOrderForRcoinCharge);
+
 app.post('/setReferer', isAuthenticated('User'), userController.setReferer);
 app.post('/addUserRealName', isAuthenticated('User'), userController.addUserRealName);
 app.post('/setBaseRate', isAuthenticated('User'), dgPayment.setBaseRateOutside);
@@ -146,12 +145,13 @@ app.get('/getBankAccounts', isAuthenticated('User'), manageSettingController.get
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 app.post('/getBills', isAuthenticated('Admin'), dgPayment.adminGetBills);
 
-app.post('/addProcessOrder', isAuthenticated('Admin'), processOrderController.addProcessOrder);
+
+
+
 app.post('/addReplacePostageBill', isAuthenticated('Admin'), dgPayment.addReplacePostageBill);
 app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
-app.post('/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
 
-//app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
+
 
 app.post('/addAnnouncement', isAuthenticated('SAdmin'), announcementController.addAnnouncement);
 app.post('/findAnnouncement', isAuthenticated('Admin'), announcementController.findAnnouncement);
@@ -199,8 +199,13 @@ app.get('/checkhealth', function (req, res) {
 app.post('/getSetting', isAuthenticated('User'), manageSettingController.getSetting);
 app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSetting);
 
-app.post('/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addRcoinChargeBills);
-app.post('/addChargeBill', isAuthenticated('User'), rechargeController.addChargeBills);
+app.post('/item/addProcessOrder', isAuthenticated('Admin'), processOrderController.addProcessOrder);
+app.post('/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
+app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
+
+app.post('/recharger/addProcessOrderForCharge', isAuthenticated('Admin'), processOrderController.addProcessOrderForRcoinCharge);
+app.post('/recharger/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addRcoinChargeBills);
+app.post('/recharger/addChargeBill', isAuthenticated('User'), rechargeController.addChargeBills);
 app.post('/findChargeBill', isAuthenticated('User'), rechargeController.findMyChargeBills);
 
 //

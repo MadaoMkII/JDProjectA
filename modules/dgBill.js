@@ -1,5 +1,5 @@
 const mongoose = require('../db/db').mongoose;
-
+const processOrder = require('../modules/processOrder').processOrder;
 
 const replacePostagePayment = new mongoose.Schema(
     {
@@ -72,7 +72,7 @@ const dgBillSchema = new mongoose.Schema(
         comment: String,
         is_firstOrder: {type: Boolean, default: false},
         userInfo: {type: mongoose.Schema.Types.Object},
-        processOrder: {type: mongoose.Schema.Types.ObjectId, ref: 'processOrder'},
+        processOrder: {type: processOrder},
         replacePostage: {type: replacePostageBill}
 
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});

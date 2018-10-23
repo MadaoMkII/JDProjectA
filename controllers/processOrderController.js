@@ -1,11 +1,12 @@
 const processOrderModel = require('../modules/processOrder').processOrderModel;
 const myEventModel = require('../modules/userAccount').myEventModel;
 const dgBillModel = require('../modules/dgBill').dgBillModel;
+const bankAccountModel = require('../modules/bankAccount').bankAccountModel;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 const tools = require('../config/tools');
-const picController = require('../controllers/picController');
 const userModel = require('../modules/userAccount').userAccountModel;
 const dataAnalystModel = require('../modules/dataAnalyst').dataAnalystModel;
+const logger = require('../logging/logging').logger;
 
 exports.getDataAnalyst = async (req, res) => {
     try {
@@ -65,7 +66,7 @@ exports.getDataAnalyst = async (req, res) => {
         //let result = await dataAnalystModel.find(searchConditions, {}, {"group": `itemWebType`});
         return res.status(200).json({error_msg: 'ok', error_code: "0", data: lastResult});
     } catch (e) {
-        console.log(e)
+
         return res.status(500).json({error_msg: e, error_code: "500"});
     }
 };
@@ -75,7 +76,7 @@ exports.addProcessOrder = async (req, res) => {
 
     try {
 
-        const [returnReq] = await picController.uploadImgAsyncArray(req, res);
+
         let processOrderObject = new processOrderModel();
 
         if (tools.isEmpty(req.body[`billID`])) {
@@ -83,49 +84,48 @@ exports.addProcessOrder = async (req, res) => {
             return res.status(400).json({error_msg: `billID is needed`, error_code: "400"});
         }
 
-        for (let img of returnReq.files) {
-            processOrderObject.imageFilesNames.push(img.filename);
-        }
+        processOrderObject.imageFilesNames = req.body.imageFilesNames;
+        processOrderObject.chargeDate = req.body.chargeDate;
+        processOrderObject.chargeAmount = req.body.chargeAmount;
+        processOrderObject.comment = req.body.comment;
+        processOrderObject.accountWeUsed = await bankAccountModel.findOne({bankCode: req.body.accountWeUsed});
+        processOrderObject.billID = req.body.billID;
 
-
-        processOrderObject.chargeDate = new Date();
-
-        for (let index in req.body) {
-
-            if (!tools.isEmpty(req.body[index])) {
-
-                processOrderObject[index] = req.body[index];
-            }
-        }
         await processOrderObject.save();
-
-
-        let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
-            {$set: {processOrder: processOrderObject._id}}, {new: true}).populate(`processOrder`);
+        let dgBill = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
+            {
+                $set: {
+                    processOrder: processOrderObject,
+                    dealState: 1,
+                    typeState: 1
+                }
+            }, {new: true});
 
 
         let userResult;
 
-        if (dgBillEntity.typeStr === `其他支付方式代付` &&
-            dgBillEntity.is_firstOrder === true &&
-            dgBillEntity.paymentInfo.paymentMethod === "Alipay") {
+        if (dgBill.typeStr === `其他支付方式代付` &&
+            dgBill.is_firstOrder === true &&
+            dgBill.paymentInfo.paymentMethod === "Alipay") {
+
             let tempEvent = new myEventModel();
-            tempEvent.eventType = `growthPoint`;
-            tempEvent.amount = dgBillEntity.RMBAmount;
-            tempEvent.amount = 10;
+            tempEvent.eventType = `Alipay`;
+            tempEvent.amount = dgBill.RMBAmount;
+            tempEvent.pointChange = 10;
             tempEvent.behavior = `first Alipay consumption`;
 
-            userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
+            userResult = await userModel.findOneAndUpdate({uuid: dgBill.userUUid}, {
                 $inc: {growthPoints: 10},
                 $push: {whatHappenedToMe: tempEvent},
                 $set: {"userStatus.isFirstTimePaid": true}
             }, {new: true});
         } else {
             let tempEvent = new myEventModel();
-            tempEvent.eventType = `growthPoint`;
-            tempEvent.amount = 1;
+            tempEvent.eventType = `Alipay`;
+            tempEvent.pointChange = 1;
+            tempEvent.amount = dgBill.RMBAmount;
             tempEvent.behavior = `consumption`;
-            userResult = await userModel.findOneAndUpdate({uuid: dgBillEntity.userUUid}, {
+            userResult = await userModel.findOneAndUpdate({uuid: dgBill.userUUid}, {
                 $inc: {growthPoints: 1},
                 $push: {whatHappenedToMe: tempEvent}
             }, {new: true});
@@ -133,9 +133,10 @@ exports.addProcessOrder = async (req, res) => {
         }
 
         let giveThemMyEvent = new myEventModel();
-        giveThemMyEvent.eventType = `growthPoint`;
-        giveThemMyEvent.amount = 10;
-        giveThemMyEvent.referralsUUID = dgBillEntity.userUUid;
+        giveThemMyEvent.eventType = `referral consumption share`;
+        giveThemMyEvent.amount = dgBill.amount;
+        giveThemMyEvent.pointChange = 10;
+        giveThemMyEvent.referralsUUID = dgBill.userUUid;
         //content: `xxx`,
 
         if (!tools.isEmpty(userResult.referrer) && !tools.isEmpty(userResult.referrer.referrerUUID)) {
@@ -148,10 +149,17 @@ exports.addProcessOrder = async (req, res) => {
 
         await dataAnalystModel.findOneAndUpdate({
             dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
-            itemWebType: dgBillEntity.itemInfo.itemWebType
-        }, {$inc: {count: 1, amount: dgBillEntity.NtdAmount}}, {new: true, upsert: true});
+            itemWebType: dgBill.itemInfo.itemWebType
+        }, {$inc: {count: 1, amount: dgBill.NtdAmount}}, {new: true, upsert: true});
 
-        return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
+        logger.warn("addProcessOrder", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBill});
     }
     catch (e) {
 
@@ -164,7 +172,20 @@ exports.addProcessOrderForRcoinCharge = async (req, res) => {
 
     try {
 
-        const [returnReq] = await picController.uploadImgAsyncArray(req, res);
+        let chargeBill = await chargeBillModel.findOne({billID: req.body.billID});
+
+        if (chargeBill.processOrder && req.user.role === `Admin`) {
+            return res.status(201).json({
+                error_msg: `this bills has already been processed`,
+                error_code: "201"
+            });
+        }
+        if (tools.isEmpty(chargeBill) || chargeBill.typeStr !== `R币充值` && chargeBill.typeStr !== `账户代充`) {
+            return res.status(400).json({
+                error_msg: `this API is only used to deal with recharge bills`,
+                error_code: "400"
+            });
+        }
         let processOrderObject = new processOrderModel();
 
         if (tools.isEmpty(req.body[`billID`])) {
@@ -172,29 +193,28 @@ exports.addProcessOrderForRcoinCharge = async (req, res) => {
             return res.status(400).json({error_msg: `billID is needed`, error_code: "400"});
         }
 
-        for (let img of returnReq.files) {
-            processOrderObject.imageFilesNames.push(img.filename);
-        }
-
-
-        processOrderObject.chargeDate = new Date();
-
-        for (let index in req.body) {
-
-            if (!tools.isEmpty(req.body[index])) {
-
-                processOrderObject[index] = req.body[index];
-            }
-        }
+        processOrderObject.imageFilesNames = req.body.imageFilesNames;
+        processOrderObject.chargeDate = req.body.chargeDate;
+        processOrderObject.chargeAmount = req.body.chargeAmount;
+        processOrderObject.comment = req.body.comment;
+        processOrderObject.accountWeUsed = await bankAccountModel.findOne({bankCode: req.body.accountWeUsed});
+        processOrderObject.billID = req.body.billID;
+        // for (let index in req.body) {
+        //
+        //     if (!tools.isEmpty(req.body[index])) {
+        //
+        //         processOrderObject[index] = req.body[index];
+        //     }
+        // }
         await processOrderObject.save();
-        let chargeBill = await chargeBillModel.findOneAndUpdate({billID: req.body.billID},
+        chargeBill = await chargeBillModel.findOneAndUpdate({billID: req.body.billID},
             {
                 $set: {
-                    processOrder: processOrderObject._id,
+                    processOrder: processOrderObject,
                     dealState: 1,
                     typeState: 1
                 }
-            }, {new: true}).populate(`processOrder`);
+            }, {new: true});
 
 
         if (parseInt(chargeBill.RMBAmount) !== parseInt(req.body.chargeAmount)) {
@@ -206,65 +226,96 @@ exports.addProcessOrderForRcoinCharge = async (req, res) => {
         let myDate = new Date();
         let userResult;
         let myEvent = new myEventModel();
-        myEvent.eventType = `Rcoin`;
-        myEvent.behavior = `recharge`;
-        myEvent.amount = chargeBill.RMBAmount;
-
-        let rcoins = parseInt(req.user.Rcoins) + parseInt(chargeBill.RMBAmount);
-
-        userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
-            $inc: {growthPoints: 1},
-            $push: {whatHappenedToMe: myEvent},
-            $set: {Rcoins: tools.encrypt(rcoins)}
-        }, {new: true});
-        req.user = userResult;
-
-//以下要细分
-//         if (chargeBill.typeStr === `账户代充` &&
-//             chargeBill.is_firstOrder === false &&
-//             chargeBill.rechargeInfo.rechargeAccountType === "Alipay") {
-//             myEvent.amount = 10;
-//             myEvent.behavior = `first Alipay consumption`;
-//             userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
-//                 $inc: {growthPoints: 10},
-//                 $push: {whatHappenedToMe: myEvent},
-//                 $set: {"userStatus.isFirstAlipayCharge": true}
-//             }, {new: true});
-//         } else {
-//             myEvent.amount = 1;
-//             myEvent.behavior = `consumption`;
-//             userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
-//                 $inc: {growthPoints: 1},
-//                 $push: {whatHappenedToMe: myEvent}
-//             }, {new: true});
-//
-//         }
-
-        // let giveThemMyEvent = {
-        //     eventType: `growthPoint`,
-        //     //content: `xxx`,
-        //     amount: 10,
-        //     behavior: `referrals consumption`,
-        //     referralsUUID: chargeBill.userUUid
-        // };
-        // if (!tools.isEmpty(userResult.referrer) && !tools.isEmpty(userResult.referrer.referrerUUID)) {
-        //     for (let index of  userResult.referrer.referrerUUID) {
-        //         await userModel.findOneAndUpdate({uuid: index}, {
-        //             $inc: {growthPoints: 10}, $push: {whatHappenedToMe: giveThemMyEvent}
-        //         }, {new: true});//日子
-        //     }
-        // }
 
 
-        let dataAnalyst = await dataAnalystModel.findOneAndUpdate({
+        if (chargeBill.typeStr === `R币充值`) {
+            myEvent.eventType = `Rcoin`;
+            myEvent.behavior = `Rcoin recharge`;
+            myEvent.pointChange = 1;
+            myEvent.amount = chargeBill.RMBAmount; //也许需要加密
+            let rcoins = parseInt(req.user.Rcoins) + parseInt(chargeBill.RMBAmount);
+
+            userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
+                $inc: {growthPoints: 1},
+                $push: {whatHappenedToMe: myEvent},
+                $set: {Rcoins: tools.encrypt(rcoins)}
+            }, {new: true});
+
+        } else if (chargeBill.typeStr === `账户代充` &&
+            chargeBill.is_firstOrder === true &&
+            chargeBill.rechargeInfo.rechargeAccountType === "Alipay") {
+            myEvent.eventType = `Alipay`;
+            myEvent.pointChange = 10;
+            myEvent.amount = chargeBill.RMBAmount;
+            myEvent.behavior = `first Alipay recharge`;
+            userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
+                $inc: {growthPoints: 10},
+                $push: {whatHappenedToMe: myEvent},
+                $set: {"userStatus.isFirstAlipayCharge": true}
+            }, {new: true});
+
+        } else if (chargeBill.typeStr === `账户代充` &&
+            chargeBill.is_firstOrder === true &&
+            chargeBill.rechargeInfo.rechargeAccountType === "Wechat") {
+            myEvent.eventType = `Wechat`;
+            myEvent.pointChange = 10;
+            myEvent.amount = chargeBill.RMBAmount;
+            myEvent.behavior = `first Wechat recharge`;
+            userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
+                $inc: {growthPoints: 10},
+                $push: {whatHappenedToMe: myEvent},
+                $set: {"userStatus.isFirstWechatCharge": true}
+            }, {new: true});
+        }
+        else {
+            userResult = await userModel.findOne({uuid: chargeBill.userUUid});
+        }
+
+
+        let referrerShareEvent = {
+            eventType: `share growthPoint`,
+            //content: `xxx`,
+            pointChange: 10,
+            amount: chargeBill.RMBAmount,
+            behavior: `referrals consumption`,
+            referralsUUID: chargeBill.userUUid
+        };
+
+        if (!tools.isEmpty(userResult.referrer) && !tools.isEmpty(userResult.referrer.referrerUUID)) {
+
+            await userModel.findOneAndUpdate({uuid: userResult.referrer.referrerUUID}, {
+                $inc: {growthPoints: 10}, $push: {whatHappenedToMe: referrerShareEvent}
+            }, {new: true});//日子
+
+        }
+
+        await dataAnalystModel.findOneAndUpdate({
             dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
             itemWebType: `Rcoin recharge`
         }, {$inc: {count: 1, amount: chargeBill.RMBAmount}}, {new: true, upsert: true});
-        console.log(dataAnalyst)
+
+        logger.warn("addProcessOrderForRcoinCharge", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: chargeBill});
     }
-    catch (e) {
-        console.log(e)
-        return res.status(500).json({error_msg: e, error_code: "500"});
+    catch
+        (err) {
+
+        logger.error("addProcessOrderForRcoinCharge", {
+            level: req.user.role,
+            response: `addProcessOrderForRcoinCharge Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error_massage: err
+        });
+        return res.status(500).json({error_msg: `addProcessOrderForRcoinCharge Failed`, error_code: "500"});
     }
 };
