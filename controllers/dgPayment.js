@@ -7,6 +7,8 @@ const manageSettingController = require('../controllers/manageSettingController'
 const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
+
+
 let getBaseRate = (req) => {
     return new Promise((resolve, reject) => {
 
@@ -22,6 +24,9 @@ let getBaseRate = (req) => {
         }
     );
 };
+
+
+
 
 exports.setBaseRateOutside = async (req, res) => {
 
@@ -391,6 +396,9 @@ exports.adminGetBills = async (req, res) => {
 exports.addReplacePostageBill = async (req, res) => {
 
     try {
+        let dgResult = await dgBillModel.findOne({billID: req.body.billID});
+        if (dgResult) {
+        }
         let replacePostageBillEntity = new replacePostageBillModel();
 
         for (let index in req.body) {
@@ -400,7 +408,7 @@ exports.addReplacePostageBill = async (req, res) => {
         }
         replacePostageBillEntity.chargeDate = new Date();
         replacePostageBillEntity.status = 2;
-        let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID, userUUid: req.user.uuid},
+        let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
             {$set: {replacePostage: replacePostageBillEntity, payFreight: 1}}, {new: true}).populate(`processOrder`);
         console.log(dgBillEntity);
         if (!dgBillEntity) {

@@ -1,8 +1,7 @@
 const appealFormModel = require('../modules/appealForm').appealFormModel;
-const userAccountModel = require('../modules/userAccount').userAccountModel;
 const picController = require('../controllers/picController');
-const isEmpty = require('../config/tools').isEmpty;
-//const logger = require('../logging/logger');
+//const isEmpty = require('../config/tools').isEmpty;
+const logger = require('../logging/logging').logger;
 const searchModel = require('../controllers/searchModel');
 
 exports.addAppealForm = (req, res) => {
@@ -106,7 +105,7 @@ exports.getMyAppealForm = async (req, res) => {
         let [result, count] = await findAppealFormDAO(req, res, command, operator);
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
     } catch (e) {
-        console.log(e)
+
         return res.status(500).send({error_code: 500, error_msg: "Error happen"});
     }
 
@@ -134,7 +133,7 @@ exports.getAppealFormById = async (req, res) => {
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
 
     } catch (e) {
-        console.log(e)
+
         return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
     }
 
@@ -168,7 +167,7 @@ exports.findAppealForm = async (req, res) => {
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
 
     } catch (e) {
-        console.log(e)
+
         return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
     }
 

@@ -36,6 +36,7 @@ exports.setSetting = async (req, res) => {
     managerConfigsObject.models = !isEmpty(req.body.models) ? req.body.models : billResult.models;
     managerConfigsObject.feeRate = !isEmpty(req.body.feeRate) ? req.body.feeRate : billResult.feeRate;
     managerConfigsObject.rate = !isEmpty(req.body.rate) ? req.body.rate : billResult.rate;
+
     managerConfigsObject.L1_Issue = !isEmpty(req.body.L1_Issue) ? req.body.L1_Issue : billResult.L1_Issue;
     managerConfigsObject.L2_Issue = !isEmpty(req.body.L2_Issue) ? req.body.L2_Issue : billResult.L2_Issue;
     managerConfigsObject.L3_Issue = !isEmpty(req.body.L3_Issue) ? req.body.L3_Issue : billResult.L3_Issue;
@@ -105,6 +106,113 @@ exports.setModel = async (req, res) => {
     });
 
 };
+
+
+exports.set3L = async (req, res) => {
+
+    try {
+
+        let operator = {sort: {created_at: -1}, limit: 1};
+        let billResult;
+        billResult = await managerConfigsModel.findOne({}, {_id: 0, __v: 0}, operator);
+
+
+        let new_L1_Issue = billResult.L1_Issue;
+
+        if (!isEmpty(req.body.L1_Issue)) {
+            new_L1_Issue = [];
+            for (let issue of billResult.L1_Issue) {
+
+                if (issue.L1 === req.body.L1_Issue.L1) {
+
+                    new_L1_Issue.push({L1: issue.L1, description: req.body.L1_Issue.description})
+
+                } else {
+
+                    new_L1_Issue.push(issue);
+
+                }
+
+            }
+        }
+
+
+        let new_L2_Issue = billResult.L2_Issue;
+
+        if (!isEmpty(req.body.L2_Issue)) {
+            new_L2_Issue = [];
+            for (let issue of billResult.L2_Issue) {
+
+                if (issue.L1 === req.body.L2_Issue.L1 && issue.L2 === req.body.L2_Issue.L2) {
+
+                    new_L2_Issue.push({L1: issue.L1, L2: issue.L2, description: req.body.L2_Issue.description})
+
+                } else {
+
+                    new_L2_Issue.push(issue);
+
+                }
+
+            }
+        }
+        let new_L3_Issue = billResult.L3_Issue;
+        if (!isEmpty(req.body.L3_Issue)) {
+            new_L3_Issue = [];
+            for (let issue of billResult.L3_Issue) {
+
+                if (issue.L2 === req.body.L3_Issue.L2 && issue.L3 === req.body.L3_Issue.L3) {
+
+                    new_L3_Issue.push({description: req.body.L3_Issue.description, L2: issue.L2, L3: issue.L3})
+
+                } else {
+
+                    new_L3_Issue.push(issue);
+
+                }
+
+            }
+        }
+
+
+        billResult.L3_Issue = new_L3_Issue;
+        billResult.L2_Issue = new_L2_Issue;
+        billResult.L1_Issue = new_L1_Issue;
+
+        let myDate = new Date();
+        billResult.created_at = myDate;
+        billResult.updated_at = myDate;
+
+        let managerConfigsEntity = new managerConfigsModel();
+        billResult._id = managerConfigsEntity._id;
+        await managerConfigsModel.update({_id: billResult._id}, {$set: billResult}, {upsert: true, new: true});
+        return res.status(200).send({
+            error_code: 0,
+            error_msg: 'NO',
+            data: {
+                L1_Issue: new_L1_Issue,
+                L2_Issue: new_L2_Issue,
+                L3_Issue: new_L3_Issue
+            }
+        });
+
+    } catch (err) {
+
+        logger.error("find3L", {
+            level: req.user.role,
+            response: `find3L Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+
+        return res.status(500).send({error_code: 500, error_msg: 'NO'});
+    }
+
+};
+
+
 exports.find3L = async (req, res) => {
 
     try {

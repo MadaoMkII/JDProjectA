@@ -2,21 +2,32 @@ const mongoose = require('../db/db').mongoose;
 
 const anModel = new mongoose.Schema(
     {
-        model_name: String,
-    }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
+        name: {type: String, unique: true},
+    }
 );
-
+anModel.set('toJSON', {
+        virtuals: true,
+        transform: function (doc, ret) {
+            delete ret.uuid;
+            delete ret._id;
+            delete ret.id;
+            delete ret.updated_at;
+            delete ret.created_at;
+            delete ret.__v;
+        }
+    }
+);
 
 const announcement = new mongoose.Schema(
     {
-        model_name: {
+        model: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'anModel'
+            ref: 'announceModel'
         },
         location: String,
         announcementID: {type: String, required: true, unique: true},
         content: {type: String, required: true},
-        link: {type: String, required: true, unique: true},
+        link: {type: String},
         announcementTopic: String
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
@@ -38,6 +49,7 @@ announcement.set('toJSON', {
         }
     }
 );
-mongoose.model('anModel', anModel);
+let announceModel = mongoose.model('announceModel', anModel);
 let announcementModel = mongoose.model('announcement', announcement);
 exports.announcementModel = announcementModel;
+exports.announceModel = announceModel;

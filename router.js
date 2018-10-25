@@ -95,6 +95,11 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 
+app.get('/getPostage', isAuthenticated('Admin'), processOrderController.getWhat);
+app.get('/getMyPostage', isAuthenticated('User'), processOrderController.getMyPostage);
+
+app.post('/set3level', isAuthenticated('User'), manageSettingController.set3L);
+
 app.get('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing);
 
 app.post('/user/updateNickname', isAuthenticated('User'), userController.update_nickName);
@@ -145,15 +150,20 @@ app.get('/getBankAccounts', isAuthenticated('User'), manageSettingController.get
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 app.post('/getBills', isAuthenticated('Admin'), dgPayment.adminGetBills);
 
-
-
+app.post('/setBillStatus', isAuthenticated('Admin'), processOrderController.setOrderStatus);
 
 app.post('/addReplacePostageBill', isAuthenticated('Admin'), dgPayment.addReplacePostageBill);
 app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
 
+app.get('/announcement/getModel', isAuthenticated('Admin'), announcementController.getModel);
+app.post('/announcement/removeModel', isAuthenticated('Admin'), announcementController.removeModel);
+app.post('/announcement/addModel', isAuthenticated('Admin'), announcementController.addModel);
 
+app.post('/announcement/addHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.addHelpCenterAnnouncement);
+app.get('/announcement/getHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.getHelpCenterAnnouncement);
+app.post('/announcement/updateHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.updateHelpCenterAnnouncement);
 
-app.post('/addAnnouncement', isAuthenticated('SAdmin'), announcementController.addAnnouncement);
+app.post('/addAnnouncement', isAuthenticated('Admin'), announcementController.addAnnouncement);
 app.post('/findAnnouncement', isAuthenticated('Admin'), announcementController.findAnnouncement);
 app.post('/updateAnnouncement', isAuthenticated('Admin'), announcementController.updateAnnouncement);
 app.post('/delAnnouncement', isAuthenticated('Admin'), announcementController.delAnnouncement);
@@ -198,6 +208,7 @@ app.get('/checkhealth', function (req, res) {
 });
 app.post('/getSetting', isAuthenticated('User'), manageSettingController.getSetting);
 app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSetting);
+
 
 app.post('/item/addProcessOrder', isAuthenticated('Admin'), processOrderController.addProcessOrder);
 app.post('/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);

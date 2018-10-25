@@ -7,6 +7,32 @@ const tools = require('../config/tools');
 const userModel = require('../modules/userAccount').userAccountModel;
 const dataAnalystModel = require('../modules/dataAnalyst').dataAnalystModel;
 const logger = require('../logging/logging').logger;
+const searchModel = require('../controllers/searchModel');
+
+exports.getWhat = async (req, res) => {
+
+    try {
+        let operator = searchModel.pageModel(req);
+        let result = await dgBillModel.find({replacePostage: {"$exists": true}});
+        return res.status(200).send({error_code: 200, error_msg: `OK`, data: result}, {}, operator);
+    } catch (e) {
+
+        return res.status(403).send({error_code: 403, error_msg: `Error when try to save`});
+    }
+
+};
+exports.getMyPostage = async (req, res) => {
+
+    try {
+        let operator = searchModel.pageModel(req);
+        let result = await dgBillModel.find({replacePostage: {"$exists": true}, userUUid: req.user.uuid}, {}, operator);
+        return res.status(200).send({error_code: 200, error_msg: `OK`, data: result});
+    } catch (e) {
+
+        return res.status(403).send({error_code: 403, error_msg: `Error when try to save`});
+    }
+
+};
 
 exports.getDataAnalyst = async (req, res) => {
     try {
@@ -71,7 +97,56 @@ exports.getDataAnalyst = async (req, res) => {
     }
 };
 
+exports.setOrderStatus = async (req, res) => {
 
+
+    try {
+        let setObject = {};
+        if (tools.isEmpty(req.body.billID)) {
+
+            return res.status(400).json({error_msg: `billID is needed`, error_code: "400"});
+        }
+
+        if (!tools.isEmpty(req.body.typeState)) {
+
+            setObject.setObject = req.body.typeState;
+        }
+
+        if (!tools.isEmpty(req.body.dealState)) {
+
+            setObject.dealState = req.body.dealState;
+        }
+        console.log(setObject)
+        let newOrder = await dgBillModel.findOneAndUpdate({billID: req.body.billID}, {$set: setObject}, {new: true});
+        if (!newOrder) {
+            return res.status(404).json({error_msg: `can not find record by this  billID`, error_code: "404"});
+        }
+
+
+        logger.warn("setOrderStatus", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: newOrder});
+
+    } catch (err) {
+        logger.error("setOrderStatus", {
+            level: req.user.role,
+            response: `setOrderStatus Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error_massage: err
+        });
+        return res.status(500).json({error_msg: `set Order Status Failed`, error_code: "500"});
+    }
+
+
+};
 exports.addProcessOrder = async (req, res) => {
 
     try {
@@ -304,8 +379,7 @@ exports.addProcessOrderForRcoinCharge = async (req, res) => {
 
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: chargeBill});
     }
-    catch
-        (err) {
+    catch (err) {
 
         logger.error("addProcessOrderForRcoinCharge", {
             level: req.user.role,
