@@ -1,7 +1,6 @@
 const processOrderModel = require('../modules/processOrder').processOrderModel;
 const myEventModel = require('../modules/userAccount').myEventModel;
 const dgBillModel = require('../modules/dgBill').dgBillModel;
-const bankAccountModel = require('../modules/bankAccount').bankAccountModel;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 const tools = require('../config/tools');
 const userModel = require('../modules/userAccount').userAccountModel;
@@ -13,20 +12,14 @@ exports.getWhat = async (req, res) => {
 
     try {
         let operator = searchModel.pageModel(req);
-        let result = await dgBillModel.find({replacePostage: {"$exists": true}});
-        return res.status(200).send({error_code: 200, error_msg: `OK`, data: result}, {}, operator);
-    } catch (e) {
+        let searcher = {replacePostage: {"$exists": true}};
+        if (req.user.role === `User`) {
+            Object.assign(searcher, {userUUid: req.user.uuid});
 
-        return res.status(403).send({error_code: 403, error_msg: `Error when try to save`});
-    }
-
-};
-exports.getMyPostage = async (req, res) => {
-
-    try {
-        let operator = searchModel.pageModel(req);
-        let result = await dgBillModel.find({replacePostage: {"$exists": true}, userUUid: req.user.uuid}, {}, operator);
-        return res.status(200).send({error_code: 200, error_msg: `OK`, data: result});
+        }
+        let counts = await  dgBillModel.count(searcher);
+        let result = await dgBillModel.find(searcher, operator);
+        return res.status(200).send({error_code: 200, error_msg: `OK`, data: result, nofdata: counts});
     } catch (e) {
 
         return res.status(403).send({error_code: 403, error_msg: `Error when try to save`});
@@ -96,6 +89,38 @@ exports.getDataAnalyst = async (req, res) => {
         return res.status(500).json({error_msg: e, error_code: "500"});
     }
 };
+exports.returnRcoin = async (req, res) => {
+
+    try {
+
+
+        let billResult = await dgBillModel.findOne({billID: req.body.billID});
+        if (!billResult) {
+            return res.status(400).json({error_msg: 'Can not find this Bill', error_code: "400"});
+        }
+        let billUser = await userModel.findOne({uuid: billResult.userUUid});
+
+        let myEvent = new myEventModel();
+        myEvent.eventType = `Rcoin`;
+        myEvent.amount = billResult.RMBAmount;
+        myEvent.behavior = `bill cancel return`;
+
+        let amountNew = parseInt(billResult.RMBAmount) + parseInt(billUser.Rcoins);
+        let userResult = await userModel.findOneAndUpdate({uuid: billResult.userUUid}, {
+            $push: {whatHappenedToMe: myEvent},
+            $set: {Rcoins: tools.encrypt(amountNew)}
+        }, {new: true});
+
+        await dgBillModel.findOneAndUpdate({billID: req.body.billID}, {$set: {dealState: 3}}, {new: true});
+
+        return res.status(200).json({error_msg: 'ok', error_code: "0", data: userResult});
+    } catch (err) {
+        console.log(err)
+    }
+
+
+};
+
 
 exports.setOrderStatus = async (req, res) => {
 
@@ -116,7 +141,7 @@ exports.setOrderStatus = async (req, res) => {
 
             setObject.dealState = req.body.dealState;
         }
-        console.log(setObject)
+
         let newOrder = await dgBillModel.findOneAndUpdate({billID: req.body.billID}, {$set: setObject}, {new: true});
         if (!newOrder) {
             return res.status(404).json({error_msg: `can not find record by this  billID`, error_code: "404"});
@@ -154,16 +179,28 @@ exports.addProcessOrder = async (req, res) => {
 
         let processOrderObject = new processOrderModel();
 
-        if (tools.isEmpty(req.body[`billID`])) {
+        if (tools.isEmpty(req.body.billID)) {
 
             return res.status(400).json({error_msg: `billID is needed`, error_code: "400"});
         }
-
+        let chargeBill = await dgBillModel.findOne({billID: req.body.billID});
+        if (chargeBill.processOrder && req.user.role === `Admin`) {
+            return res.status(201).json({
+                error_msg: `this bills has already been processed`,
+                error_code: "201"
+            });
+        }
+        if (tools.isEmpty(chargeBill) || chargeBill.typeStr === `R币充值` || chargeBill.typeStr === `账户代充`) {
+            return res.status(400).json({
+                error_msg: `this API is only used to deal with recharge bills`,
+                error_code: "400"
+            });
+        }
         processOrderObject.imageFilesNames = req.body.imageFilesNames;
-        processOrderObject.chargeDate = req.body.chargeDate;
+        processOrderObject.chargeDate = req.body.chargeDate ? req.body.chargeDate : new Date();
         processOrderObject.chargeAmount = req.body.chargeAmount;
         processOrderObject.comment = req.body.comment;
-        processOrderObject.accountWeUsed = await bankAccountModel.findOne({bankCode: req.body.accountWeUsed});
+        processOrderObject.accountWeUsed = req.body.accountWeUsed;
         processOrderObject.billID = req.body.billID;
 
         await processOrderObject.save();
@@ -268,11 +305,11 @@ exports.addProcessOrderForRcoinCharge = async (req, res) => {
             return res.status(400).json({error_msg: `billID is needed`, error_code: "400"});
         }
 
-        processOrderObject.imageFilesNames = req.body.imageFilesNames;
-        processOrderObject.chargeDate = req.body.chargeDate;
+
+        processOrderObject.chargeDate = req.body.chargeDate ? req.body.chargeDate : new Date();
         processOrderObject.chargeAmount = req.body.chargeAmount;
         processOrderObject.comment = req.body.comment;
-        processOrderObject.accountWeUsed = await bankAccountModel.findOne({bankCode: req.body.accountWeUsed});
+
         processOrderObject.billID = req.body.billID;
         // for (let index in req.body) {
         //

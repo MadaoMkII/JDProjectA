@@ -95,8 +95,9 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 
-app.get('/getPostage', isAuthenticated('Admin'), processOrderController.getWhat);
-app.get('/getMyPostage', isAuthenticated('User'), processOrderController.getMyPostage);
+app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
+
+app.post('/getPostage', isAuthenticated('Admin'), processOrderController.getWhat);
 
 app.post('/set3level', isAuthenticated('User'), manageSettingController.set3L);
 

@@ -10,13 +10,12 @@ const replacePostagePayment = new mongoose.Schema(
 
 const replacePostageBill = new mongoose.Schema(
     {//1表示代付成功，0表示代付失败，2表示进行中
-        status: Number,
+        status: {type: Number, default: 0},
         comment: String,
-        chargeDate: {type: Date, required: true},
+        chargeDate: {type: Date},
         postageAmount: {type: Number, required: true},
-        replaceDate: Date,
         replacePostagePayment: {type: replacePostagePayment}
-    }, {_id: false}
+    }, {_id: false, 'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 
 replacePostageBill.set('toJSON', {

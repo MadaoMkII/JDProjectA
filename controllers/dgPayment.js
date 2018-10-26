@@ -26,8 +26,6 @@ let getBaseRate = (req) => {
 };
 
 
-
-
 exports.setBaseRateOutside = async (req, res) => {
 
     try {
@@ -241,7 +239,7 @@ exports.addDGByALIBill = async (req, res) => {
         }
         req.user = user;
         let userObject = {};
-        userObject.nickName = req.user.nickName;
+        userObject.tel_number = req.user.tel_number;
         userObject.Rcoins = req.user.Rcoins;
         userObject.growthPoints = req.user.growthPoints;
         billObject.userInfo = userObject;
@@ -324,7 +322,7 @@ exports.addDGRcoinsBill = async (req, res) => {
 
         billObject.typeState = 1;
         let userObject = {};
-        userObject.nickName = req.user.nickName;
+        userObject.tel_number = req.user.tel_number;
         userObject.Rcoins = req.user.Rcoins;
         userObject.growthPoints = req.user.growthPoints;
         billObject.userInfo = userObject;
@@ -343,7 +341,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (err) {
-        console.log(err)
+
         logger.error("addDGRcoinsBill", {
             level: req.user.role,
             response: `addDGRcoinsBill Failed`,
@@ -397,7 +395,8 @@ exports.addReplacePostageBill = async (req, res) => {
 
     try {
         let dgResult = await dgBillModel.findOne({billID: req.body.billID});
-        if (dgResult) {
+        if (!dgResult) {
+            return res.status(404).json({error_msg: `can not find bill`, error_code: "404"});
         }
         let replacePostageBillEntity = new replacePostageBillModel();
 
@@ -407,10 +406,9 @@ exports.addReplacePostageBill = async (req, res) => {
             }
         }
         replacePostageBillEntity.chargeDate = new Date();
-        replacePostageBillEntity.status = 2;
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
             {$set: {replacePostage: replacePostageBillEntity, payFreight: 1}}, {new: true}).populate(`processOrder`);
-        console.log(dgBillEntity);
+
         if (!dgBillEntity) {
             return res.status(200).json({error_msg: `OK, but nothing has been changed`, error_code: "0"});
         }

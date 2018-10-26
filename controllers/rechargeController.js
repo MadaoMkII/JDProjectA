@@ -59,14 +59,14 @@ exports.addRcoinChargeBills = async (req, res) => {
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
         billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
 
-        for (let account of  req.user.bankAccounts) {
-
-            if (account.last6digital === req.body.chargeInfo.chargeFromAccount) {
-                account.updated_at = undefined;
-                account.created_at = undefined;
-                billObject.chargeInfo.chargeFromAccount = account;
-            }
-        }
+        // for (let account of  req.user.bankAccounts) {
+        //
+        //     if (account.last6digital === req.body.chargeInfo.chargeFromAccount) {
+        //         account.updated_at = undefined;
+        //         account.created_at = undefined;
+        //         billObject.chargeInfo.chargeFromAccount = account;
+        //     }
+        // }
 
         let [rate, feeRate, feeAmount, totalAmount] = await dgPayment.getRate(req, res);
         billObject.NtdAmount = totalAmount;
@@ -162,7 +162,7 @@ exports.addChargeBills = async (req, res) => {
 
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
     } catch (err) {
-        console.log(err)
+
         logger.error("addChargeBills", {
             level: req.user.role,
             response: `addChargeBills Failed`,
