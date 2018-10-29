@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
-const mailController = require('./controllers/mailController');
 //const debug = require('debug')('http');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
@@ -95,8 +94,6 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-
-app.post('/testMail', isAuthenticated('Admin'), mailController.func_send_Email);
 
 app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
 
