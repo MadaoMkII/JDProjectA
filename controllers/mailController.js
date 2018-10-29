@@ -48,16 +48,150 @@ let sendEmail = async (emailAddress, massage) => {
     //
     // });
 };
-let func_send_Email = async (req, res, category) => {
+exports.func_send_Email = async (req, res) => {
     try {
+
         let email_address = req.body.email_address;
-        let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
-        let existsResult = await redisClient.exists(`category:${category},email_address:${email_address}`);
-        if (existsResult === 1) {
-            return res.status(403).json({error_msg: "Too many tries at this moment", error_code: "403"});
-        }
-        await sendEmail(email_address, `注册码是${verity_code}`);
-        await redisClient.multi().set(`category:${category},email_address:${email_address}`, verity_code, 'EX', 1000);
+
+        await sendEmail(email_address, `<div id="dv_15" class="blk_wrapper" style="">
+                                                <table width="600" cellspacing="0" cellpadding="0" border="0"
+                                                       class="blk" name="blk_card">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td class="bmeImageCard" align="center"
+                                                            style="padding-left:20px; padding-right:20px; padding-top:0px; padding-bottom:0px;">
+                                                            <table width="100%" cellspacing="0" cellpadding="0"
+                                                                   border="0">
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td valign="top" class="bmeImageContainer"
+                                                                        style="border-collapse: collapse; background-color: rgba(0, 0, 0, 0);"
+                                                                        width="560">
+                                                                        <table cellspacing="0" cellpadding="0"
+                                                                               border="1" width="100%">
+                                                                            <tbody>
+                                                                            <tr>
+                                                                                <td valign="top" align="top"
+                                                                                    class="tdPart">
+                                                                                    <table cellspacing="0"
+                                                                                           cellpadding="0" border="1"
+                                                                                           class="bmeCaptionTable"
+                                                                                           style="float:top;"
+                                                                                           width="373" align="right">
+                                                                                        <tbody>
+                                                                                        <tr>
+                                                                                            <td style="padding: 20px 0px 20px 20px; font-family: Arial, Helvetica, sans-serif; font-weight: normal; font-size: 14px; color: rgb(56, 56, 56); text-align: left;"
+                                                                                                name="tblCell"
+                                                                                                valign="top"
+                                                                                                align="left"
+                                                                                                class="tblCell">
+                                                                                                <div style="line-height: 150%;">
+
+                                                                                                    <br><span
+                                                                                                        style="font-size: 30px; font-family: Helvetica, Arial, sans-serif; color: #d63c3c; line-height: 150%;">
+                                                                                                    <span style="font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #1e1e1e; line-height: 150%;"><strong> 提示：</strong></span>
+
+                                                                                                    <em><strong>您有一個交易已經被處理</strong></em></span>
+                                                                                                    <br><span
+                                                                                                        style="font-size: 14px; font-family: Helvetica, Arial, sans-serif; color: #929292; line-height: 150%;"><strong>交易提示： -</strong> 匯款證明截圖，請您及時確認</span>
+                                                                                                    <br>
+                                                                                                    <br>
+                                                                                                    <!--<br><span-->
+                                                                                                        <!--style="font-size: 14px; font-family: Helvetica, Arial, sans-serif; color: #929292; line-height: 150%;">Use code: </span><span-->
+                                                                                                        <!--style="font-size: 14px; font-family: Helvetica, Arial, sans-serif; color: #d63c3c; line-height: 150%;"><strong>QprZ33</strong></span>-->
+                                                                                                </div>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </td>
+                                                                                <td valign="top" align="center"
+                                                                                    class="tdPart">
+                                                                                    <table cellspacing="0"
+                                                                                           cellpadding="0" border="0"
+                                                                                           class="bmeImageTable"
+                                                                                           style="float:left; height: 222px;"
+                                                                                           align="center" dimension="30%"
+                                                                                           width="187" height="222">
+                                                                                        <tbody>
+                                                                                        <tr>
+                                                                                            <td name="bmeImgHolder"
+                                                                                                style="padding:20px;"
+                                                                                                align="left"
+                                                                                                valign="top"
+                                                                                                height="202"><img
+                                                                                                    src="http://www.yubaopay.com.tw/image/14897589306197.jpg"
+                                                                                                    width="300" height="350"
+                                                                                                    style="max-width: 700px; display: block;"
+                                                                                                    alt="" border="0">
+                                                                                            </td>
+                                                                                            <td name="bmeImgHolder"
+                                                                                                style="padding:20px;"
+                                                                                                align="left"
+                                                                                                valign="top"
+                                                                                                height="202"><img
+                                                                                                    src="http://www.yubaopay.com.tw/image/14897589306197.jpg"
+                                                                                                    width="300" height="350"
+                                                                                                    style="max-width: 700px; display: block;"
+                                                                                                    alt="" border="0">
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </td>
+                                                                            </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                       <div id="dv_16" class="blk_wrapper" style="">
+                                                <table width="600" cellspacing="0" cellpadding="0" border="0"
+                                                       class="blk" name="blk_button" style="">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td width="40"></td>
+                                                        <td align="center">
+                                                            <table class="tblContainer" cellspacing="0" cellpadding="0"
+                                                                   border="0" width="100%">
+                                                                <tbody>
+                                                                <tr>
+                                                                    <td height="0"></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td align="left">
+                                                                        <table cellspacing="0" cellpadding="0"
+                                                                               border="0" class="bmeButton" align="left"
+                                                                               style="border-collapse: separate;">
+                                                                            <tbody>
+                                                                            <tr>
+                                                                                <td style="border-radius: 20px; border: 0px none transparent; text-align: center; font-family: Arial, Helvetica, sans-serif; font-size: 14px; padding: 10px 40px; font-weight: bold; background-color: rgb(214, 60, 60);"
+                                                                                    class="bmeButtonText"><span
+                                                                                        style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: rgb(255, 255, 255);">
+<a style="color:#FFFFFF;text-decoration:none;" target="_blank" href="http://www.baidu.com">點擊了解詳情</a></span></td>
+                                                                            </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td height="0"></td>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                        <td width="40"></td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>`);
+
 
         logger.info("send_Email", {
             level: req.user.role,
@@ -66,8 +200,10 @@ let func_send_Email = async (req, res, category) => {
             location: (new Error().stack).split("at ")[1],
             body: req.body
         });
-        return res.json({error_msg: "OK", error_code: "0", verity_code: verity_code});
+        return res.json({error_msg: "OK", error_code: "0" });
     } catch (err) {
+
+
         logger.error("send_Email", {
             level: req.user.role,
             response: `Internal Service Error`,
@@ -88,7 +224,9 @@ let func_send_Email = async (req, res, category) => {
 exports.sendConfirmationEmail = async (req, res) => {
 
     try {
+
         let email_address = req.body.email_address;
+        if(!email_address){  return res.status(400).json({error_msg: "email_address can not be empty", error_code: "400"});}
         let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
         let key = `category:updateEmail,email_address:${email_address}`;
 
