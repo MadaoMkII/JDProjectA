@@ -3,7 +3,9 @@ let url = require("url");
 let crypto = require("crypto");
 let qr = require('qr-image');
 const request = require('request');
-const mailController = require('../controllers/mailController');
+const userModel = require('../modules/userAccount').userAccountModel;
+
+
 let sha1 = (str) => {
     let md5sum = crypto.createHash("sha1");
     md5sum.update(str);
@@ -48,18 +50,14 @@ exports.getQR_code = async (req, res) => {
 exports.msg_holder = async (req, res) => {
     try {
 
-        res.writeHead(200, {'Content-Type': 'application/xml'});
+        await res.writeHead(200, {'Content-Type': 'application/xml'});
 
         let data = req.body.xml;
-console.log(data)
-        let resMsg = '<xml>' +
-            '<ToUserName><![CDATA[' + data.fromusername + ']]></ToUserName>' +
-            '<FromUserName><![CDATA[' + data.tousername + ']]></FromUserName>' +
-            '<CreateTime>' + parseInt(new Date().valueOf() / 1000) + '</CreateTime>' +
-            '<MsgType><![CDATA[text]]></MsgType>' +
-            '<Content><![CDATA[' + data.content + ']]></Content>' +
-            '</xml>';
-        //res.end(resMsg);
+        console.log(data)
+
+        userModel.findOneAndUpdate({  });
+
+
 
         return res.status(200).json({data:data});
     } catch (e) {

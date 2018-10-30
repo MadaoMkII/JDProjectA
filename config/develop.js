@@ -6,6 +6,7 @@ module.exports = {
     session: {
         secret: 'abc',
         resave: true,
+        cookie:{_expires : 60000000},
         saveUninitialized: true
     },
     saltword: 'ABL',

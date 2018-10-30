@@ -153,6 +153,10 @@ exports.getModel = async (req, res) => {
         let result = await anModel.find();
         return res.json({error_msg: `OK`, error_code: "0", data: result});
     } catch (err) {
+        if (err.message.toString().search(`duplicate key error`) !== 0) {
+
+            return res.status(409).json({error_msg: `409`, error_code: "model_name can not be duplicated"});
+        }
         return res.status(500).json({error_msg: `500`, error_code: "model add Error"});
     }
 
@@ -213,6 +217,10 @@ exports.addHelpCenterAnnouncement = async (req, res) => {
             }
             return res.status(500).json({error_msg: `500`, error_code: "announcement Error"});
         } else {
+            if (err.message.toString().search(`duplicate key error`) !== 0) {
+
+                return res.status(409).json({error_msg: `409`, error_code: "model_name can not be duplicated"});
+            }
             return res.json({error_msg: `OK`, error_code: "0"});
         }
     })
@@ -230,9 +238,12 @@ exports.addAnnouncement = (req, res) => {
 
     announcementObject.save(err => {
         if (err) {
-
             return res.status(500).json({error_msg: `500`, error_code: "announcement Error"});
         } else {
+            if (err.message.toString().search(`duplicate key error`) !== 0) {
+
+                return res.status(409).json({error_msg: `409`, error_code: "model_name can not be duplicated"});
+            }
             return res.json({error_msg: `OK`, error_code: "0"});
         }
     })

@@ -43,6 +43,7 @@ app.use(json_body_parser);
 app.use(urlencoded_body_parser);
 app.use(session({
     secret: 'abc', resave: true,
+    cookie: {_expires: 60000000},
     saveUninitialized: true
 }));
 
@@ -127,7 +128,7 @@ app.get('/wechat/getQR_code', isAuthenticated('Admin'), weChatController.getQR_c
 app.post('/receive', weChatController.msg_holder);
 
 
-app.post('/wechat/checkToken', weChatController.msg_holder);
+app.posr('/wechat/checkToken', weChatController.msg_holder);
 
 
 app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
