@@ -88,14 +88,14 @@ exports.msg_holder = async (req, res) => {
 
 
 
-        let wechatUserInfo = {
-            qr_info: returnData,
-            openID: userUUidFromQr,
-            profileImgUrl:,
-            hasRealNameAuthed:,
-            activeStatus: true,
-
-        };
+        // let wechatUserInfo = {
+        //     qr_info: returnData,
+        //     openID: userUUidFromQr,
+        //     profileImgUrl:,
+        //     hasRealNameAuthed:,
+        //     activeStatus: true,
+        //
+        // };
         console.log(userUUidFromQr, returnData)
         await userModel.findOneAndUpdate({uuid: userUUidFromQr}, {$pull: {wechatAccounts: returnData}});
 
