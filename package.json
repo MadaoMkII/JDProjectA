@@ -1,14 +1,14 @@
 {
-  "name": "ABLproject",
+  "name": "YuBaoPay",
   "version": "0.0.0",
-  "description": "ABLproject order managerment.",
+  "description": "YuBaoPay.",
   "keywords": [
     "ABL"
   ],
   "author": "老司机",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MadaoMkII/NaProject.git"
+    "url": "https://github.com/MadaoMkII/JDProjectA.git"
   },
   "license": "UNLICENSED",
   "dependencies": {
