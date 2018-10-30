@@ -2,7 +2,7 @@ const announcementModel = require('../modules/announcement').announcementModel;
 const anModel = require('../modules/announcement').announceModel;
 const uuidv1 = require('uuid/v1');
 const isEmpty = require('../config/tools').isEmpty;
-
+const searchModel = require('../controllers/searchModel');
 exports.findAnnouncement = async (req, res) => {
     let searchCommand = {};
     if (!isEmpty(req.body.location)) {
@@ -18,11 +18,7 @@ exports.findAnnouncement = async (req, res) => {
 
         searchCommand.announcementTopic = req.body.announcementTopic;
     }
-    let operator = {};
-    if (isEmpty(req.body['page']) && !isEmpty(req.body['unit'])) {
-        operator.skip = (parseInt(req.body['page']) - 1) * parseInt(req.body['unit']);
-        operator.limit = parseInt(req.body['unit']);
-    }
+    let operator = searchModel.pageModel(req, res);
 
     announcementModel.find(searchCommand, {
         __v: 0,
