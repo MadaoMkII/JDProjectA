@@ -1,5 +1,5 @@
 const express = require('express');
-//const cors = require('cors');
+const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
 const weChatController = require('./controllers/weChatController');
@@ -38,7 +38,7 @@ app.use(bodyParserXML.xml({
 }));
 
 //
-//app.options(`http://www.yubaopay.com.tw`, cors());
+app.options(`http://www.yubaopay.com.tw`, cors());
 app.use(json_body_parser);
 app.use(urlencoded_body_parser);
 app.use(session({
@@ -53,31 +53,30 @@ app.set('view engine', 'ejs');
 // Add headers
 app.use((req, res, next) => {
     //
-    // let allowedOrigins = ['http://www.yubaopay.com.tw', 'http://localhost:8080'];
-    // let origin = req.headers.origin;
-    // if (allowedOrigins.indexOf(origin) > -1) {
-    //     res.setHeader('Access-Control-Allow-Origin', origin);
-    // }
+    let allowedOrigins = ['http://www.yubaopay.com.tw', 'http://localhost:8080'];
+    let origin = req.headers.origin;
+    if (allowedOrigins.indexOf(origin) > -1) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     // Website you wish to allow to connect
     //buyao res.setHeader('Access-Control-Allow-Origin', `*`);
 
     // Request methods you wish to allow
-    //res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
     // Request headers you wish to allow
-    //res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,Content-Type');
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
-    //res.setHeader('Access-Control-Allow-Credentials', true);
-    // res.setHeader("Content-Type",'application/json');
-    // if (req.method === 'OPTIONS') {
-    //     res.sendStatus(200);
-    // } else {
-    //     // Pass to next layer of middleware
-    //     next();
-    // }
-    next();
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader("Content-Type",'application/json');
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        // Pass to next layer of middleware
+        next();
+    }
 });
 // In middleware
 app.use(function (req, res, next) {
