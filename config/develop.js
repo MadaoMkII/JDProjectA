@@ -16,5 +16,6 @@ module.exports = {
     HMAC_KEY: new Buffer('GnJd7EgzjjWj4aY9', 'utf8'),
     TOKEN: `w2e3c4h5angemoney`,
     qrcode_create_link: `https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=`,
-    showqrcode_link: `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=`
+    showqrcode_link: `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=`,
+
 };

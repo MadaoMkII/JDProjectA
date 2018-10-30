@@ -55,19 +55,47 @@ exports.getQR_code = async (req, res) => {
 
 exports.msg_holder = async (req, res) => {
     try {
-
-        let returnData = req.body.xml;
-        console.log(returnData)
-        if (tool.isEmpty(returnData.eventkey)) {
+        let mockObj = {
+            tousername: 'gh_139fe21b74d8',
+            fromusername: 'ocNtC1m_8d2YZ36KWbilvqf0K5LQ',
+            createtime: '1540891403',
+            msgtype: 'event',
+            event: 'subscribe',
+            eventkey: 'qrscene_d0c04dd0-db3a-11e8-8743-a710340f75f8',
+            ticket: 'gQES8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAycDR6UFFDTXJkMm0xTmY5cDFyYzUAAgTvHthbAwRg6gAA'
+        }
+        //let returnData = req.body.xml;
+        //console.log(returnData)
+        if (tool.isEmpty(mockObj.eventkey)) {
             return res.status(400).json({
                 error_msg: "retrun value from QR code is null, please try later",
                 error_code: "400"
             });
         }
-        let userUUidFromQr = (returnData.eventkey).split(`_`)[1];
+
+        let userUUidFromQr = (mockObj.eventkey).split(`_`)[1];
+        if (tool.isEmpty(userUUidFromQr)) {
+            return res.status(400).json({
+                error_msg: "OPENID is null",
+                error_code: "400"
+            });
+
+        }
+        let token = ``;
+        let OPENID = mockObj.fromusername;
+        let userLink = `https://api.weixin.qq.com/cgi-bin/user/info?access_token=${token}&openid=${OPENID}&lang=zh_CN`;
+        let requestResult = await requestForPost(null, 'GET', userLink);
 
 
 
+        let wechatUserInfo = {
+            qr_info: returnData,
+            openID: userUUidFromQr,
+            profileImgUrl:,
+            hasRealNameAuthed:,
+            activeStatus: true,
+
+        };
         console.log(userUUidFromQr, returnData)
         await userModel.findOneAndUpdate({uuid: userUUidFromQr}, {$pull: {wechatAccounts: returnData}});
 

@@ -95,10 +95,10 @@ const wechatAccount = new mongoose.Schema(
     {
 
         qr_info: {type: mongoose.Schema.Types.Mixed},
-
-        realName: {type: String, required: true},
-        accountName: {type: String, required: true},
-        accountTelNumber: String
+        openID: {type: String, required: true},
+        profileImgUrl: String,
+        hasRealNameAuthed: Boolean,
+        activeStatus: Boolean
 
     }
 );
