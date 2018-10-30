@@ -59,7 +59,7 @@ console.log(data)
             '<MsgType><![CDATA[text]]></MsgType>' +
             '<Content><![CDATA[' + data.content + ']]></Content>' +
             '</xml>';
-        res.end(resMsg);
+        //res.end(resMsg);
 
         return res.status(200).json({data:data});
     } catch (e) {
