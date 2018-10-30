@@ -193,13 +193,12 @@ exports.addHelpCenterAnnouncement = async (req, res) => {
     let anModelEntity;
     let anEntity = await anModel.findOne({name: req.body.model_name});
     if (isEmpty(anEntity)) {
-        //
+        return res.status(404).json({error_msg: `404`, error_code: "can not find model"});
     } else {
         anModelEntity = anEntity;
     }
     let announcementObject = new announcementModel();
     announcementObject.location = 'helpCenter';
-
 
     announcementObject.model = anModelEntity._id;
     announcementObject.content = req.body.content;
@@ -209,6 +208,7 @@ exports.addHelpCenterAnnouncement = async (req, res) => {
 
     announcementObject.save(err => {
         if (err) {
+            console.log(err)
             if (err.message.toString().search(`duplicate key error`) !== 0) {
                 return res.status(409).json({
                     error_msg: `409`,
@@ -216,13 +216,9 @@ exports.addHelpCenterAnnouncement = async (req, res) => {
                 });
             }
             return res.status(500).json({error_msg: `500`, error_code: "announcement Error"});
-        } else {
-            if (err.message.toString().search(`duplicate key error`) !== 0) {
-
-                return res.status(409).json({error_msg: `409`, error_code: "model_name can not be duplicated"});
-            }
-            return res.json({error_msg: `OK`, error_code: "0"});
         }
+        return res.json({error_msg: `OK`, error_code: "0"});
+
     })
 };
 
