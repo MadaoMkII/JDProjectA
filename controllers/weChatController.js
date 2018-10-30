@@ -1,7 +1,8 @@
 const config = require('../config/develop');
 let url = require("url");
 let crypto = require("crypto");
-//const request = require('request');
+let qr = require('qr-image');
+const request = require('request');
 const mailController = require('../controllers/mailController');
 let sha1 = (str) => {
     let md5sum = crypto.createHash("sha1");
@@ -9,29 +10,40 @@ let sha1 = (str) => {
     str = md5sum.digest("hex");
     return str;
 };
-// let requestForPost = (scene, url) => {
-//     return new Promise((resolve, reject) => {
-//
-//         let myJSONObject = {
-//             "expire_seconds": 60000,
-//             "action_name": "QR_STR_SCENE",
-//             "action_info": scene
-//             //{"scene": {"scene_id": 123, "scene_str": "你卡么？"}}
-//         };
-//         request({
-//             url: url,
-//             method: "POST",
-//             json: true,   // <--Very important!!!
-//             body: myJSONObject
-//         }, (error, response, body) => {
-//             if (error) {
-//                 reject(error)
-//             } else {
-//                 resolve([response, body]);
-//             }
-//         });
-//     });
-// };
+
+
+let requestForPost = (JSONObject, method, url) => {
+    return new Promise((resolve, reject) => {
+
+
+        request({
+            url: url,
+            method: method,
+            json: true,   // <--Very important!!!
+            body: JSONObject
+        }, (error, response, body) => {
+            if (error) {
+                reject(error)
+            } else {
+                resolve([response, body]);
+            }
+        });
+    });
+};
+exports.getQR_code = async (req, res) => {
+    let JSONObject = {
+        "expire_seconds": 60000,
+        "action_name": "QR_STR_SCENE",
+        "action_info": {"scene": {"scene_id": "002", "scene_str": req.user.uuid}}
+    };
+    let [ , body] = await requestForPost(JSONObject, "POST", config.qrcode_create_link + `15_6x6U958wabOgMoE74ZwEKk-vZnatznEL6qDVpEFCSfs31UTn3D9reSLsxoRe2IoO-NHFxD8Smld6b3_Imh59qTM2_tjY3GrJCjaMRwgTJtdaheIAnTocmmB7tItWY2IVOt6WKG390FehuKxBTGCaAAAERN`);
+    console.log(body)
+
+    let img = qr.image(body.url,{size :10});
+    res.writeHead(200, {'Content-Type': 'image/png'});
+    img.pipe(res);
+};
+
 
 exports.msg_holder = async (req, res) => {
     try {
@@ -48,7 +60,7 @@ exports.msg_holder = async (req, res) => {
             '<Content><![CDATA[' + data.content + ']]></Content>' +
             '</xml>';
         res.end(resMsg);
-        
+
         await mailController.sendEmail(`shaunli319@gmail.com`, req.body);
         return res.status(200).json();
     } catch (e) {

@@ -70,7 +70,9 @@ app.use((req, res, next) => {
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
     res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader("Content-Type",'application/json');
+    res.setHeader("Content-Type", 'application/json');
+
+
     if (req.method === 'OPTIONS') {
         res.sendStatus(200);
     } else {
@@ -80,6 +82,17 @@ app.use((req, res, next) => {
 });
 // In middleware
 app.use(function (req, res, next) {
+
+
+    // var schedule = require("node-schedule");
+    //
+    // var rule1 = new schedule.RecurrenceRule();
+    // var times1 = [1, 6, 11, 16, 21, 26, 31, 36, 41, 46, 51, 56];
+    // rule1.second = times1;
+    // schedule.scheduleJob(rule1, function () {
+    //
+    //     console.log(14213)
+    // });
 
     // action after response
     let afterResponse = function () {
@@ -107,10 +120,16 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+
+
+app.get('/wechat/getQR_code', isAuthenticated('Admin'), weChatController.getQR_code);
+
 app.post('/receive', weChatController.msg_holder);
 
 
-app.get('/wechat/checkToken', weChatController.checkToken);
+app.get('/wechat/checkToken', weChatController.msg_holder);
+
+
 app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
 
 app.post('/getPostage', isAuthenticated('Admin'), processOrderController.getWhat);
