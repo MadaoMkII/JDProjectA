@@ -5,33 +5,35 @@ const isEmpty = require('../config/tools').isEmpty;
 const searchModel = require('../controllers/searchModel');
 
 exports.findAnnouncement = async (req, res) => {
-    let searchCommand = {};
-    if (!isEmpty(req.body.location)) {
-        searchCommand.location = req.body.location;
-    }
-    if (!isEmpty(req.body.announcementID)) {
-        searchCommand.announcementID = req.body.announcementID;
-    }
-    if (!isEmpty(req.body.announcementLink)) {
-        searchCommand.announcementLink = req.body.announcementLink;
-    }
-    if (!isEmpty(req.body.announcementTopic)) {
 
-        searchCommand.announcementTopic = req.body.announcementTopic;
-    }
-    let operator = searchModel.pageModel(req, res);
-
-    announcementModel.find(searchCommand, {
-        __v: 0,
-        _id: 0
-    }, operator, async (err, data) => {
-        if (err) {
-            return res.status(500).json({error_msg: `500`, error_code: "advertising Error"});
-        } else {
-            let billCount = await announcementModel.count(searchCommand);
-            return res.json({error_msg: `OK`, error_code: "0", data: data, nofdata: billCount});
+    try {
+        let searchCommand = {};
+        if (!isEmpty(req.body.location)) {
+            searchCommand.location = req.body.location;
         }
-    })
+        if (!isEmpty(req.body.announcementID)) {
+            searchCommand.announcementID = req.body.announcementID;
+        }
+        if (!isEmpty(req.body.announcementLink)) {
+            searchCommand.announcementLink = req.body.announcementLink;
+        }
+        if (!isEmpty(req.body.announcementTopic)) {
+
+            searchCommand.announcementTopic = req.body.announcementTopic;
+        }
+        let operator = searchModel.pageModel(req, res);
+
+        let result = await announcementModel.find(searchCommand, {
+            __v: 0,
+            _id: 0
+        }, operator).populate(`model`);
+        let billCount = await announcementModel.count(searchCommand);
+        return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: billCount});
+
+    } catch (err) {
+        return res.status(500).json({error_msg: `500`, error_code: "advertising Error"});
+    }
+
 
 };
 exports.updateHelpCenterAnnouncement = async (req, res) => {
