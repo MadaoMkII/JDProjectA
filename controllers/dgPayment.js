@@ -162,11 +162,19 @@ exports.findThisUserRcoinRecord = async (req, res) => {
         ]
 
     }
+    let searchCondition;
+    if (req.user.role === `User`) {
+        searchCondition = {
+            userUUid: req.user.userUUid,
+            $or: searchArray
+        };
+    } else {
+        searchCondition = {
+            userUUid: req.body.userUUid,
+            $or: searchArray
+        };
+    }
 
-    let searchCondition = {
-        userUUid: req.body.userUUid,
-        $or: searchArray
-    };
 
     let showCondition = {typeStr: 1, billID: 1, RMBAmount: 1, rate: 1, NtdAmount: 1, dealState: 1, created_at: 1};
     try {
@@ -278,7 +286,8 @@ exports.addDGRcoinsBill = async (req, res) => {
             Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.RMBAmount) < 0) {
             return res.status(400).send({error_code: 400, error_msg: '要不起'});
         }
-        if (req.body.itemInfo.itemLink.search("tmall.com") !== -1) {
+
+        if (req.body.itemInfo.itemLink.search("detail.tmall.com") !== -1) {
             billObject.itemInfo.itemWebType = "tmall";
 
         } else if (req.body.itemInfo.itemLink.search("taobao.com") !== -1) {
@@ -287,7 +296,6 @@ exports.addDGRcoinsBill = async (req, res) => {
             billObject.itemInfo.itemWebType = "others";
         }
         if (req.body.typeStr === `R币代付`) {
-
 
             billObject.isVirtualItem = req.body.isVirtualItem;
             billObject.typeStr = req.body.typeStr;
@@ -300,7 +308,7 @@ exports.addDGRcoinsBill = async (req, res) => {
             billObject.isVirtualItem = null;
             billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
             billObject.typeStr = req.body.typeStr;
-            billObject.itemInfo.itemWebType = "others";
+
         } else {
             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }

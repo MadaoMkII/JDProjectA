@@ -135,7 +135,7 @@ app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderControll
 
 app.post('/getPostage', isAuthenticated('Admin'), processOrderController.getWhat);
 
-app.post('/set3level', isAuthenticated('User'), manageSettingController.set3L);
+
 
 app.get('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing);
 
@@ -185,7 +185,7 @@ app.post('/addBankAccounts', isAuthenticated('Super_Admin'), manageSettingContro
 app.get('/getBankAccounts', isAuthenticated('User'), manageSettingController.getBankAccounts);
 
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
-app.post('/getBills', isAuthenticated('Admin'), dgPayment.adminGetBills);
+app.post('/bills/getBills', isAuthenticated('Admin'), dgPayment.adminGetBills);
 
 app.post('/setBillStatus', isAuthenticated('Admin'), processOrderController.setOrderStatus);
 
@@ -228,6 +228,7 @@ app.get('/delImage/:filename', isAuthenticated('Admin'), picController.deleteImp
 app.post('/setSetting', isAuthenticated('Super_Admin'), manageSettingController.setSetting);
 app.get('/getSetting', isAuthenticated('User'), manageSettingController.getSetting);
 app.get('/get3level', isAuthenticated('User'), manageSettingController.find3L);
+app.post('/update3level', isAuthenticated('User'), manageSettingController.set3L);
 app.get('/checkhealth', function (req, res) {
     if (req.user) {
         if (req.user.role === `Admin` || req.user.role === `Super_Admin`) {
@@ -249,13 +250,13 @@ app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSett
 
 
 app.post('/item/addProcessOrder', isAuthenticated('Admin'), processOrderController.addProcessOrder);
-app.post('/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
+app.post('/item/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
 app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
 
 app.post('/recharger/addProcessOrderForCharge', isAuthenticated('Admin'), processOrderController.addProcessOrderForRcoinCharge);
 app.post('/recharger/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addRcoinChargeBills);
 app.post('/recharger/addChargeBill', isAuthenticated('User'), rechargeController.addChargeBills);
-app.post('/findChargeBill', isAuthenticated('User'), rechargeController.findMyChargeBills);
+app.post('/recharger/findChargeBill', isAuthenticated('User'), rechargeController.findMyChargeBills);
 
 //
 // app.post('/mail/send_mail', mailController.sendConfirmationEmail);
