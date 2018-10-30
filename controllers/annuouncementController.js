@@ -3,6 +3,7 @@ const anModel = require('../modules/announcement').announceModel;
 const uuidv1 = require('uuid/v1');
 const isEmpty = require('../config/tools').isEmpty;
 const searchModel = require('../controllers/searchModel');
+
 exports.findAnnouncement = async (req, res) => {
     let searchCommand = {};
     if (!isEmpty(req.body.location)) {
@@ -178,7 +179,7 @@ exports.removeModel = async (req, res) => {
 
 exports.getHelpCenterAnnouncement = async (req, res) => {
 
-    let result = await announcementModel.find({location: 'helpCenter'}).populate(`model`);
+    let result = await announcementModel.find({location: '帮助中心'}).populate(`model`);
     return res.status(200).json({error_msg: `OK`, error_code: "0", data: result});
 };
 
@@ -196,7 +197,7 @@ exports.addHelpCenterAnnouncement = async (req, res) => {
         anModelEntity = anEntity;
     }
     let announcementObject = new announcementModel();
-    announcementObject.location = 'helpCenter';
+    announcementObject.location = '帮助中心';
 
     announcementObject.model = anModelEntity._id;
     announcementObject.content = req.body.content;
