@@ -53,12 +53,11 @@ exports.getQR_code = async (req, res) => {
 
 };
 
-
 exports.msg_holder = async (req, res) => {
     try {
 
         let returnData = req.body.xml;
-        console.log(data)
+        console.log(returnData)
         if (tool.isEmpty(returnData.eventkey)) {
             return res.status(400).json({
                 error_msg: "retrun value from QR code is null, please try later",
