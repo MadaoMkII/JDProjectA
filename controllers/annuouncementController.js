@@ -47,7 +47,6 @@ exports.updateHelpCenterAnnouncement = async (req, res) => {
                 return res.status(406).json({error_msg: `406`, error_code: "model_name is empty"});
             } else {
                 searchCommand.model = anResult._id;
-
             }
         }
         if (!isEmpty(req.body.content)) {
@@ -67,7 +66,10 @@ exports.updateHelpCenterAnnouncement = async (req, res) => {
             $set: searchCommand
         }, {new: true}).populate(`model`);
 
-        return res.json({error_msg: `OK`, error_code: "0", data: returnResult});
+        if (isEmpty(returnResult)) {
+            return res.status(200).json({error_msg: `can not find announcement`, error_code: "404"});
+        }
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: returnResult});
     } catch (err) {
 
         return res.status(500).json({error_msg: `500`, error_code: "announcement Error"});
