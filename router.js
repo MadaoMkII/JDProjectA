@@ -70,7 +70,7 @@ app.use((req, res, next) => {
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
     res.setHeader('Access-Control-Allow-Credentials', true);
-    res.header("Content-Type",'application/json');
+    res.setHeader("Content-Type",'application/json');
     if (req.method === 'OPTIONS') {
         res.sendStatus(200);
     } else {
