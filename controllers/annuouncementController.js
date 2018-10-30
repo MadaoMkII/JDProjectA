@@ -208,7 +208,6 @@ exports.addHelpCenterAnnouncement = async (req, res) => {
 
     announcementObject.save(err => {
         if (err) {
-            console.log(err)
             if (err.message.toString().search(`duplicate key error`) !== 0) {
                 return res.status(409).json({
                     error_msg: `409`,
@@ -234,14 +233,13 @@ exports.addAnnouncement = (req, res) => {
 
     announcementObject.save(err => {
         if (err) {
-            return res.status(500).json({error_msg: `500`, error_code: "announcement Error"});
-        } else {
             if (err.message.toString().search(`duplicate key error`) !== 0) {
 
                 return res.status(409).json({error_msg: `409`, error_code: "model_name can not be duplicated"});
             }
-            return res.json({error_msg: `OK`, error_code: "0"});
+
         }
+        return res.json({error_msg: `OK`, error_code: "0"});
     })
 };
 //return res.status(403).json({"error_code": 403, error_massage: "Not yet verified"});
