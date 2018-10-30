@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
+const weChatController = require('./controllers/weChatController');
 //const debug = require('debug')('http');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
@@ -15,6 +16,8 @@ const announcementController = require('./controllers/annuouncementController');
 const processOrderController = require('./controllers/processOrderController');
 const dgPayment = require('./controllers/dgPayment');
 const bodyParser = require('body-parser');
+const bodyParserXML = require('body-parser');
+require('body-parser-xml')(bodyParserXML);
 const session = require('express-session');
 
 
@@ -23,6 +26,16 @@ const urlencoded_body_parser = bodyParser.urlencoded({extended: true});
 
 let app = express();
 
+
+//解析xml
+app.use(bodyParserXML.xml({
+    limit: '1MB',   // Reject payload bigger than 1 MB
+    xmlParseOptions: {
+        normalize: true,     // Trim whitespace inside text nodes
+        normalizeTags: true, // Transform tags to lowercase
+        explicitArray: false // Only put nodes in array if >1
+    }
+}));
 
 //
 app.options(`http://www.yubaopay.com.tw`, cors());
@@ -38,7 +51,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.set('view engine', 'ejs');
 // Add headers
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
 
     let allowedOrigins = ['http://www.yubaopay.com.tw', 'http://localhost:8080'];
     let origin = req.headers.origin;
@@ -94,7 +107,10 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+app.post('/receive', weChatController.msg_holder);
 
+
+app.get('/wechat/checkToken', weChatController.checkToken);
 app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
 
 app.post('/getPostage', isAuthenticated('Admin'), processOrderController.getWhat);
@@ -164,10 +180,10 @@ app.post('/announcement/addHelpCenterAnnouncement', isAuthenticated('Admin'), an
 app.get('/announcement/getHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.getHelpCenterAnnouncement);
 app.post('/announcement/updateHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.updateHelpCenterAnnouncement);
 
-app.post('/addAnnouncement', isAuthenticated('Admin'), announcementController.addAnnouncement);
-app.post('/findAnnouncement', isAuthenticated('Admin'), announcementController.findAnnouncement);
-app.post('/updateAnnouncement', isAuthenticated('Admin'), announcementController.updateAnnouncement);
-app.post('/delAnnouncement', isAuthenticated('Admin'), announcementController.delAnnouncement);
+app.post('/announcement/addCommonAnnouncement', isAuthenticated('Admin'), announcementController.addAnnouncement);
+app.post('/announcement/findCommonAnnouncement', isAuthenticated('Admin'), announcementController.findAnnouncement);
+app.post('/announcement/updateCommonAnnouncement', isAuthenticated('Admin'), announcementController.updateAnnouncement);
+app.post('/announcement/delCommonAnnouncement', isAuthenticated('Admin'), announcementController.delAnnouncement);
 
 app.get('/getAppealIssues', isAuthenticated('Admin'), manageSettingController.getAppealTopics);
 app.get('/process', picController.getImgs);

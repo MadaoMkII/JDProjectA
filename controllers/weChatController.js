@@ -1,0 +1,85 @@
+const config = require('../config/develop');
+let url = require("url");
+let crypto = require("crypto");
+//const request = require('request');
+const mailController = require('../controllers/mailController');
+let sha1 = (str) => {
+    let md5sum = crypto.createHash("sha1");
+    md5sum.update(str);
+    str = md5sum.digest("hex");
+    return str;
+};
+// let requestForPost = (scene, url) => {
+//     return new Promise((resolve, reject) => {
+//
+//         let myJSONObject = {
+//             "expire_seconds": 60000,
+//             "action_name": "QR_STR_SCENE",
+//             "action_info": scene
+//             //{"scene": {"scene_id": 123, "scene_str": "你卡么？"}}
+//         };
+//         request({
+//             url: url,
+//             method: "POST",
+//             json: true,   // <--Very important!!!
+//             body: myJSONObject
+//         }, (error, response, body) => {
+//             if (error) {
+//                 reject(error)
+//             } else {
+//                 resolve([response, body]);
+//             }
+//         });
+//     });
+// };
+
+exports.msg_holder = async (req, res) => {
+    try {
+
+        res.writeHead(200, {'Content-Type': 'application/xml'});
+
+        let data = req.body.xml;
+
+        let resMsg = '<xml>' +
+            '<ToUserName><![CDATA[' + data.fromusername + ']]></ToUserName>' +
+            '<FromUserName><![CDATA[' + data.tousername + ']]></FromUserName>' +
+            '<CreateTime>' + parseInt(new Date().valueOf() / 1000) + '</CreateTime>' +
+            '<MsgType><![CDATA[text]]></MsgType>' +
+            '<Content><![CDATA[' + data.content + ']]></Content>' +
+            '</xml>';
+        res.end(resMsg);
+        
+        await mailController.sendEmail(`shaunli319@gmail.com`, req.body);
+        return res.status(200).json();
+    } catch (e) {
+        return res.status(500).json({error_msg: "Verification code confirmed", error_code: "500"});
+    }
+
+
+};
+
+exports.checkToken = (req, res) => {
+    let query = url.parse(req.url, true).query;
+    //console.log("*** URL:" + req.url);
+    //console.log(query);
+    let signature = query[`signature`];
+    let echostr = query[`echostr`];
+    let timestamp = query['timestamp'];
+    let nonce = query[`nonce`];
+    let oriArray = [];
+    oriArray[0] = nonce;
+    oriArray[1] = timestamp;
+    oriArray[2] = config.TOKEN;//这里是你在微信开发者中心页面里填的token，而不是****
+    oriArray.sort();
+    let original = oriArray.join('');
+    console.log("Original str : " + original);
+    console.log("Signature : " + signature);
+    let scyptoString = sha1(original);
+    if (signature === scyptoString) {
+        res.end(echostr);
+        console.log("Confirm and send echo back");
+    } else {
+        res.end(false);
+        console.log("Failed!");
+    }
+};
