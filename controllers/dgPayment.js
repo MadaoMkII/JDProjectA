@@ -229,7 +229,7 @@ exports.addDGByALIBill = async (req, res) => {
         billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
         billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
         billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
-
+        billObject.isVirtualItem = req.body.isVirtualItem;
         billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
 
         billObject.typeStr = req.body.typeStr;
@@ -287,14 +287,12 @@ exports.addDGRcoinsBill = async (req, res) => {
             billObject.itemInfo.itemWebType = "others";
         }
         if (req.body.typeStr === `R币代付`) {
-            if (tool.isEmpty(req.body.paymentInfo) || tool.isEmpty(req.body.paymentInfo.friendAlipayAccount)) {
-                return res.status(402).send({error_code: 402, error_msg: 'friendAlipayAccount can not be empty'});
-            }
+
 
             billObject.isVirtualItem = req.body.isVirtualItem;
             billObject.typeStr = req.body.typeStr;
             billObject.paymentInfo.paymentMethod = 'Alipay';
-            billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
+            billObject.paymentInfo.friendAlipayAccount = "accountTest@alibaba.com";
             billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
 
