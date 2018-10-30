@@ -51,7 +51,7 @@ exports.msg_holder = async (req, res) => {
         res.writeHead(200, {'Content-Type': 'application/xml'});
 
         let data = req.body.xml;
-
+console.log(data)
         let resMsg = '<xml>' +
             '<ToUserName><![CDATA[' + data.fromusername + ']]></ToUserName>' +
             '<FromUserName><![CDATA[' + data.tousername + ']]></FromUserName>' +
@@ -61,8 +61,7 @@ exports.msg_holder = async (req, res) => {
             '</xml>';
         res.end(resMsg);
 
-        await mailController.sendEmail(`shaunli319@gmail.com`, req.body);
-        return res.status(200).json();
+        return res.status(200).json({data:data});
     } catch (e) {
         return res.status(500).json({error_msg: "Verification code confirmed", error_code: "500"});
     }

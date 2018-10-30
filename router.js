@@ -127,7 +127,7 @@ app.get('/wechat/getQR_code', isAuthenticated('Admin'), weChatController.getQR_c
 app.post('/receive', weChatController.msg_holder);
 
 
-app.get('/wechat/checkToken', weChatController.msg_holder);
+app.post('/wechat/checkToken', weChatController.msg_holder);
 
 
 app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
