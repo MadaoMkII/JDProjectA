@@ -136,7 +136,7 @@ exports.updateModel = async (req, res) => {
                 error_code: "model_name or new_model_name can not be empty"
             });
         }
-        await anModel.findOneAndUpdate(req.body.model_name, {$set: {name: req.body[`new_model_name`]}});
+        await anModel.findOneAndUpdate({name: req.body.model_name}, {$set: {name: req.body[`new_model_name`]}});
         return res.json({error_msg: `OK`, error_code: "0"});
     } catch (err) {
         return res.status(500).json({error_msg: `500`, error_code: "model add Error"});

@@ -175,6 +175,7 @@ app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePost
 app.get('/announcement/getModel', isAuthenticated('Admin'), announcementController.getModel);
 app.post('/announcement/removeModel', isAuthenticated('Admin'), announcementController.removeModel);
 app.post('/announcement/addModel', isAuthenticated('Admin'), announcementController.addModel);
+app.post('/announcement/updateModel', isAuthenticated('Admin'), announcementController.updateModel);
 
 app.post('/announcement/addHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.addHelpCenterAnnouncement);
 app.get('/announcement/getHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.getHelpCenterAnnouncement);
