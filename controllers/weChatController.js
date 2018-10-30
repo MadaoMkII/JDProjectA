@@ -50,14 +50,10 @@ exports.getQR_code = async (req, res) => {
 exports.msg_holder = async (req, res) => {
     try {
 
-        await res.writeHead(200, {'Content-Type': 'application/xml'});
-
         let data = req.body.xml;
         console.log(data)
-
-        userModel.findOneAndUpdate({  });
-
-
+        let userUUidFromQr = ("qrscene_d0c04dd0-db3a-11e8-8743-a710340f75f8").split(`_`)[1]
+        await userModel.findOneAndUpdate({ uuid:userUUidFromQr },{$pull});
 
         return res.status(200).json({data:data});
     } catch (e) {
