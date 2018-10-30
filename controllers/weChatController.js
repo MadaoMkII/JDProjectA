@@ -4,7 +4,7 @@ let crypto = require("crypto");
 let qr = require('qr-image');
 const request = require('request');
 const userModel = require('../modules/userAccount').userAccountModel;
-
+const tool = require('../config/tools');
 
 let sha1 = (str) => {
     let md5sum = crypto.createHash("sha1");
@@ -33,29 +33,46 @@ let requestForPost = (JSONObject, method, url) => {
     });
 };
 exports.getQR_code = async (req, res) => {
-    let JSONObject = {
-        "expire_seconds": 60000,
-        "action_name": "QR_STR_SCENE",
-        "action_info": {"scene": {"scene_id": "002", "scene_str": req.user.uuid}}
-    };
-    let [ , body] = await requestForPost(JSONObject, "POST", config.qrcode_create_link + `15_6x6U958wabOgMoE74ZwEKk-vZnatznEL6qDVpEFCSfs31UTn3D9reSLsxoRe2IoO-NHFxD8Smld6b3_Imh59qTM2_tjY3GrJCjaMRwgTJtdaheIAnTocmmB7tItWY2IVOt6WKG390FehuKxBTGCaAAAERN`);
-    console.log(body)
 
-    let img = qr.image(body.url,{size :10});
-    res.writeHead(200, {'Content-Type': 'image/png'});
-    img.pipe(res);
+    try {
+        let JSONObject = {
+            "expire_seconds": 60000,
+            "action_name": "QR_STR_SCENE",
+            "action_info": {"scene": {"scene_id": "002", "scene_str": req.user.uuid}}
+        };
+        let [, body] = await requestForPost(JSONObject, "POST", config.qrcode_create_link + `15_ZWlgidDPUTi6wBGTNYoDwCKhTudge1Z-0XmIF9-W34xrKY6vDJ_kw4Ecdt9VSqV2ovvpEgu20-M6auYVKr9s0A_dAWbsHSa2EOYH6S-b_8oQvhsC-Pip4sNRizA6Ab7M8pW4ZHYzQOBqWDD2MWMdAGAXHX`);
+        if (body.errcode === 42001) {
+            return res.status(405).json({error_msg: "access_token expired", error_code: "405"});
+        }
+        let img = qr.image(body.url, {size: 10});
+        res.writeHead(200, {'Content-Type': 'image/png'});
+        img.pipe(res);
+    } catch (err) {
+        return res.status(500).json({error_msg: "code can not use ", error_code: "500"});
+    }
+
 };
 
 
 exports.msg_holder = async (req, res) => {
     try {
 
-        let data = req.body.xml;
+        let returnData = req.body.xml;
         console.log(data)
-        let userUUidFromQr = ("qrscene_d0c04dd0-db3a-11e8-8743-a710340f75f8").split(`_`)[1]
-        await userModel.findOneAndUpdate({ uuid:userUUidFromQr },{$pull});
+        if (tool.isEmpty(returnData.eventkey)) {
+            return res.status(400).json({
+                error_msg: "retrun value from QR code is null, please try later",
+                error_code: "400"
+            });
+        }
+        let userUUidFromQr = (returnData.eventkey).split(`_`)[1];
 
-        return res.status(200).json({data:data});
+
+
+        console.log(userUUidFromQr, returnData)
+        await userModel.findOneAndUpdate({uuid: userUUidFromQr}, {$pull: {wechatAccounts: returnData}});
+
+        return res.status(200).json({data: data});
     } catch (e) {
         return res.status(500).json({error_msg: "Verification code confirmed", error_code: "500"});
     }

@@ -192,19 +192,19 @@ app.post('/setBillStatus', isAuthenticated('Admin'), processOrderController.setO
 app.post('/addReplacePostageBill', isAuthenticated('Admin'), dgPayment.addReplacePostageBill);
 app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
 
-app.get('/announcement/getModel', isAuthenticated('Admin'), announcementController.getModel);
-app.post('/announcement/removeModel', isAuthenticated('Admin'), announcementController.removeModel);
-app.post('/announcement/addModel', isAuthenticated('Admin'), announcementController.addModel);
-app.post('/announcement/updateModel', isAuthenticated('Admin'), announcementController.updateModel);
+app.get('/announcement/getModel',  announcementController.getModel);
+app.post('/announcement/removeModel',  announcementController.removeModel);
+app.post('/announcement/addModel',  announcementController.addModel);
+app.post('/announcement/updateModel',  announcementController.updateModel);
 
-app.post('/announcement/addHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.addHelpCenterAnnouncement);
-app.get('/announcement/getHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.getHelpCenterAnnouncement);
-app.post('/announcement/updateHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.updateHelpCenterAnnouncement);
+app.post('/announcement/addHelpCenterAnnouncement',  announcementController.addHelpCenterAnnouncement);
+app.get('/announcement/getHelpCenterAnnouncement',  announcementController.getHelpCenterAnnouncement);
+app.post('/announcement/updateHelpCenterAnnouncement',  announcementController.updateHelpCenterAnnouncement);
 
-app.post('/announcement/addCommonAnnouncement', isAuthenticated('Admin'), announcementController.addAnnouncement);
-app.post('/announcement/findCommonAnnouncement', isAuthenticated('Admin'), announcementController.findAnnouncement);
-app.post('/announcement/updateCommonAnnouncement', isAuthenticated('Admin'), announcementController.updateAnnouncement);
-app.post('/announcement/delCommonAnnouncement', isAuthenticated('Admin'), announcementController.delAnnouncement);
+app.post('/announcement/addCommonAnnouncement', announcementController.addAnnouncement);
+app.post('/announcement/findCommonAnnouncement',  announcementController.findAnnouncement);
+app.post('/announcement/updateCommonAnnouncement',  announcementController.updateAnnouncement);
+app.post('/announcement/delCommonAnnouncement', announcementController.delAnnouncement);
 
 app.get('/getAppealIssues', isAuthenticated('Admin'), manageSettingController.getAppealTopics);
 app.get('/process', picController.getImgs);
