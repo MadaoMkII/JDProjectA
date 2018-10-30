@@ -24,7 +24,7 @@ exports.addAppealForm = (req, res) => {
                 email: req.user.email_address,
                 location: (new Error().stack).split("at ")[1],
                 body: req.body,
-                error:err
+                error: err
             });
             let errorResult = '';
             for (let errorField in err.errors) {
@@ -99,7 +99,7 @@ exports.getMyAppealForm = async (req, res) => {
         command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
             {"filedName": `userUUID`, "require": false, custom: false}
         );
-        let operator = searchModel.pageModel(req);
+        let operator = searchModel.pageModel(req, res);
         command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req));
 
         let [result, count] = await findAppealFormDAO(req, res, command, operator);

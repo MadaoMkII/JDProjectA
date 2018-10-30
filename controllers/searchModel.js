@@ -2,11 +2,11 @@ const tool = require('../config/tools');
 const isEmpty = require('../config/tools').isEmpty;
 exports.pageModel = (req, res) => {
 
-   // let operator = {sort: {updated_at: -1}};
+    // let operator = {sort: {updated_at: -1}};
     let operator = {};
     if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
-        if (req.body['page'] < 1) {
-            return res.status(400).send({error_code: 400, error_msg: `page can not less than 1`});
+        if (req.body['page'] < 1 || req.body['unit'] < 1) {
+            return res.status(400).send({error_code: 400, error_msg: `page or unit can not less than 1`});
         }
         operator.skip = (parseInt(req.body['page']) - 1) * parseInt(req.body['unit']);
         operator.limit = parseInt(req.body['unit']);

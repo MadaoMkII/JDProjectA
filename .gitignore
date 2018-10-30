@@ -62,6 +62,5 @@ typings/
 # next.js build output
 .next
 
-/node_modules/
-!/node_modules/
-/bayue.js
+.idea/
+package-lock.json

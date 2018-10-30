@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
+const weChatController = require('./controllers/weChatController');
 //const debug = require('debug')('http');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
@@ -15,6 +16,8 @@ const announcementController = require('./controllers/annuouncementController');
 const processOrderController = require('./controllers/processOrderController');
 const dgPayment = require('./controllers/dgPayment');
 const bodyParser = require('body-parser');
+const bodyParserXML = require('body-parser');
+require('body-parser-xml')(bodyParserXML);
 const session = require('express-session');
 
 
@@ -24,12 +27,23 @@ const urlencoded_body_parser = bodyParser.urlencoded({extended: true});
 let app = express();
 
 
-//
+//解析xml
+app.use(bodyParserXML.xml({
+    limit: '1MB',   // Reject payload bigger than 1 MB
+    xmlParseOptions: {
+        normalize: true,     // Trim whitespace inside text nodes
+        normalizeTags: true, // Transform tags to lowercase
+        explicitArray: false // Only put nodes in array if >1
+    }
+}));
+
+
 app.options(`http://www.yubaopay.com.tw`, cors());
 app.use(json_body_parser);
 app.use(urlencoded_body_parser);
 app.use(session({
     secret: 'abc', resave: true,
+    cookie: {_expires: 60000000},
     saveUninitialized: true
 }));
 
@@ -38,15 +52,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.set('view engine', 'ejs');
 // Add headers
-app.use(function (req, res, next) {
-
+app.use((req, res, next) => {
+    //
     let allowedOrigins = ['http://www.yubaopay.com.tw', 'http://localhost:8080'];
     let origin = req.headers.origin;
     if (allowedOrigins.indexOf(origin) > -1) {
         res.setHeader('Access-Control-Allow-Origin', origin);
     }
     // Website you wish to allow to connect
-    //res.setHeader('Access-Control-Allow-Origin', `*`);
+    //buyao res.setHeader('Access-Control-Allow-Origin', `*`);
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -57,6 +71,8 @@ app.use(function (req, res, next) {
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
     res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader("Content-Type", 'application/json');
+
 
     if (req.method === 'OPTIONS') {
         res.sendStatus(200);
@@ -67,6 +83,17 @@ app.use(function (req, res, next) {
 });
 // In middleware
 app.use(function (req, res, next) {
+
+
+    // var schedule = require("node-schedule");
+    //
+    // var rule1 = new schedule.RecurrenceRule();
+    // var times1 = [1, 6, 11, 16, 21, 26, 31, 36, 41, 46, 51, 56];
+    // rule1.second = times1;
+    // schedule.scheduleJob(rule1, function () {
+    //
+    //     console.log(14213)
+    // });
 
     // action after response
     let afterResponse = function () {
@@ -94,6 +121,15 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+
+
+app.get('/wechat/getQR_code', isAuthenticated('Admin'), weChatController.getQR_code);
+
+app.post('/receive', weChatController.msg_holder);
+
+
+app.post('/wechat/checkToken', weChatController.msg_holder);
+
 
 app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
 
@@ -156,18 +192,19 @@ app.post('/setBillStatus', isAuthenticated('Admin'), processOrderController.setO
 app.post('/addReplacePostageBill', isAuthenticated('Admin'), dgPayment.addReplacePostageBill);
 app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
 
-app.get('/announcement/getModel', isAuthenticated('Admin'), announcementController.getModel);
-app.post('/announcement/removeModel', isAuthenticated('Admin'), announcementController.removeModel);
-app.post('/announcement/addModel', isAuthenticated('Admin'), announcementController.addModel);
+app.get('/announcement/getModel',  announcementController.getModel);
+app.post('/announcement/removeModel',  announcementController.removeModel);
+app.post('/announcement/addModel',  announcementController.addModel);
+app.post('/announcement/updateModel',  announcementController.updateModel);
 
-app.post('/announcement/addHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.addHelpCenterAnnouncement);
-app.get('/announcement/getHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.getHelpCenterAnnouncement);
-app.post('/announcement/updateHelpCenterAnnouncement', isAuthenticated('Admin'), announcementController.updateHelpCenterAnnouncement);
+app.post('/announcement/addHelpCenterAnnouncement',  announcementController.addHelpCenterAnnouncement);
+app.get('/announcement/getHelpCenterAnnouncement',  announcementController.getHelpCenterAnnouncement);
+app.post('/announcement/updateHelpCenterAnnouncement',  announcementController.updateHelpCenterAnnouncement);
 
-app.post('/addAnnouncement', isAuthenticated('Admin'), announcementController.addAnnouncement);
-app.post('/findAnnouncement', isAuthenticated('Admin'), announcementController.findAnnouncement);
-app.post('/updateAnnouncement', isAuthenticated('Admin'), announcementController.updateAnnouncement);
-app.post('/delAnnouncement', isAuthenticated('Admin'), announcementController.delAnnouncement);
+app.post('/announcement/addCommonAnnouncement', announcementController.addAnnouncement);
+app.post('/announcement/findCommonAnnouncement',  announcementController.findAnnouncement);
+app.post('/announcement/updateCommonAnnouncement',  announcementController.updateAnnouncement);
+app.post('/announcement/delCommonAnnouncement', announcementController.delAnnouncement);
 
 app.get('/getAppealIssues', isAuthenticated('Admin'), manageSettingController.getAppealTopics);
 app.get('/process', picController.getImgs);

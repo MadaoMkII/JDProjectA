@@ -27,7 +27,7 @@ const announcement = new mongoose.Schema(
         location: String,
         announcementID: {type: String, required: true, unique: true},
         content: {type: String, required: true},
-        link: {type: String},
+        announcementLink: {type: String},
         announcementTopic: String
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
