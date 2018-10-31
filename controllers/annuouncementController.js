@@ -180,36 +180,46 @@ exports.removeModel = async (req, res) => {
 
 
 exports.getHelpCenterAnnouncement = async (req, res) => {
-    let resultx = await announcementModel.aggregate([
-        // {
-        //     $match: {model: {$ne: null}}
-        // },
 
-        {$lookup: {from: 'announcemodels', localField: 'model', foreignField: '_id', as: 'model2_name'}},
+    let resultCenterAnnouncement = await announcementModel.aggregate([
+        {
+            $match: {model: {$ne: null}}
+        },
+
+        {$lookup: {from: 'announcemodels', localField: 'model', foreignField: '_id', as: 'model_name'}},
         {
             $group: {
                 _id: '$model',
-
                 announcementArray: {$push: "$$ROOT"}
                 // avg: {$avg: '$price'}
             }
         },
         {
             $project: {
-                _id: 0,
-                model2_name:1,
-                announcementArray:1,
-                count: 1,
-                totalAmount: 1
+                _id: 1,
+                model_name: 1,
+                "announcementArray.model_name.name": 1,
+                announcementArray: {
+                    announcementID: 1,
+                    announcementTopic: 1,
+                    announcementLink: 1,
+                    content: 1,
+                    location: 1
+                }
+
             }
         }
-
-        // },
-
     ]);
-    console.log(resultx)
+    let resultArray = [];
+    for (let entity of resultCenterAnnouncement) {
+        let anModelEntity = await anModel.findOne({_id: entity._id});
+        resultArray.push({model_name: anModelEntity.name, announcementArray: entity.announcementArray});
+
+    }
+
+
     //let result = await announcementModel.find({location: '帮助中心'}).populate(`model`);
-    return res.status(200).json({error_msg: `OK`, error_code: "0", data: resultx});
+    return res.status(200).json({error_msg: `OK`, error_code: "0", data: resultArray});
 };
 
 
