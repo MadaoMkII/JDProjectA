@@ -14,7 +14,7 @@ let sha1 = (str) => {
 };
 
 
-let requestForPost = (JSONObject, method, url) => {
+let requestFun = (JSONObject, method, url) => {
     return new Promise((resolve, reject) => {
 
 
@@ -40,7 +40,7 @@ exports.getQR_code = async (req, res) => {
             "action_name": "QR_STR_SCENE",
             "action_info": {"scene": {"scene_id": "002", "scene_str": req.user.uuid}}
         };
-        let [, body] = await requestForPost(JSONObject, "POST", config.qrcode_create_link + `15_ZWlgidDPUTi6wBGTNYoDwCKhTudge1Z-0XmIF9-W34xrKY6vDJ_kw4Ecdt9VSqV2ovvpEgu20-M6auYVKr9s0A_dAWbsHSa2EOYH6S-b_8oQvhsC-Pip4sNRizA6Ab7M8pW4ZHYzQOBqWDD2MWMdAGAXHX`);
+        let [, body] = await requestFun(JSONObject, "POST", config.qrcode_create_link + config.access_token);
         if (body.errcode === 42001) {
             return res.status(405).json({error_msg: "access_token expired", error_code: "405"});
         }
@@ -55,7 +55,7 @@ exports.getQR_code = async (req, res) => {
 
 exports.msg_holder = async (req, res) => {
     try {
-        let mockObj = {
+        let returnData = {
             tousername: 'gh_139fe21b74d8',
             fromusername: 'ocNtC1m_8d2YZ36KWbilvqf0K5LQ',
             createtime: '1540891403',
@@ -66,14 +66,14 @@ exports.msg_holder = async (req, res) => {
         }
         //let returnData = req.body.xml;
         //console.log(returnData)
-        if (tool.isEmpty(mockObj.eventkey)) {
+        if (tool.isEmpty(returnData.eventkey)) {
             return res.status(400).json({
                 error_msg: "retrun value from QR code is null, please try later",
                 error_code: "400"
             });
         }
 
-        let userUUidFromQr = (mockObj.eventkey).split(`_`)[1];
+        let userUUidFromQr = (returnData.eventkey).split(`_`)[1];
         if (tool.isEmpty(userUUidFromQr)) {
             return res.status(400).json({
                 error_msg: "OPENID is null",
@@ -81,26 +81,30 @@ exports.msg_holder = async (req, res) => {
             });
 
         }
-        let token = ``;
-        let OPENID = mockObj.fromusername;
+        let token = config.access_token;
+        let OPENID = returnData.fromusername;
         let userLink = `https://api.weixin.qq.com/cgi-bin/user/info?access_token=${token}&openid=${OPENID}&lang=zh_CN`;
-        let requestResult = await requestForPost(null, 'GET', userLink);
+        let [, requestResult] = await requestFun(null, 'GET', userLink);
 
+        if (requestResult.subscribe === 0) {
+            return res.status(404).json({error_msg: "this user's subscribe status is false", error_code: "404"});
+        }
+        let wechatUserInfo = {
+            wechat_user_info: requestResult,
+            qr_info: returnData,
+            openID: userUUidFromQr,
+            profileImgUrl: requestResult[`headimgurl`],
+            hasRealNameAuthed: true,
+            activeStatus: true,
+            nickname: requestResult[`nickname`]
+        };
 
+        let newUser = await userModel.findOneAndUpdate({uuid: userUUidFromQr},
+            {$push: {wechatAccounts: wechatUserInfo}},  {new: true});
 
-        // let wechatUserInfo = {
-        //     qr_info: returnData,
-        //     openID: userUUidFromQr,
-        //     profileImgUrl:,
-        //     hasRealNameAuthed:,
-        //     activeStatus: true,
-        //
-        // };
-        console.log(userUUidFromQr, returnData)
-        await userModel.findOneAndUpdate({uuid: userUUidFromQr}, {$pull: {wechatAccounts: returnData}});
-
-        return res.status(200).json({data: data});
+        return res.status(200).json({error_msg: "OK", error_code: "0", data: newUser});
     } catch (e) {
+        console.log(e)
         return res.status(500).json({error_msg: "Verification code confirmed", error_code: "500"});
     }
 

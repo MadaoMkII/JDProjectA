@@ -94,9 +94,9 @@ exports.setReferer = async (req, res) => {
                 }
             }
         });//推荐人 userA
-        await userModel.findOneAndUpdate({uuid: userA.uuid}, {
-            $pull: {"referrer.referrals": {referrals_tel_number: ""}}
-        });//推荐人 userA
+        // await userModel.findOneAndUpdate({uuid: userA.uuid}, { 清除填充内容
+        //     $pull: {"referrer.referrals": {referrals_tel_number: ""}}
+        // });//推荐人 userA
         logger.info("(new Error().stack).split(\"at \")[3]", {
             level: `USER`,
             user: req.user.uuid,

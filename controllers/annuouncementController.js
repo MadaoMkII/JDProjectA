@@ -180,9 +180,36 @@ exports.removeModel = async (req, res) => {
 
 
 exports.getHelpCenterAnnouncement = async (req, res) => {
+    let resultx = await announcementModel.aggregate([
+        // {
+        //     $match: {model: {$ne: null}}
+        // },
 
-    let result = await announcementModel.find({location: '帮助中心'}).populate(`model`);
-    return res.status(200).json({error_msg: `OK`, error_code: "0", data: result});
+        {$lookup: {from: 'announcemodels', localField: 'model', foreignField: '_id', as: 'model2_name'}},
+        {
+            $group: {
+                _id: '$model',
+
+                announcementArray: {$push: "$$ROOT"}
+                // avg: {$avg: '$price'}
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                model2_name:1,
+                announcementArray:1,
+                count: 1,
+                totalAmount: 1
+            }
+        }
+
+        // },
+
+    ]);
+    console.log(resultx)
+    //let result = await announcementModel.find({location: '帮助中心'}).populate(`model`);
+    return res.status(200).json({error_msg: `OK`, error_code: "0", data: resultx});
 };
 
 
