@@ -191,7 +191,6 @@ exports.getHelpCenterAnnouncement = async (req, res) => {
             $group: {
                 _id: '$model',
                 announcementArray: {$push: "$$ROOT"}
-                // avg: {$avg: '$price'}
             }
         },
         {
@@ -206,7 +205,6 @@ exports.getHelpCenterAnnouncement = async (req, res) => {
                     content: 1,
                     location: 1
                 }
-
             }
         }
     ]);
@@ -239,6 +237,16 @@ exports.addHelpCenterAnnouncement = async (req, res) => {
     announcementObject.location = '帮助中心';
 
     announcementObject.model = anModelEntity._id;
+    if (isEmpty(req.body.content)) {
+        return res.status(406).json({error_msg: `406`, error_code: "content can not be empty"});
+    }
+    if (isEmpty(req.body.announcementLink)) {
+        return res.status(406).json({error_msg: `406`, error_code: "announcementLink can not be empty"});
+    }
+    if (isEmpty(req.body.announcementTopic)) {
+        return res.status(406).json({error_msg: `406`, error_code: "announcementTopic can not be empty"});
+    }
+
     announcementObject.content = req.body.content;
     announcementObject.announcementLink = req.body.announcementLink.trim();
     announcementObject.announcementTopic = req.body.announcementTopic;
@@ -263,6 +271,16 @@ exports.addHelpCenterAnnouncement = async (req, res) => {
 exports.addAnnouncement = (req, res) => {
 
     let announcementObject = new announcementModel();
+    if (isEmpty(req.body.location)) {
+        return res.status(406).json({error_msg: `406`, error_code: "location can not be empty"});
+    }
+    if (isEmpty(req.body.announcementLink)) {
+        return res.status(406).json({error_msg: `406`, error_code: "announcementLink can not be empty"});
+    }
+    if (isEmpty(req.body.announcementTopic)) {
+        return res.status(406).json({error_msg: `406`, error_code: "announcementTopic can not be empty"});
+    }
+
     announcementObject.location = req.body.location;
     announcementObject.content = req.body.content;
     announcementObject.announcementLink = req.body.announcementLink.trim();
