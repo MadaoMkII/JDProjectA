@@ -66,11 +66,10 @@ exports.getDataAnalyst = async (req, res) => {
             ]
         );
         let resultMap = new Map();
-        resultMap.set(`天猫淘宝代付`, {"totalAmount": 0, "count": 0,});
-        resultMap.set(`阿里巴巴代付`, {"totalAmount": 0, "count": 0,});
-        resultMap.set(`支付宝充值`, {"totalAmount": 0, "count": 0,});
-        resultMap.set(`微信充值`, {"totalAmount": 0, "count": 0,});
-        resultMap.set(`代购`, {"totalAmount": 0, "count": 0,});
+        resultMap.set(`淘寶/天貓/阿里巴巴代付`, {"totalAmount": 0, "count": 0,});
+        resultMap.set(`支付寶儲值`, {"totalAmount": 0, "count": 0,});
+        resultMap.set(`微信錢包儲值`, {"totalAmount": 0, "count": 0,});
+        resultMap.set(`其他網站代購`, {"totalAmount": 0, "count": 0,});
         for (let resultEntityKey of result) {
             resultMap.set(resultEntityKey.itemWebType,
                 {"totalAmount": resultEntityKey.totalAmount, "count": resultEntityKey.count});
@@ -114,7 +113,7 @@ exports.returnRcoin = async (req, res) => {
 
         return res.status(200).json({error_msg: 'ok', error_code: "0", data: userResult});
     } catch (err) {
-        console.log(err)
+        return res.status(500).json({error_msg: 'error', error_code: "0"});
     }
 
 
@@ -224,7 +223,7 @@ exports.addProcessOrder = async (req, res) => {
 
         let userResult;
 
-        if (dgBill.typeStr === `其他支付方式代付` &&
+        if (dgBill.typeStr === `支付寶儲值` &&
             dgBill.is_firstOrder === true &&
             dgBill.paymentInfo.paymentMethod === "Alipay") {
 
@@ -288,23 +287,22 @@ exports.addProcessOrder = async (req, res) => {
 };
 
 exports.addProcessOrderForCharge = async (req, res) => {
-
-
     try {
 
         let chargeBill = await chargeBillModel.findOne({billID: req.body.billID});
 
+
+        if (tools.isEmpty(chargeBill) || chargeBill.typeStr !== `R幣儲值` && chargeBill.typeStr !== `微信錢包儲值` &&
+            chargeBill.typeStr !== `支付寶儲值`) {
+            return res.status(400).json({
+                error_msg: `this API is only used to deal with recharge bills`,
+                error_code: "400"
+            });
+        }
         if (chargeBill.processOrder && req.user.role === `Admin`) {
             return res.status(201).json({
                 error_msg: `this bills has already been processed`,
                 error_code: "201"
-            });
-        }
-        if (tools.isEmpty(chargeBill) || chargeBill.typeStr !== `R幣儲值` && chargeBill.typeStr !== `微信錢包儲值` &&
-            chargeBill.typeStr !== `账户代充`) {
-            return res.status(400).json({
-                error_msg: `this API is only used to deal with recharge bills`,
-                error_code: "400"
             });
         }
         let processOrderObject = new processOrderModel();
@@ -349,7 +347,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
         let myEvent = new myEventModel();
 
 
-        if (chargeBill.typeStr === `R币充值`) {
+        if (chargeBill.typeStr === `R幣儲值`) {
             myEvent.eventType = `Rcoin`;
             myEvent.behavior = `Rcoin recharge`;
             myEvent.pointChange = 1;
@@ -362,7 +360,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
                 $set: {Rcoins: tools.encrypt(rcoins)}
             }, {new: true});
 
-        } else if (chargeBill.typeStr === `账户代充` &&
+        } else if (chargeBill.typeStr === `支付寶儲值` &&
             chargeBill.is_firstOrder === true &&
             chargeBill.rechargeInfo.rechargeAccountType === "Alipay") {
             myEvent.eventType = `Alipay`;
@@ -375,7 +373,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
                 $set: {"userStatus.isFirstAlipayCharge": true}
             }, {new: true});
 
-        } else if (chargeBill.typeStr === `微信代充` &&
+        } else if (chargeBill.typeStr === `微信錢包儲值` &&
             chargeBill.is_firstOrder === true &&
             chargeBill.rechargeInfo.rechargeAccountType === "Wechat") {
             myEvent.eventType = `Wechat`;

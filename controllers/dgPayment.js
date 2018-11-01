@@ -11,9 +11,7 @@ const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 
 let getBaseRate = (req) => {
     return new Promise((resolve, reject) => {
-
             baseRateModelModel.findOne({VIPLevel: req.user.VIPLevel}, (err, data) => {
-
                 if (err) {
                     reject(err);
                 } else {
@@ -37,7 +35,6 @@ exports.setBaseRateOutside = async (req, res) => {
             , {upsert: true, new: true});
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: result});
     } catch (e) {
-
         return res.status(403).send({error_code: 403, error_msg: `Error when try to save`});
     }
 
@@ -144,14 +141,16 @@ exports.findThisUserRcoinRecord = async (req, res) => {
     let operator = searchModel.pageModel(req, res);
     let searchArray = [];
 
-    if (req.body[`tradeType`] === `支出`) {
+    if (req.body[`tradeType`] === `custom`) {
         searchArray = [
-            {"typeStr": `R币代购`},
-            {"typeStr": `R币代付`}
+            {"typeStr": `淘寶/天貓/阿里巴巴代付`},
+            {"typeStr": `其他網站代購`}
         ]
-    } else if (req.body[`tradeType`] === `充值`) {
+    } else if (req.body[`tradeType`] === `recharge`) {
         searchArray = [
-            {"typeStr": `R币充值`}
+            {"typeStr": `R幣儲值`},
+            {"typeStr": `支付寶儲值`},
+            {"typeStr": `微信錢包儲值`}
         ]
     } else {
 
