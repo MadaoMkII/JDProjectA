@@ -363,7 +363,15 @@ exports.adminGetBills = async (req, res) => {
 
         let command = {};
         command.showCondition = {
-            typeStr: 1, billID: 1, RMBAmount: 1, rate: 1, NtdAmount: 1, dealState: 1, created_at: 1, dealDate: 1
+            typeStr: 1,
+            billID: 1,
+            RMBAmount: 1,
+            rate: 1,
+            NtdAmount: 1,
+            dealState: 1,
+            typeState: 1,
+            created_at: 1,
+            dealDate: 1
         };
 
         command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
