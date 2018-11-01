@@ -134,7 +134,7 @@ exports.setOrderStatus = async (req, res) => {
 
         if (!tools.isEmpty(req.body.typeState)) {
 
-            setObject.setObject = req.body.typeState;
+            setObject.typeState = req.body.typeState;
         }
 
         if (!tools.isEmpty(req.body.dealState)) {
