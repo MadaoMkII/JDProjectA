@@ -142,7 +142,13 @@ exports.setOrderStatus = async (req, res) => {
             setObject.dealState = req.body.dealState;
         }
 
-        let newOrder = await dgBillModel.findOneAndUpdate({billID: req.body.billID}, {$set: setObject}, {new: true});
+        let newOrder;
+        newOrder = await dgBillModel.findOneAndUpdate({billID: req.body.billID}, {$set: setObject}, {new: true});
+
+        if (!newOrder) {
+            newOrder = await chargeBillModel.findOneAndUpdate({billID: req.body.billID}, {$set: setObject}, {new: true});
+
+        }
         if (!newOrder) {
             return res.status(404).json({error_msg: `can not find record by this  billID`, error_code: "404"});
         }
