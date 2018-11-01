@@ -20,7 +20,7 @@ exports.getAlreadySolved = async (req, res) => {
         let counts = await dgBillModel.count(searcher);
         let result = await dgBillModel.find(searcher, operator);
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: result, nofdata: counts});
-    } catch (e) {
+    } catch (err) {
 
         return res.status(403).send({error_code: 403, error_msg: `Error when try to save`});
     }
