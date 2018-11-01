@@ -8,7 +8,7 @@ const dataAnalystModel = require('../modules/dataAnalyst').dataAnalystModel;
 const logger = require('../logging/logging').logger;
 const searchModel = require('../controllers/searchModel');
 
-exports.getWhat = async (req, res) => {
+exports.getAlreadySolved = async (req, res) => {
 
     try {
         let operator = searchModel.pageModel(req);
@@ -17,7 +17,7 @@ exports.getWhat = async (req, res) => {
             Object.assign(searcher, {userUUid: req.user.uuid});
 
         }
-        let counts = await  dgBillModel.count(searcher);
+        let counts = await dgBillModel.count(searcher);
         let result = await dgBillModel.find(searcher, operator);
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: result, nofdata: counts});
     } catch (e) {
@@ -279,7 +279,7 @@ exports.addProcessOrder = async (req, res) => {
     }
 };
 
-exports.addProcessOrderForRcoinCharge = async (req, res) => {
+exports.addProcessOrderForCharge = async (req, res) => {
 
 
     try {
@@ -292,7 +292,8 @@ exports.addProcessOrderForRcoinCharge = async (req, res) => {
                 error_code: "201"
             });
         }
-        if (tools.isEmpty(chargeBill) || chargeBill.typeStr !== `R币充值` && chargeBill.typeStr !== `账户代充`) {
+        if (tools.isEmpty(chargeBill) || chargeBill.typeStr !== `R币充值` && chargeBill.typeStr !== `微信代充` &&
+            chargeBill.typeStr !== `账户代充`) {
             return res.status(400).json({
                 error_msg: `this API is only used to deal with recharge bills`,
                 error_code: "400"
@@ -309,7 +310,7 @@ exports.addProcessOrderForRcoinCharge = async (req, res) => {
         processOrderObject.chargeDate = req.body.chargeDate ? req.body.chargeDate : new Date();
         processOrderObject.chargeAmount = req.body.chargeAmount;
         processOrderObject.comment = req.body.comment;
-
+        processOrderObject.imageFilesNames = req.body.imageFilesNames;
         processOrderObject.billID = req.body.billID;
         // for (let index in req.body) {
         //
@@ -366,7 +367,7 @@ exports.addProcessOrderForRcoinCharge = async (req, res) => {
                 $set: {"userStatus.isFirstAlipayCharge": true}
             }, {new: true});
 
-        } else if (chargeBill.typeStr === `账户代充` &&
+        } else if (chargeBill.typeStr === `微信代充` &&
             chargeBill.is_firstOrder === true &&
             chargeBill.rechargeInfo.rechargeAccountType === "Wechat") {
             myEvent.eventType = `Wechat`;

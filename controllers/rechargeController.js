@@ -4,7 +4,38 @@ const dgPayment = require('../controllers/dgPayment');
 const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const searchModel = require('../controllers/searchModel');
-const userModel = require('../modules/userAccount').userAccountModel;
+const dgBillModel = require('../modules/dgBill').dgBillModel;
+
+exports.getchargeBillDetial = async (req, res) => {
+    try {
+
+        let billResult = await chargeBillModel.findOne({billID: req.body.billID}, {
+            __v: 0,
+            _id: 0
+        });
+        if (!billResult) {
+            billResult = await dgBillModel.findOne({billID: req.body.billID}, {
+                __v: 0,
+                _id: 0
+            });
+
+        }
+        return res.status(200).send({error_code: 200, error_msg: billResult});
+    } catch (err) {
+        logger.error("findMyChargeBills", {
+            level: req.user.role,
+            response: `findMyChargeBills Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+
+        return res.status(503).send({error_code: 503, error_msg: `Search Failed`});
+    }
+
+};
+
 
 exports.findMyChargeBills = async (req, res) => {
     try {
@@ -45,6 +76,8 @@ exports.findMyChargeBills = async (req, res) => {
 
 exports.addChargeWechatBills = async (req, res) => {
     try {
+        searchModel.requestCheckBox(req, "RMBAmount", "rechargeInfo",
+            "rechargeInfo.rechargeToAccount", "chargeInfo", "chargeInfo.chargeFromAccount");
         req.body.rateType = `AlipayAndWechatRate`;
         const managerConfig = await manageSettingController.findCurrentSetting();
         let billObject = new chargeBillModel();
@@ -54,40 +87,46 @@ exports.addChargeWechatBills = async (req, res) => {
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
 
-        if (req.user.userStatus.isFirstWechatCharge === false &&
-            req.body.rechargeInfo.rechargeAccountType === "Wechat") {
+        if (req.user.userStatus.isFirstWechatCharge === false) {
             billObject.is_firstOrder = true;
         }
         billObject.rechargeInfo.rechargeAccountType = `wechat`;
 
         for (let wechatAccount of req.user.wechatAccounts) {
-
-
+            if (wechatAccount.wechatID === req.body.rechargeInfo.rechargeToAccount) {
+                billObject.rechargeInfo.rechargeToAccount = {
+                    wechatID: wechatAccount.wechatID,
+                    openID: wechatAccount.openID,
+                    nickname: wechatAccount.nickname
+                }
+            }
 
         }
 
-        billObject.rechargeInfo.rechargeToAccount = req.body.rechargeInfo.rechargeToAccount;
+        //billObject.rechargeInfo.rechargeToAccount = req.body.rechargeInfo.rechargeToAccount;
 
-        billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
+        billObject.chargeInfo.chargeMethod = "bankAccount";
 
         if (billObject.chargeInfo.chargeMethod === "bankAccount") {
+
             for (let account of  req.user.bankAccounts) {
 
-                if (account.last6digital === req.body.chargeInfo.chargeFromAccount) {
+                if (account.last6digital.toString() === req.body.chargeInfo.chargeFromAccount.toString()) {
                     account.updated_at = undefined;
                     account.created_at = undefined;
                     billObject.chargeInfo.chargeFromAccount = account;
+                    break;
+                } else {
+                    billObject.chargeInfo.chargeFromAccount = req.body.chargeInfo.chargeFromAccount;
                 }
             }
-        } else {
-            billObject.chargeInfo.chargeFromAccount = req.body.chargeInfo.chargeFromAccount;
         }
 
         let [rate, feeRate, feeAmount, totalAmount] = await dgPayment.getRate(req, res);
-        if (req.body.RMBAmount < managerConfig.threshold[billObject.rechargeInfo.rechargeAccountType]) {
+        if (req.body.RMBAmount < managerConfig.threshold[`wechat`]) {
             return res.status(403).send({
                 error_code: 403,
-                error_msg: 'can not less than ' + managerConfig.threshold[billObject.rechargeInfo.rechargeAccountType]
+                error_msg: 'can not less than ' + managerConfig.threshold[`wechat`]
             });
         }
         billObject.NtdAmount = totalAmount;
@@ -119,6 +158,10 @@ exports.addChargeWechatBills = async (req, res) => {
             body: req.body,
             error_massage: err
         });
+        if (err.message.toString().includes(`empty`)) {
+
+            return res.status(409).json({error_msg: `409`, error_code: err.message});
+        }
         return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
     }
 

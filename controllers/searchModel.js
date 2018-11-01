@@ -31,9 +31,25 @@ exports.reqSearchConditionsAssemble = (req, ...conditions) => {
         }
 
     }
-
-
     return searchConditions;
+};
+exports.requestCheckBox = (req, ...conditions) => {
+
+    for (let entity of conditions) {
+
+        if (entity.includes('.')) {
+
+            if (tool.isEmpty(req.body[`${entity.split(".")[0]}`][entity.split(".")[1]])) {
+
+                throw new Error(`field ${entity} can not be empty`);
+            }
+        } else {
+            if (tool.isEmpty(req.body[`${entity}`])) {
+
+                throw new Error(`field ${entity} can not be empty`);
+            }
+        }
+    }
 };
 exports.createAndUpdateTimeSearchModel = (req, res) => {
 

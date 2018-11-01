@@ -93,6 +93,7 @@ const aliPayAccount = new mongoose.Schema(
 );
 const wechatAccount = new mongoose.Schema(
     {
+        wechatID: {type: String, required: true},
         wechat_user_info: {type: mongoose.Schema.Types.Mixed},
         qr_info: {type: mongoose.Schema.Types.Mixed},
         openID: {type: String, required: true},

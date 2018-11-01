@@ -41,7 +41,7 @@ exports.getQR_code = async (req, res) => {
             "action_info": {"scene": {"scene_id": "002", "scene_str": req.user.uuid}}
         };
         let [, body] = await requestFun(JSONObject, "POST", config.qrcode_create_link + config.access_token);
-        if (body.errcode === 42001) {
+        if (body[`errcode`] === 42001) {
             return res.status(405).json({error_msg: "access_token expired", error_code: "405"});
         }
         let img = qr.image(body.url, {size: 10});
@@ -63,7 +63,7 @@ exports.msg_holder = async (req, res) => {
             event: 'subscribe',
             eventkey: 'qrscene_d0c04dd0-db3a-11e8-8743-a710340f75f8',
             ticket: 'gQES8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAycDR6UFFDTXJkMm0xTmY5cDFyYzUAAgTvHthbAwRg6gAA'
-        }
+        };
         //let returnData = req.body.xml;
         //console.log(returnData)
         if (tool.isEmpty(returnData.eventkey)) {
@@ -89,7 +89,9 @@ exports.msg_holder = async (req, res) => {
         if (requestResult.subscribe === 0) {
             return res.status(404).json({error_msg: "this user's subscribe status is false", error_code: "404"});
         }
+
         let wechatUserInfo = {
+            wechatID: 'WE' + (Math.random() * Date.now() * 10).toFixed(0),
             wechat_user_info: requestResult,
             qr_info: returnData,
             openID: userUUidFromQr,
@@ -100,11 +102,11 @@ exports.msg_holder = async (req, res) => {
         };
 
         let newUser = await userModel.findOneAndUpdate({uuid: userUUidFromQr},
-            {$push: {wechatAccounts: wechatUserInfo}},  {new: true});
+            {$push: {wechatAccounts: wechatUserInfo}}, {new: true});
 
         return res.status(200).json({error_msg: "OK", error_code: "0", data: newUser});
     } catch (e) {
-        console.log(e)
+
         return res.status(500).json({error_msg: "Verification code confirmed", error_code: "500"});
     }
 

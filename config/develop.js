@@ -17,6 +17,6 @@ module.exports = {
     TOKEN: `w2e3c4h5angemoney`,
     qrcode_create_link: `https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=`,
     showqrcode_link: `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=`,
-    access_token: `15_YJ8_gT97dPMAI-LETgjmASeZyvKYzreHCxUEHxGaOsCzm0HKBcM44sKju11eF7X5m6BnEsPzJAuAWLDUEWaXHaqI5rmKIZFYHRtEEteQcp94jBjzHPIixeUlS2biA1dL5PExPqdgklzxR9GFWGTdABALVI`
+    access_token: `15_enenXnsf02mXPa3eZ2uziuwFnar-ifgL3v1aSwm7a9GPG_qTUPeBn1_3xkwZbi_8GshyEntzm3duLbrPkKAJMUwOXon_c3vtpRCO6XBWNL04TSNCnATWgI2LDM6IpJ3UA8VsDES8yZkNnReCJQMdAEADKG`
 };
 

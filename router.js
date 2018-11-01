@@ -133,7 +133,7 @@ app.post('/wechat/checkToken', weChatController.msg_holder);
 
 app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
 
-app.post('/getPostage', isAuthenticated('Admin'), processOrderController.getWhat);
+app.post('/getPostage', isAuthenticated('Admin'), processOrderController.getAlreadySolved);
 
 
 
@@ -186,7 +186,7 @@ app.get('/getBankAccounts', isAuthenticated('User'), manageSettingController.get
 
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 app.post('/bills/getBills', isAuthenticated('Admin'), dgPayment.adminGetBills);
-
+app.post('/bills/getBillDetail', isAuthenticated('Admin'), rechargeController.getchargeBillDetial);
 app.post('/setBillStatus', isAuthenticated('Admin'), processOrderController.setOrderStatus);
 
 app.post('/addReplacePostageBill', isAuthenticated('Admin'), dgPayment.addReplacePostageBill);
@@ -207,9 +207,6 @@ app.post('/announcement/updateCommonAnnouncement',  announcementController.updat
 app.post('/announcement/delCommonAnnouncement', announcementController.delAnnouncement);
 
 app.get('/getAppealIssues', isAuthenticated('Admin'), manageSettingController.getAppealTopics);
-app.get('/process', picController.getImgs);
-app.get('/appeal', picController.getImgs);
-app.get('/adv', picController.getImgs);
 
 app.post('/appealForm/getAppealFormById', isAuthenticated('User'), appealFormController.getAppealFormById);
 app.get('/appealForm/getMyAppealForm', isAuthenticated('User'), appealFormController.getMyAppealForm);
@@ -251,13 +248,13 @@ app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSett
 
 app.post('/item/addProcessOrder', isAuthenticated('Admin'), processOrderController.addProcessOrder);
 app.post('/item/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
-app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
+//app.post('/addAnotherBill', isAuthenticated('User'), dgPayment.addDGByALIBill);
 
-app.post('/recharger/addProcessOrderForCharge', isAuthenticated('Admin'), processOrderController.addProcessOrderForRcoinCharge);
+app.post('/recharger/addProcessOrderForCharge', isAuthenticated('Admin'), processOrderController.addProcessOrderForCharge);
 app.post('/recharger/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addRcoinChargeBills);
 app.post('/recharger/addChargeBill', isAuthenticated('User'), rechargeController.addChargeBills);
 app.post('/recharger/findChargeBill', isAuthenticated('User'), rechargeController.findMyChargeBills);
-
+app.post('/recharger/addChargeWechatBills', isAuthenticated('User'), rechargeController.addChargeWechatBills);
 //
 // app.post('/mail/send_mail', mailController.sendConfirmationEmail);
 // app.post('/mail/change_Email', mailController.checkConfirmationEmail);
