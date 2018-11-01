@@ -376,7 +376,7 @@ exports.adminGetBills = async (req, res) => {
 
         let [result, count] = await findTradeDAO(req, res, command, operator);
 
-        return res.status(200).send({error_code: 200, error_msg: result, nofdata: count});
+        return res.status(200).send({error_code: 0, error_msg: `OK`, data: result, nofdata: count});
 
     } catch (err) {
         logger.error("adminGetBills", {
