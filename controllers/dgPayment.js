@@ -378,8 +378,10 @@ exports.adminGetBills = async (req, res) => {
             {"filedName": `typeStr`, "require": false},
             {"filedName": `dealState`, "require": false},
         );
+        if (!tool.isEmpty(req.body.billID)) {
+            command.searchCondition = Object.assign(command.searchCondition, {billID: {$regex: `.*${req.body.billID}.*`}});
+        }
 
-        command.searchCondition = Object.assign(command.searchCondition, {billID: {$regex: `.*${req.body.billID}.*`}});
         command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req));
         let operator = searchModel.pageModel(req);
 
