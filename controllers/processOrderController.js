@@ -195,9 +195,12 @@ exports.addProcessOrder = async (req, res) => {
                 error_code: "201"
             });
         }
-        if (tools.isEmpty(chargeBill) || chargeBill.typeStr === `R币充值` || chargeBill.typeStr === `账户代充`) {
+        if (tools.isEmpty(chargeBill) ||
+            chargeBill.typeStr === `R幣儲值` ||
+            chargeBill.typeStr === `支付寶儲值` ||
+            chargeBill.typeStr === `微信錢包儲值`) {
             return res.status(400).json({
-                error_msg: `this API is only used to deal with recharge bills`,
+                error_msg: `this API is only used to deal with item bills`,
                 error_code: "400"
             });
         }
@@ -297,7 +300,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
                 error_code: "201"
             });
         }
-        if (tools.isEmpty(chargeBill) || chargeBill.typeStr !== `R币充值` && chargeBill.typeStr !== `微信代充` &&
+        if (tools.isEmpty(chargeBill) || chargeBill.typeStr !== `R幣儲值` && chargeBill.typeStr !== `微信錢包儲值` &&
             chargeBill.typeStr !== `账户代充`) {
             return res.status(400).json({
                 error_msg: `this API is only used to deal with recharge bills`,
