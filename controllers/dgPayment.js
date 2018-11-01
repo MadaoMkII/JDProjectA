@@ -112,15 +112,20 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
 
     return new Promise(async (resolve, reject) => {
         try {
+
+            let new_operator = {skip: operator.skip, limit: Math.round(parseInt(operator.limit) / 2)};
+
             let chargeResult = await chargeBillModel.find(
                 searchArgs.searchCondition,
                 searchArgs.showCondition,
-                operator);
+                new_operator);
+
+            new_operator = {skip: operator.skip, limit: (operator.limit-chargeResult.length)};
 
             let dgBillResult = await dgBillModel.find(
                 searchArgs.searchCondition,
-                searchArgs.showCondition,
-                operator);
+                searchArgs.showCondition, new_operator
+            );
 
 
             let count = await dgBillModel.count(searchArgs.searchCondition) +

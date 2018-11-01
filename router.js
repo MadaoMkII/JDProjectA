@@ -186,7 +186,7 @@ app.get('/getBankAccounts', isAuthenticated('User'), manageSettingController.get
 
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 app.post('/bills/getBills', isAuthenticated('Admin'), dgPayment.adminGetBills);
-app.post('/bills/getBillDetail', isAuthenticated('Admin'), rechargeController.getchargeBillDetial);
+app.post('/bills/getBillDetail', isAuthenticated('Admin'), rechargeController.getChargeBillDetail);
 app.post('/bills/setBillStatus', isAuthenticated('Admin'), processOrderController.setOrderStatus);
 
 app.post('/addReplacePostageBill', isAuthenticated('Admin'), dgPayment.addReplacePostageBill);
