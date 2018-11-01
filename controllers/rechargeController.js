@@ -81,7 +81,7 @@ exports.addChargeWechatBills = async (req, res) => {
         req.body.rateType = `AlipayAndWechatRate`;
         const managerConfig = await manageSettingController.findCurrentSetting();
         let billObject = new chargeBillModel();
-        billObject.typeStr = '微信代充';
+        billObject.typeStr = '微信錢包儲值';
         billObject.billID = 'CHARWE' + (Math.random() * Date.now() * 10).toFixed(0);
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
@@ -172,7 +172,7 @@ exports.addRcoinChargeBills = async (req, res) => {
     try {
         req.body.rateType = `RcoinRate`;
         let billObject = new chargeBillModel();
-        billObject.typeStr = 'R币充值';
+        billObject.typeStr = 'R幣儲值';
         billObject.billID = 'CHARRC' + (Math.random() * Date.now() * 10).toFixed(0);
         if (tool.isEmpty(req.body.RMBAmount)) {
             return res.status(404).send({error_code: 404, error_msg: `RMBAmount can not be null`});
@@ -228,7 +228,7 @@ exports.addChargeBills = async (req, res) => {
         req.body.rateType = `AlipayAndWechatRate`;
         const managerConfig = await manageSettingController.findCurrentSetting();
         let billObject = new chargeBillModel();
-        billObject.typeStr = '账户代充';
+        billObject.typeStr = '支付寶儲值';
         billObject.billID = 'CHAR' + (Math.random() * Date.now() * 10).toFixed(0);
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
