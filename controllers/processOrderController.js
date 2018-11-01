@@ -346,7 +346,6 @@ exports.addProcessOrderForCharge = async (req, res) => {
         let userResult;
         let myEvent = new myEventModel();
 
-
         if (chargeBill.typeStr === `R幣儲值`) {
             myEvent.eventType = `Rcoin`;
             myEvent.behavior = `Rcoin recharge`;
