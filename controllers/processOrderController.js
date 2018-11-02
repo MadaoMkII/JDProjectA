@@ -90,11 +90,24 @@ exports.getDataAnalyst = async (req, res) => {
 exports.returnRcoin = async (req, res) => {
 
     try {
-
-
+        let flag = true;
         let billResult = await dgBillModel.findOne({billID: req.body.billID});
+
         if (!billResult) {
-            return res.status(400).json({error_msg: 'Can not find this Bill', error_code: "400"});
+            billResult = await chargeBillModel.findOne({billID: req.body.billID});
+            flag = false;
+            if (!billResult) {
+                return res.status(404).json({error_msg: 'Can not find this Bill', error_code: "404"});
+            }
+
+            if (billResult.typeStr === `R幣儲值`) {
+
+                return res.status(405).json({error_msg: 'R幣儲值 type bill can not return', error_code: "405"});
+            }
+        }
+        if (billResult.dealState === 4) {
+            return res.status(400).json({error_msg: 'This bill already has been Return', error_code: "400"});
+            billResult
         }
         let billUser = await userModel.findOne({uuid: billResult.userUUid});
 
@@ -104,16 +117,21 @@ exports.returnRcoin = async (req, res) => {
         myEvent.behavior = `bill cancel return`;
 
         let amountNew = parseInt(billResult.RMBAmount) + parseInt(billUser.Rcoins);
-        let userResult = await userModel.findOneAndUpdate({uuid: billResult.userUUid}, {
+        await userModel.findOneAndUpdate({uuid: billResult.userUUid}, {
             $push: {whatHappenedToMe: myEvent},
             $set: {Rcoins: tools.encrypt(amountNew)}
         }, {new: true});
-
-        await dgBillModel.findOneAndUpdate({billID: req.body.billID}, {$set: {dealState: 3}}, {new: true});
-
-        return res.status(200).json({error_msg: 'ok', error_code: "0", data: userResult});
+        let bill_return_Result;
+        if (flag) {
+            bill_return_Result =
+                await dgBillModel.findOneAndUpdate({billID: req.body.billID}, {$set: {dealState: 4}}, {new: true});
+        } else {
+            bill_return_Result =
+                await chargeBillModel.findOneAndUpdate({billID: req.body.billID}, {$set: {dealState: 4}}, {new: true});
+        }
+        return res.status(200).json({error_msg: 'ok', error_code: "0", data: bill_return_Result});
     } catch (err) {
-        return res.status(500).json({error_msg: 'error', error_code: "0"});
+        return res.status(500).json({error_msg: 'error', error_code: "500"});
     }
 
 
