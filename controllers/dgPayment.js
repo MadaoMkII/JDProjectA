@@ -106,31 +106,64 @@ exports.getThisUserRcoinRate = async (req, res) => {
 
 };
 
-
 let findTradeDAO = async (req, res, searchArgs, operator) => {
 
 
     return new Promise(async (resolve, reject) => {
         try {
-console.log(operator)
-            let chargeResult = await chargeBillModel.find(
-                searchArgs.searchCondition,
-                searchArgs.showCondition,
-                operator);
+            let dgBill_count = await dgBillModel.count(searchArgs.searchCondition);
+            let chargeBil_count = await chargeBillModel.count(searchArgs.searchCondition);
 
-            let new_operator = {skip: operator.skip, limit: (operator.limit - chargeResult.length)};
+            let A_model, A_operator;
+            let B_model, B_operator;
 
-            let dgBillResult = await dgBillModel.find(
-                searchArgs.searchCondition,
-                searchArgs.showCondition, new_operator
-            );
-            console.log(new_operator)
-            let count = await dgBillModel.count(searchArgs.searchCondition) +
-                await chargeBillModel.count(searchArgs.searchCondition);
+            if (dgBill_count < chargeBil_count) {
+                A_model = dgBillModel;
+                B_model = chargeBillModel;
+            } else {
 
-            let resultArray = chargeResult.concat(dgBillResult);
-            resolve([resultArray, count]);
+                B_model = dgBillModel;
+                A_model = chargeBillModel;
+
+            }
+            {
+                A_operator = {
+                    skip: Math.round(operator.skip / 2),
+                    limit: Math.round(parseInt(operator.limit) / 2)
+                };
+                // dgBill_operator = dgBillcount < chargeBillcount ? {} : {
+                //     skip: operator.skip / 2 - Math.round(operator.skip / 2),
+                //     limit: (operator.limit - chargeBillcount)
+                // }
+                let A_Result = await A_model.find(
+                    searchArgs.searchCondition,
+                    searchArgs.showCondition,
+                    A_operator);
+
+                if (A_Result.length === 0) {
+                    B_operator = {
+                        skip: operator.skip - (dgBill_count < chargeBil_count ? dgBill_count : chargeBil_count),
+                        limit: operator.limit
+                    }
+                } else {
+                    B_operator = {
+                        skip: Math.round(operator.skip / 2),
+                        limit: Math.round(parseInt(operator.limit) - A_Result.length)
+                    };
+                }
+
+                let B_result = await B_model.find(
+                    searchArgs.searchCondition,
+                    searchArgs.showCondition,
+                    B_operator);
+
+
+                let resultArray = A_Result.concat(B_result);
+                resolve([resultArray, chargeBil_count + dgBill_count]);
+            }
+
         } catch (err) {
+            console.log(err)
             reject(err);
         }
 
@@ -332,7 +365,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         let userObject = {};
         userObject.tel_number = req.user.tel_number;
         userObject.email_address = req.user.email_address;
-        userObject.realName = tool.isEmpty(req.user.realName)?`尚未实名`:req.user.realName;
+        userObject.realName = tool.isEmpty(req.user.realName) ? `尚未实名` : req.user.realName;
         userObject.nickName = req.user.nickName;
         userObject.Rcoins = req.user.Rcoins;
         userObject.VIPLevel = req.user.VIPLevel;
@@ -393,7 +426,7 @@ exports.adminGetBills = async (req, res) => {
         }
 
         command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req));
-        let operator = searchModel.pageModel(req,res);
+        let operator = searchModel.pageModel(req, res);
 
         let [result, count] = await findTradeDAO(req, res, command, operator);
 
