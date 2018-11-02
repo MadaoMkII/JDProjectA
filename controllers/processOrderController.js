@@ -198,7 +198,6 @@ exports.addProcessOrder = async (req, res) => {
 
     try {
 
-
         let processOrderObject = new processOrderModel();
 
         if (tools.isEmpty(req.body.billID)) {
@@ -211,6 +210,10 @@ exports.addProcessOrder = async (req, res) => {
                 error_msg: `this bills has already been processed`,
                 error_code: "201"
             });
+        }
+        if (parseInt(chargeBill.RMBAmount) !== parseInt(req.body.chargeAmount)) {
+
+            return res.status(400).json({error_msg: `RMBAmount input wrong`, error_code: "400"});
         }
         if (tools.isEmpty(chargeBill) ||
             chargeBill.typeStr === `R幣儲值` ||
