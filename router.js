@@ -252,7 +252,7 @@ app.post('/item/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBi
 
 app.post('/recharger/addProcessOrderForCharge', isAuthenticated('Admin'), processOrderController.addProcessOrderForCharge);
 app.post('/recharger/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addRcoinChargeBills);
-app.post('/recharger/addChargeBill', isAuthenticated('User'), rechargeController.addChargeBills);
+app.post('/recharger/addChargeAliBills', isAuthenticated('User'), rechargeController.addChargeAliBills);
 app.post('/recharger/findChargeBill', isAuthenticated('User'), rechargeController.findMyChargeBills);
 app.post('/recharger/addChargeWechatBills', isAuthenticated('User'), rechargeController.addChargeWechatBills);
 //
