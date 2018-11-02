@@ -121,20 +121,15 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
                 A_model = dgBillModel;
                 B_model = chargeBillModel;
             } else {
-
                 B_model = dgBillModel;
                 A_model = chargeBillModel;
-
             }
             {
                 A_operator = {
                     skip: Math.round(operator.skip / 2),
                     limit: Math.round(parseInt(operator.limit) / 2)
                 };
-                // dgBill_operator = dgBillcount < chargeBillcount ? {} : {
-                //     skip: operator.skip / 2 - Math.round(operator.skip / 2),
-                //     limit: (operator.limit - chargeBillcount)
-                // }
+
                 let A_Result = await A_model.find(
                     searchArgs.searchCondition,
                     searchArgs.showCondition,
