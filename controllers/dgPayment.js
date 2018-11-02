@@ -112,22 +112,19 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
 
     return new Promise(async (resolve, reject) => {
         try {
-
-            let new_operator = {skip: operator.skip, limit: Math.round(parseInt(operator.limit) / 2)};
-
+console.log(operator)
             let chargeResult = await chargeBillModel.find(
                 searchArgs.searchCondition,
                 searchArgs.showCondition,
-                new_operator);
+                operator);
 
-            new_operator = {skip: operator.skip, limit: (operator.limit-chargeResult.length)};
+            let new_operator = {skip: operator.skip, limit: (operator.limit - chargeResult.length)};
 
             let dgBillResult = await dgBillModel.find(
                 searchArgs.searchCondition,
                 searchArgs.showCondition, new_operator
             );
-
-
+            console.log(new_operator)
             let count = await dgBillModel.count(searchArgs.searchCondition) +
                 await chargeBillModel.count(searchArgs.searchCondition);
 
@@ -160,9 +157,8 @@ exports.findThisUserRcoinRecord = async (req, res) => {
     } else {
 
         searchArray = [
-            {"typeStr": `R币充值`},
-            {"typeStr": `R币代购`},
-            {"typeStr": `R币代付`}
+            {"typeStr": `其他網站代購`},
+            {"typeStr": `淘寶/天貓/阿里巴巴代付`}
         ]
 
     }
@@ -202,6 +198,8 @@ exports.addDGByALIBill = async (req, res) => {
         let billObject = new dgBillModel();
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
+        billObject.itemInfo.itemName = req.body.itemInfo.itemName;
+
         if (req.body.itemInfo.itemLink.search("detail.tmall.com") !== -1) {
             billObject.itemInfo.itemWebType = "tmall";
 
@@ -210,14 +208,14 @@ exports.addDGByALIBill = async (req, res) => {
         } else {
             billObject.itemInfo.itemWebType = "others";
         }
-        if (req.body.typeStr === `其他支付方式代付`) {
+        if (req.body.typeStr === `淘寶/天貓/阿里巴巴代付`) {
 
             billObject.isVirtualItem = req.body.isVirtualItem;
             billObject.paymentInfo.paymentMethod = 'Alipay';
             billObject.paymentInfo.friendAlipayAccount = `yubao0001@126.com`;
             billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
-        } else if (req.body.typeStr === `其他支付方式代购`) {
+        } else if (req.body.typeStr === `其他網站代購`) {
             billObject.itemInfo.itemWebType = "others";
             billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
         } else {
@@ -248,8 +246,11 @@ exports.addDGByALIBill = async (req, res) => {
         req.user = user;
         let userObject = {};
         userObject.tel_number = req.user.tel_number;
+        userObject.email_address = req.user.email_address;
+        userObject.realName = req.user.realName;
+        userObject.nickName = req.user.nickName;
         userObject.Rcoins = req.user.Rcoins;
-        userObject.growthPoints = req.user.growthPoints;
+        userObject.VIPLevel = req.user.VIPLevel;
         billObject.userInfo = userObject;
         await billObject.save();
 
@@ -281,6 +282,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         let billObject = new dgBillModel();
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
+        billObject.itemInfo.itemName = req.body.itemInfo.itemName;
 
         if (!req.user.Rcoins || !req.body.RMBAmount ||
             Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.RMBAmount) < 0) {
@@ -329,8 +331,12 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.typeState = 1;
         let userObject = {};
         userObject.tel_number = req.user.tel_number;
+        userObject.email_address = req.user.email_address;
+        userObject.realName = tool.isEmpty(req.user.realName)?`尚未实名`:req.user.realName;
+        userObject.nickName = req.user.nickName;
         userObject.Rcoins = req.user.Rcoins;
-        userObject.growthPoints = req.user.growthPoints;
+        userObject.VIPLevel = req.user.VIPLevel;
+
         billObject.userInfo = userObject;
         await billObject.save();
         let recentRcoins = Number.parseInt(req.user.Rcoins) - Number.parseInt(billObject.RMBAmount);
@@ -387,7 +393,7 @@ exports.adminGetBills = async (req, res) => {
         }
 
         command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req));
-        let operator = searchModel.pageModel(req);
+        let operator = searchModel.pageModel(req,res);
 
         let [result, count] = await findTradeDAO(req, res, command, operator);
 

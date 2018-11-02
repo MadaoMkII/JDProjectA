@@ -13,7 +13,27 @@ exports.pageModel = (req, res) => {
     }
     return operator;
 };
+exports.combinedPageModel = (req, res) => {
+    try {
+        let new_operator = {};
 
+        if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
+            if (req.body['page'] < 1 || req.body['unit'] < 1) {
+                throw new Error(`page or unit can not less than 1`);
+
+            }
+
+            let skip = (parseInt(req.body['page']) - 1) * Math.round(parseInt(req.body['unit'] / 2));
+            let limit = Math.round(parseInt(req.body['unit'] / 2));
+            new_operator = {skip: skip, limit: limit};
+        }
+        return new_operator;
+    } catch (err) {
+        throw new Error(err.message);
+    }
+    // let operator = {sort: {updated_at: -1}};
+
+};
 exports.reqSearchConditionsAssemble = (req, ...conditions) => {
     let searchConditions = {};
     for (let entity of conditions) {

@@ -189,8 +189,8 @@ app.post('/bills/getBills', isAuthenticated('Admin'), dgPayment.adminGetBills);
 app.post('/bills/getBillDetail', isAuthenticated('Admin'), rechargeController.getChargeBillDetail);
 app.post('/bills/setBillStatus', isAuthenticated('Admin'), processOrderController.setOrderStatus);
 
-app.post('/addReplacePostageBill', isAuthenticated('Admin'), dgPayment.addReplacePostageBill);
-app.post('/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
+app.post('/item/addReplacePostageBill', isAuthenticated('Admin'), dgPayment.addReplacePostageBill);
+app.post('/item/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
 
 app.get('/announcement/getModel',  announcementController.getModel);
 app.post('/announcement/removeModel',  announcementController.removeModel);

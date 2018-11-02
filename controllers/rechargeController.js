@@ -20,7 +20,7 @@ exports.getChargeBillDetail = async (req, res) => {
             });
 
         }
-        return res.status(200).send({error_code: 200, error_msg: billResult});
+        return res.status(200).send({error_code: 200, error_msg: `OK`, data: billResult});
     } catch (err) {
         logger.error("findMyChargeBills", {
             level: req.user.role,
