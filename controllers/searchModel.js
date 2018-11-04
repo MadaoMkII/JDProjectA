@@ -77,7 +77,7 @@ exports.createAndUpdateTimeSearchModel = (req, res) => {
     if (!isEmpty(req.body['createdAt'])) {
         if (!isEmpty(req.body[`createdAt`]['beforeDate']) && !isEmpty(req.body[`createdAt`]['afterDate']) &&
             req.body[`createdAt`]['beforeDate'] < req.body[`createdAt`]['afterDate']) {
-            return res.status(400).send({error_code: 400, error_msg: 'beforeDate can not less than afterDate'});
+            new Error('beforeDate can not less than afterDate');
         }
 
         if (!isEmpty(req.body[`createdAt`]['beforeDate'])) {
@@ -94,7 +94,7 @@ exports.createAndUpdateTimeSearchModel = (req, res) => {
 
         if (!isEmpty(req.body[`updatedAt`]['beforeDate']) && !isEmpty(req.body[`updatedAt`]['afterDate']) &&
             req.body[`updatedAt`]['beforeDate'] < req.body[`updatedAt`]['afterDate']) {
-            return res.status(400).send({error_code: 400, error_msg: 'beforeDate can not less than afterDate'});
+            new Error('beforeDate can not less than afterDate');
         }
         if (!isEmpty(req.body[`updatedAt`]['beforeDate'])) {
             command['updated_at'] = {$lte: new Date(req.body[`updatedAt`]['beforeDate'])};

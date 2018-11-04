@@ -158,7 +158,7 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
             }
 
         } catch (err) {
-            console.log(err)
+
             reject(err);
         }
 
@@ -420,7 +420,8 @@ exports.adminGetBills = async (req, res) => {
             command.searchCondition = Object.assign(command.searchCondition, {billID: {$regex: `.*${req.body.billID}.*`}});
         }
 
-        command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req));
+        command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req,res));
+
         let operator = searchModel.pageModel(req, res);
 
         let [result, count] = await findTradeDAO(req, res, command, operator);

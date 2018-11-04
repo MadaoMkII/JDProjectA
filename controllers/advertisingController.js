@@ -29,10 +29,9 @@ exports.getDFpage = (req, res) => {
                 body: req.body,
                 error: err
             });
-
-            return res.json({error_msg: `400`, error_code: "advertising Error"});
+            return res.status(400).json({error_msg: err.message, error_code: "400"});
         } else {
-            return res.json({error_msg: `OK`, error_code: "0", data: data});
+            return res.status(200).json({error_msg: `OK`, error_code: "0", data: data});
         }
     })
 
@@ -70,12 +69,11 @@ exports.setDFpage = (req, res) => {
                 body: req.body,
                 error: err
             });
-            return res.json({error_msg: `400`, error_code: "advertising Error"});
+            return res.json({error_code: `400`, error_msg: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
         }
     })
-
 };
 exports.setHomepage = (req, res) => {
     let searchCommand = {};
@@ -107,9 +105,9 @@ exports.setHomepage = (req, res) => {
                 email: req.user.email_address,
                 location: (new Error().stack).split("at ")[1],
                 body: req.body,
-                error:err
+                error: err
             });
-            return res.json({error_msg: `400`, error_code: "advertising Error"});
+            return res.json({error_code: `400`, error_msg: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
         }
@@ -135,7 +133,7 @@ exports.getHomepage = (req, res) => {
                 email: req.user.email_address,
                 location: (new Error().stack).split("at ")[1],
                 body: req.body,
-                error:err
+                error: err
             });
 
             return res.json({error_msg: `400`, error_code: "advertising Error"});
@@ -168,7 +166,7 @@ exports.getHomepageItemsList = async (req, res) => {
             email: req.user.email_address,
             location: (new Error().stack).split("at ")[1],
             body: req.body,
-            error:err
+            error: err
         });
 
         return res.status(400).json({error_msg: `400`, error_code: "advertising Error"});
@@ -198,7 +196,7 @@ exports.getHomepageItems = async (req, res) => {
             email: req.user.email_address,
             location: (new Error().stack).split("at ")[1],
             body: req.body,
-            error:err
+            error: err
         });
 
         return res.status(400).json({error_msg: `400`, error_code: "advertising Error"});
@@ -232,7 +230,7 @@ exports.addHomepageItems = (req, res) => {
                 email: req.user.email_address,
                 location: (new Error().stack).split("at ")[1],
                 body: req.body,
-                error:err
+                error: err
             });
 
             if (err.message.toString().includes(`duplicate`)) {
@@ -266,7 +264,7 @@ exports.delAdvertising = (req, res) => {
                 email: req.user.email_address,
                 location: (new Error().stack).split("at ")[1],
                 body: req.body,
-                error:err
+                error: err
             });
             return res.json({error_msg: `400`, error_code: "advertising Error"});
         } else {

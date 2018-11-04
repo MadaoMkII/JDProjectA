@@ -3,6 +3,7 @@ const cors = require('cors');
 const passport = require('./config/passport');
 const userController = require('./controllers/userController');
 const weChatController = require('./controllers/weChatController');
+const alipayController = require('./controllers/alipayController');
 //const debug = require('debug')('http');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
@@ -121,7 +122,7 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-
+app.get('/alipay/receiveCallback', alipayController.receiveCallback);
 
 app.get('/wechat/getQR_code', isAuthenticated('Admin'), weChatController.getQR_code);
 
@@ -134,7 +135,6 @@ app.post('/wechat/checkToken', weChatController.msg_holder);
 app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
 
 app.post('/getPostage', isAuthenticated('Admin'), processOrderController.getAlreadySolved);
-
 
 
 app.get('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing);
@@ -192,18 +192,18 @@ app.post('/bills/setBillStatus', isAuthenticated('Admin'), processOrderControlle
 app.post('/item/addReplacePostageBill', isAuthenticated('Admin'), dgPayment.addReplacePostageBill);
 app.post('/item/payReplacePostage', isAuthenticated('User'), dgPayment.payReplacePostage);
 
-app.get('/announcement/getModel',  announcementController.getModel);
-app.post('/announcement/removeModel',  announcementController.removeModel);
-app.post('/announcement/addModel',  announcementController.addModel);
-app.post('/announcement/updateModel',  announcementController.updateModel);
+app.get('/announcement/getModel', announcementController.getModel);
+app.post('/announcement/removeModel', announcementController.removeModel);
+app.post('/announcement/addModel', announcementController.addModel);
+app.post('/announcement/updateModel', announcementController.updateModel);
 
-app.post('/announcement/addHelpCenterAnnouncement',  announcementController.addHelpCenterAnnouncement);
-app.get('/announcement/getHelpCenterAnnouncement',  announcementController.getHelpCenterAnnouncement);
-app.post('/announcement/updateHelpCenterAnnouncement',  announcementController.updateHelpCenterAnnouncement);
+app.post('/announcement/addHelpCenterAnnouncement', announcementController.addHelpCenterAnnouncement);
+app.get('/announcement/getHelpCenterAnnouncement', announcementController.getHelpCenterAnnouncement);
+app.post('/announcement/updateHelpCenterAnnouncement', announcementController.updateHelpCenterAnnouncement);
 
 app.post('/announcement/addCommonAnnouncement', announcementController.addAnnouncement);
-app.post('/announcement/findCommonAnnouncement',  announcementController.findAnnouncement);
-app.post('/announcement/updateCommonAnnouncement',  announcementController.updateAnnouncement);
+app.post('/announcement/findCommonAnnouncement', announcementController.findAnnouncement);
+app.post('/announcement/updateCommonAnnouncement', announcementController.updateAnnouncement);
 app.post('/announcement/delCommonAnnouncement', announcementController.delAnnouncement);
 
 app.get('/getAppealIssues', isAuthenticated('Admin'), manageSettingController.getAppealTopics);
