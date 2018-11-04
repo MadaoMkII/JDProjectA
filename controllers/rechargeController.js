@@ -229,7 +229,7 @@ exports.addChargeAliBills = async (req, res) => {
         const managerConfig = await manageSettingController.findCurrentSetting();
         let billObject = new chargeBillModel();
         billObject.typeStr = '支付寶儲值';
-        billObject.billID = 'CHARWE' + (Math.random() * Date.now() * 10).toFixed(0);
+        billObject.billID = 'CHARAL' + (Math.random() * Date.now() * 10).toFixed(0);
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
@@ -239,12 +239,13 @@ exports.addChargeAliBills = async (req, res) => {
         }
         billObject.rechargeInfo.rechargeAccountType = `alipay`;
 
-        for (let wechatAccount of req.user.wechatAccounts) {
-            if (wechatAccount.wechatID === req.body.rechargeInfo.rechargeToAccount) {
+        for (let alipayAccount of req.user.aliPayAccounts) {
+
+            if (alipayAccount.user_id.toString() === req.body.rechargeInfo.rechargeToAccount.toString()) {
                 billObject.rechargeInfo.rechargeToAccount = {
-                    wechatID: wechatAccount.wechatID,
-                    openID: wechatAccount.openID,
-                    nickname: wechatAccount.nickname
+                    user_id: alipayAccount.user_id,
+                    avatar: alipayAccount.avatar,
+                    nickname: alipayAccount.nick_name
                 }
             }
 

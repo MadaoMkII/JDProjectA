@@ -85,11 +85,17 @@ myEvent.set('toJSON', {
 
 const aliPayAccount = new mongoose.Schema(
     {
-        realName: {type: String, required: true},
-        accountName: {type: String, required: true},
-        accountTelNumber: String,
-        isAuthenticated: {type: Boolean, default: false}
-    }
+        user_id: {type: String, required: true},
+        avatar: {type: String},
+        province: {type: String},
+        city: {type: String},
+        nick_name: {type: String},
+        is_student_certified: {type: Boolean},
+        user_type: {type: String},
+        user_status: {type: String},
+        is_certified: {type: Boolean},
+        gender: {type: String}
+    }, {_id: false}
 );
 const wechatAccount = new mongoose.Schema(
     {
@@ -102,7 +108,7 @@ const wechatAccount = new mongoose.Schema(
         activeStatus: Boolean,
         nickname: String
 
-    }
+    }, {_id: false}
 );
 
 let userAccountSchema = new mongoose.Schema({

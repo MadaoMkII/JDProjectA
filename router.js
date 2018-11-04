@@ -122,7 +122,10 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+
+
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
+app.get('/alipay/setAccount', isAuthenticated('Admin'), alipayController.set_AlipayAccount);
 
 app.get('/wechat/getQR_code', isAuthenticated('Admin'), weChatController.getQR_code);
 
@@ -255,6 +258,7 @@ app.post('/recharger/addRcoinChargeBill', isAuthenticated('User'), rechargeContr
 app.post('/recharger/addChargeAliBills', isAuthenticated('User'), rechargeController.addChargeAliBills);
 app.post('/recharger/findChargeBill', isAuthenticated('User'), rechargeController.findMyChargeBills);
 app.post('/recharger/addChargeWechatBills', isAuthenticated('User'), rechargeController.addChargeWechatBills);
+app.post('/recharger/addChargeAliBills', isAuthenticated('User'), rechargeController.addChargeAliBills);
 //
 // app.post('/mail/send_mail', mailController.sendConfirmationEmail);
 // app.post('/mail/change_Email', mailController.checkConfirmationEmail);
