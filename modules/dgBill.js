@@ -12,7 +12,7 @@ const replacePostageBill = new mongoose.Schema(
     {
         status: {type: Number, default: 0},
         comment: String,
-        chargeDate: {type: Date},
+        replaceTime: Date,
         postageAmount: {type: Number, required: true},
         replacePostagePayment: {type: replacePostagePayment}
     }, {_id: false, 'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
@@ -25,10 +25,8 @@ replacePostageBill.set('toJSON', {
             delete ret._id;
             delete ret.id;
             delete ret.__v;
-            if (doc.chargeDate) {
-                ret.chargeDate = new Date(doc.chargeDate).getTime();
-            } else {
-                ret.chargeDate = new Date().getTime();
+            if (doc.replaceTime) {
+                ret.replaceTime = new Date(doc.replaceTime).getTime();
             }
         }
     }

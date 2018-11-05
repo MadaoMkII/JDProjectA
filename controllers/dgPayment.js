@@ -473,14 +473,13 @@ exports.addReplacePostageBill = async (req, res) => {
         if (!dgResult) {
             return res.status(404).json({error_msg: `can not find bill`, error_code: "404"});
         }
-        let replacePostageBillEntity = new replacePostageBillModel();
+        let replacePostageBillEntity = searchModel.reqSearchConditionsAssemble(req,
+            {"filedName": `comment`, "require": false},
+            {"filedName": `postageAmount`, "require": true},
+            {"filedName": `replaceTime`, "require": false},
+            {"filedName": `billID`, "require": true}
+        )
 
-        for (let index in req.body) {
-            if (!tool.isEmpty(req.body[index])) {
-                replacePostageBillEntity[index] = req.body[index];
-            }
-        }
-        replacePostageBillEntity.chargeDate = new Date();
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
             {$set: {replacePostage: replacePostageBillEntity, payFreight: 1}}, {new: true}).populate(`processOrder`);
 
@@ -525,16 +524,21 @@ exports.findPostage = async (req, res) => {
             {"filedName": `userInfo.email_address`, "require": false}
         ), searcher);
 
-        let dateSearcher = searchModel.createAndUpdateTimeSearchModel(req).created_at;
-
-        if (!tool.isEmpty(dateSearcher) ){
-            searcher = Object.assign({"replacePostage.chargeDate": dateSearcher}, searcher);
-        } else {
-            searcher[`replacePostage.chargeDate`] = {'$exists': true};
+        if (!tool.isEmpty(req.body['beforeDate']) && !tool.isEmpty(req.body['afterDate']) &&
+            new Date(req.body['beforeDate']) < new Date(req.body['afterDate'])) {
+            return res.status(400).json({error_msg: `beforeDate can not less than afterDate`, error_code: "400"});
         }
+        if (!tool.isEmpty(req.body[`beforeDate`])) {
+            searcher = Object.assign({"replacePostage.replaceTime": {$lte: new Date(req.body['beforeDate'])}}, searcher);
+        }
+
+        if (!tool.isEmpty(req.body[`afterDate`])) {
+            searcher = Object.assign({"replacePostage.replaceTime": {$gte: new Date(req.body['afterDate'])}}, searcher);
+        }
+
         let dgBillEntity = await dgBillModel.find(searcher, {
             "userInfo.tel_number": 1, "userInfo.email_address": 1, "replacePostage.comment": 1, billID: 1,
-            "replacePostage.postageAmount": 1, "replacePostage.status": 1
+            "replacePostage.postageAmount": 1, "replacePostage.status": 1,"replacePostage.replaceTime": 1
         }, operator);
 
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
@@ -564,7 +568,7 @@ exports.payReplacePostage = async (req, res) => {
                 replacePostageBillEntity[index] = req.body[index];
             }
         }
-        console.log(replacePostageBillEntity);
+
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID, userUUid: req.user.uuid},
             {$set: {"replacePostage.replacePostagePayment": replacePostageBillEntity}}, {new: true})
             .populate(`processOrder`);
