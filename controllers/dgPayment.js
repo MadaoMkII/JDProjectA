@@ -538,7 +538,7 @@ exports.findPostage = async (req, res) => {
             if (!tool.isEmpty(searcher["replacePostage.replaceTime"])) {
                 searcher["replacePostage.replaceTime"] = Object.assign({
                     $gte: new Date(req.body['afterDate'])
-                }, searcher["replacePostage.replaceTime"] );
+                }, searcher["replacePostage.replaceTime"]);
             } else {
                 searcher["replacePostage.replaceTime"] = {$gte: new Date(req.body['afterDate'])};
             }
@@ -548,8 +548,8 @@ exports.findPostage = async (req, res) => {
             "userInfo.tel_number": 1, "userInfo.email_address": 1, "replacePostage.comment": 1, billID: 1,
             "replacePostage.postageAmount": 1, "replacePostage.status": 1, "replacePostage.replaceTime": 1
         }, operator);
-
-        return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
+        let count = await dgBillModel.count(searcher);
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity,nofdata:count});
     } catch (err) {
         console.log(err)
         logger.error("findReplacePostage", {
