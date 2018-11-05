@@ -420,7 +420,7 @@ exports.adminGetBills = async (req, res) => {
             command.searchCondition = Object.assign(command.searchCondition, {billID: {$regex: `.*${req.body.billID}.*`}});
         }
 
-        command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req,res));
+        command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req, res));
 
         let operator = searchModel.pageModel(req, res);
 
@@ -488,10 +488,28 @@ exports.addReplacePostageBill = async (req, res) => {
 
 
 };
+
+exports.findPostage = async (req, res) => {
+    let searcher;
+    let operator = searchModel.pageModel(req);
+
+    searcher = searchModel.reqSearchConditionsAssemble(req,
+        {"filedName": `replacePostage.status`, "require": false},
+        {"filedName": `tel_number`, "require": false},
+        {"filedName": `billID`, "require": false},
+        {"filedName": `email_address`, "require": false}
+    );
+    searcher = Object.assign(searchModel.createAndUpdateTimeSearchModel(req), searcher);
+
+    let dgBillEntity = await dgBillModel.find(searcher,{}, operator);
+    return res.status(200).json({error_msg: dgBillEntity, error_code: "0"});
+}
 exports.payReplacePostage = async (req, res) => {
 
     try {
         let replacePostageBillEntity = {};
+        searchModel.requestCheckBox(req, "RMBAmount", "rechargeInfo",
+            "rechargeInfo.rechargeToAccount", "chargeInfo", "chargeInfo.chargeFromAccount");
 
         for (let index in req.body) {
             if (!tool.isEmpty(req.body[index])) {

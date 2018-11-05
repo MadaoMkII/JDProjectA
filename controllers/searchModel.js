@@ -1,12 +1,12 @@
 const tool = require('../config/tools');
 const isEmpty = require('../config/tools').isEmpty;
-exports.pageModel = (req, res) => {
+exports.pageModel = (req) => {
 
     // let operator = {sort: {updated_at: -1}};
     let operator = {};
     if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
         if (req.body['page'] < 1 || req.body['unit'] < 1) {
-            return res.status(400).send({error_code: 400, error_msg: `page or unit can not less than 1`});
+            throw new Error(`page or unit can not less than 1`);
         }
         operator.skip = (parseInt(req.body['page']) - 1) * parseInt(req.body['unit']);
         operator.limit = parseInt(req.body['unit']);
@@ -71,22 +71,23 @@ exports.requestCheckBox = (req, ...conditions) => {
         }
     }
 };
-exports.createAndUpdateTimeSearchModel = (req, res) => {
+exports.createAndUpdateTimeSearchModel = (req) => {
 
     let command = {};
+
     if (!isEmpty(req.body['createdAt'])) {
         if (!isEmpty(req.body[`createdAt`]['beforeDate']) && !isEmpty(req.body[`createdAt`]['afterDate']) &&
             req.body[`createdAt`]['beforeDate'] < req.body[`createdAt`]['afterDate']) {
             new Error('beforeDate can not less than afterDate');
         }
-
+        command['created_at'] = {};
         if (!isEmpty(req.body[`createdAt`]['beforeDate'])) {
-            command['created_at'] = {$lte: new Date(req.body[`createdAt`]['beforeDate'])};
+            command['created_at']["$lte"] = new Date(req.body[`createdAt`]['beforeDate']);
         }
 
 
         if (!isEmpty(req.body[`createdAt`]['afterDate'])) {
-            command['created_at'] = {$gte: new Date(req.body[`createdAt`]['afterDate'])};
+            command['created_at']["$gte"] = new Date(req.body[`createdAt`]['afterDate']);
         }
 
     }
@@ -96,11 +97,12 @@ exports.createAndUpdateTimeSearchModel = (req, res) => {
             req.body[`updatedAt`]['beforeDate'] < req.body[`updatedAt`]['afterDate']) {
             new Error('beforeDate can not less than afterDate');
         }
+        command['updated_at'] = {};
         if (!isEmpty(req.body[`updatedAt`]['beforeDate'])) {
-            command['updated_at'] = {$lte: new Date(req.body[`updatedAt`]['beforeDate'])};
+            command['updated_at'][`$lte`] = new Date(req.body[`updatedAt`]['beforeDate']);
         }
         if (!isEmpty(req.body[`updatedAt`]['afterDate'])) {
-            command['updated_at'] = {$gte: new Date(req.body[`updatedAt`]['afterDate'])};
+            command['updated_at']["$gte"] = new Date(req.body[`updatedAt`]['afterDate']);
         }
     }
     return command;
