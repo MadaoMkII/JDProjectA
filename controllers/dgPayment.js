@@ -524,12 +524,15 @@ exports.findPostage = async (req, res) => {
             {"filedName": `billID`, "require": false},
             {"filedName": `userInfo.email_address`, "require": false}
         );
-        searcher = Object.assign(searchModel.createAndUpdateTimeSearchModel(req), searcher);
+        let new_operator = {"replacePostage.chargeDate": searchModel.createAndUpdateTimeSearchModel(req).created_at };
+        searcher = Object.assign(new_operator, searcher);
         searcher = Object.assign({replacePostage: {"$exists": true}}, searcher);
+
         let dgBillEntity = await dgBillModel.find(searcher, {}, operator);
         return res.status(200).json({error_msg: dgBillEntity, error_code: "0"});
 
     } catch (err) {
+        console.log(err)
         logger.error("findReplacePostage", {
             level: req.user.role,
             response: `findReplacePostage Failed`,
