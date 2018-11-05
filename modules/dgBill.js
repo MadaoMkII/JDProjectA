@@ -9,8 +9,8 @@ const replacePostagePayment = new mongoose.Schema(
 );
 
 const replacePostageBill = new mongoose.Schema(
-    {//1表示代付成功，0表示代付失败，2表示进行中
-        status: {type: Number, default: 2},
+    {
+        status: {type: Number, default: 0},
         comment: String,
         chargeDate: {type: Date},
         postageAmount: {type: Number, required: true},

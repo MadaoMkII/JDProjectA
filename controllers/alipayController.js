@@ -2,8 +2,8 @@ const queryString = require('query-string');
 const userModel = require('../modules/userAccount').userAccountModel;
 
 let requestFun = (JSONObject, method, url) => {
-    return new Promise((resolve, reject) => {
 
+    return new Promise((resolve, reject) => {
         request({
             url: url,
             method: method,
@@ -47,14 +47,12 @@ exports.receiveCallback = (req, res) => {
         sign_type: `RSA2`,
         version: `1.0`,
         grant_type: `authorization_code`,
-        code: req.query.auth_code,
+        code: req.query[`auth_code`],
         charset: `utf-8`
     };
     const stringified = queryString.stringify({sendQuery});
-
+    requestFun({},`GET`,``);
     return res.status(200).json({error_msg: `OK`, error_code: "0", data: stringified});
-
-
 };
 
 exports.set_AlipayAccount = async (req, res) => {

@@ -75,19 +75,27 @@ exports.createAndUpdateTimeSearchModel = (req) => {
 
     let command = {};
 
+
     if (!isEmpty(req.body['createdAt'])) {
+
         if (!isEmpty(req.body[`createdAt`]['beforeDate']) && !isEmpty(req.body[`createdAt`]['afterDate']) &&
-            req.body[`createdAt`]['beforeDate'] < req.body[`createdAt`]['afterDate']) {
-            new Error('beforeDate can not less than afterDate');
+            new Date(req.body[`createdAt`]['beforeDate']) < new Date(req.body[`createdAt`]['afterDate'])) {
+            throw new Error('beforeDate can not less than afterDate');
         }
-        command['created_at'] = {};
+
         if (!isEmpty(req.body[`createdAt`]['beforeDate'])) {
+            command['created_at'] = {};
             command['created_at']["$lte"] = new Date(req.body[`createdAt`]['beforeDate']);
         }
 
-
         if (!isEmpty(req.body[`createdAt`]['afterDate'])) {
-            command['created_at']["$gte"] = new Date(req.body[`createdAt`]['afterDate']);
+            if (!isEmpty(command['created_at'])) {
+                command['created_at']["$gte"] = new Date(req.body[`createdAt`]['afterDate']);
+            } else {
+                command['created_at'] = {};
+                command['created_at'] = {$gte: new Date(req.body[`createdAt`]['afterDate'])};
+            }
+
         }
 
     }
@@ -97,13 +105,20 @@ exports.createAndUpdateTimeSearchModel = (req) => {
             req.body[`updatedAt`]['beforeDate'] < req.body[`updatedAt`]['afterDate']) {
             new Error('beforeDate can not less than afterDate');
         }
-        command['updated_at'] = {};
+
         if (!isEmpty(req.body[`updatedAt`]['beforeDate'])) {
+            command['updated_at'] = {};
             command['updated_at'][`$lte`] = new Date(req.body[`updatedAt`]['beforeDate']);
         }
         if (!isEmpty(req.body[`updatedAt`]['afterDate'])) {
-            command['updated_at']["$gte"] = new Date(req.body[`updatedAt`]['afterDate']);
+            if (!isEmpty(command['created_at'])) {
+                command['updated_at']["$gte"] = new Date(req.body[`updatedAt`]['afterDate']);
+            } else {
+                command['updated_at'] = {};
+                command['updated_at'] = {$gte: new Date(req.body[`updatedAt`]['afterDate'])};
+            }
         }
+
     }
     return command;
 };

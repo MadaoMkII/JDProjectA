@@ -525,9 +525,12 @@ exports.findPostage = async (req, res) => {
             {"filedName": `userInfo.email_address`, "require": false}
         ), searcher);
 
-        let new_operator = {"replacePostage.chargeDate": searchModel.createAndUpdateTimeSearchModel(req).created_at};
-        if (!tool.isEmpty(new_operator["replacePostage.chargeDate"])) {
-            searcher = Object.assign(new_operator, searcher);
+        let dateSearcher = searchModel.createAndUpdateTimeSearchModel(req).created_at;
+
+        if (dateSearcher !== {}) {
+            searcher = Object.assign({"replacePostage.chargeDate": dateSearcher}, searcher);
+        } else {
+            delete searcher[`replacePostage.chargeDate`];
         }
 
         let dgBillEntity = await dgBillModel.find(searcher, {
@@ -536,9 +539,7 @@ exports.findPostage = async (req, res) => {
         }, operator);
 
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
-
-    } catch
-        (err) {
+    } catch (err) {
         console.log(err)
         logger.error("findReplacePostage", {
             level: req.user.role,
@@ -549,7 +550,7 @@ exports.findPostage = async (req, res) => {
             body: req.body,
             error: err
         });
-        return res.status(500).json({error_msg: `Find Replace Postage Failed`, error_code: "500"});
+        return res.status(400).json({error_msg: err.message, error_code: "500"});
     }
 }
 exports.payReplacePostage = async (req, res) => {
