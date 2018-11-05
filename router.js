@@ -128,7 +128,6 @@ app.get('/alipay/receiveCallback', alipayController.receiveCallback);
 app.get('/alipay/setAccount', isAuthenticated('Admin'), alipayController.set_AlipayAccount);
 
 app.get('/wechat/getQR_code', isAuthenticated('Admin'), weChatController.getQR_code);
-
 app.post('/receive', weChatController.msg_holder);
 
 

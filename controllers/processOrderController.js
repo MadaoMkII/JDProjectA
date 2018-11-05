@@ -71,7 +71,6 @@ exports.getDataAnalyst = async (req, res) => {
         for (let resultEntityKey of result) {
             resultMap.set(resultEntityKey.itemWebType,
                 {"totalAmount": resultEntityKey.totalAmount, "count": resultEntityKey.count});
-
         }
         let lastResult = [];
         resultMap.forEach((value, key) => {
@@ -423,7 +422,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
             }, {new: true});//日子
 
         }
-
+console.log(12345)
         await dataAnalystModel.findOneAndUpdate({
             dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
             itemWebType: chargeBill.typeStr

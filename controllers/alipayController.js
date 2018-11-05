@@ -1,5 +1,15 @@
 const queryString = require('query-string');
+const config = require('../config/develop');
 const userModel = require('../modules/userAccount').userAccountModel;
+const request = require('request');
+const fs = require('fs');
+const AlipaySdk = require('alipay-sdk').default;
+//
+// const alipaySdk = new AlipaySdk({
+//     appId: config.alipay_App_ID
+//     // privateKey: fs.readFileSync('./private-key.pem', 'ascii'),
+//     // alipayPublicKey: fs.readFileSync('./public-key.pem', 'ascii'),
+// });
 
 let requestFun = (JSONObject, method, url) => {
 
@@ -18,7 +28,7 @@ let requestFun = (JSONObject, method, url) => {
         });
     });
 };
-exports.receiveCallback = (req, res) => {
+exports.receiveCallback = async (req, res) => {
     Date.prototype.Format = (fmt) => {
         let o = {
             "M+": this.getMonth() + 1, //月份
@@ -50,9 +60,11 @@ exports.receiveCallback = (req, res) => {
         code: req.query[`auth_code`],
         charset: `utf-8`
     };
-    const stringified = queryString.stringify({sendQuery});
-    requestFun({},`GET`,``);
-    return res.status(200).json({error_msg: `OK`, error_code: "0", data: stringified});
+    const stringified = queryString.stringify(sendQuery);
+    console.log(stringified)
+    let [response, body] = await requestFun({}, `GET`, config.alipay_002_gatway);
+console.log(body)
+    return res.status(200).json({error_msg: `OK`, error_code: "0", data: body});
 };
 
 exports.set_AlipayAccount = async (req, res) => {

@@ -19,7 +19,8 @@ module.exports = {
     showqrcode_link: `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=`,
     access_token: `15_enenXnsf02mXPa3eZ2uziuwFnar-ifgL3v1aSwm7a9GPG_qTUPeBn1_3xkwZbi_8GshyEntzm3duLbrPkKAJMUwOXon_c3vtpRCO6XBWNL04TSNCnATWgI2LDM6IpJ3UA8VsDES8yZkNnReCJQMdAEADKG`,
 
-    alipay_002_gatway: `https://openapi.alipaydev.com/gateway.do`
+    alipay_002_gatway: `https://openapi.alipaydev.com/gateway.do`,
+    alipay_App_ID: 2016092000552091
 };
 
 

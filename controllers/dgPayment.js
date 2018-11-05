@@ -108,7 +108,6 @@ exports.getThisUserRcoinRate = async (req, res) => {
 
 let findTradeDAO = async (req, res, searchArgs, operator) => {
 
-
     return new Promise(async (resolve, reject) => {
         try {
             let dgBill_count = await dgBillModel.count(searchArgs.searchCondition);
