@@ -534,7 +534,8 @@ exports.findPostage = async (req, res) => {
             "userInfo.tel_number": 1, "userInfo.email_address": 1, "replacePostage.comment": 1, billID: 1,
             "replacePostage.postageAmount": 1, "replacePostage.status": 1
         }, operator);
-        return res.status(200).json({error_msg: dgBillEntity, error_code: "0"});
+
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
 
     } catch
         (err) {
