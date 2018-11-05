@@ -477,7 +477,8 @@ exports.addReplacePostageBill = async (req, res) => {
             {"filedName": `comment`, "require": false},
             {"filedName": `postageAmount`, "require": true},
             {"filedName": `replaceTime`, "require": false},
-            {"filedName": `billID`, "require": true}
+            {"filedName": `billID`, "require": true},
+            {"filedName": `status`, "require": true}
         )
 
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
@@ -533,12 +534,17 @@ exports.findPostage = async (req, res) => {
         }
 
         if (!tool.isEmpty(req.body[`afterDate`])) {
-            searcher = Object.assign({"replacePostage.replaceTime": {$gte: new Date(req.body['afterDate'])}}, searcher);
+            if (!searcher["replacePostage.replaceTime"]) {
+                searcher = Object.assign({"replacePostage.replaceTime": {$gte: new Date(req.body['afterDate'])}}, searcher);
+            } else {
+                searcher = Object.assign({"replacePostage.replaceTime": {$gte: new Date(req.body['afterDate'])}}, searcher);
+            }
+
         }
 
         let dgBillEntity = await dgBillModel.find(searcher, {
             "userInfo.tel_number": 1, "userInfo.email_address": 1, "replacePostage.comment": 1, billID: 1,
-            "replacePostage.postageAmount": 1, "replacePostage.status": 1,"replacePostage.replaceTime": 1
+            "replacePostage.postageAmount": 1, "replacePostage.status": 1, "replacePostage.replaceTime": 1
         }, operator);
 
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
