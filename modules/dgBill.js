@@ -25,12 +25,10 @@ replacePostageBill.set('toJSON', {
             delete ret._id;
             delete ret.id;
             delete ret.__v;
-            if (doc.replaceDate && doc.chargeDate) {
-                ret.replaceDate = new Date(doc.replaceDate).getTime();
+            if (doc.chargeDate) {
                 ret.chargeDate = new Date(doc.chargeDate).getTime();
             } else {
                 ret.chargeDate = new Date().getTime();
-                ret.replaceDate = new Date().getTime();
             }
         }
     }

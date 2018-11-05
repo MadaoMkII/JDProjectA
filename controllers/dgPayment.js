@@ -530,7 +530,10 @@ exports.findPostage = async (req, res) => {
             searcher = Object.assign(new_operator, searcher);
         }
 
-        let dgBillEntity = await dgBillModel.find(searcher, {}, operator);
+        let dgBillEntity = await dgBillModel.find(searcher, {
+            "userInfo.tel_number": 1, "userInfo.email_address": 1, "replacePostage.comment": 1, billID: 1,
+            "replacePostage.postageAmount": 1, "replacePostage.status": 1
+        }, operator);
         return res.status(200).json({error_msg: dgBillEntity, error_code: "0"});
 
     } catch
