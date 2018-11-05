@@ -527,12 +527,11 @@ exports.findPostage = async (req, res) => {
 
         let dateSearcher = searchModel.createAndUpdateTimeSearchModel(req).created_at;
 
-        if (dateSearcher !== {}) {
+        if (!tool.isEmpty(dateSearcher) ){
             searcher = Object.assign({"replacePostage.chargeDate": dateSearcher}, searcher);
         } else {
-            delete searcher[`replacePostage.chargeDate`];
+            searcher[`replacePostage.chargeDate`] = {'$exists': true};
         }
-
         let dgBillEntity = await dgBillModel.find(searcher, {
             "userInfo.tel_number": 1, "userInfo.email_address": 1, "replacePostage.comment": 1, billID: 1,
             "replacePostage.postageAmount": 1, "replacePostage.status": 1
