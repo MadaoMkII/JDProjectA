@@ -535,13 +535,15 @@ exports.findPostage = async (req, res) => {
 
         if (!tool.isEmpty(req.body[`afterDate`])) {
             if (!searcher["replacePostage.replaceTime"]) {
-                searcher = Object.assign({"replacePostage.replaceTime": {$gte: new Date(req.body['afterDate'])}}, searcher);
+                searcher = Object.assign({
+                    "replacePostage.replaceTime":
+                        {$gte: new Date(req.body['afterDate'])}
+                }, searcher);
             } else {
-                searcher = Object.assign({"replacePostage.replaceTime": {$gte: new Date(req.body['afterDate'])}}, searcher);
+                searcher["replacePostage.replaceTime"] = Object.assign({$gte: new Date(req.body['afterDate'])}, searcher);
             }
-
         }
-
+console.log(searcher)
         let dgBillEntity = await dgBillModel.find(searcher, {
             "userInfo.tel_number": 1, "userInfo.email_address": 1, "replacePostage.comment": 1, billID: 1,
             "replacePostage.postageAmount": 1, "replacePostage.status": 1, "replacePostage.replaceTime": 1
