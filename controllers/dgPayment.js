@@ -551,7 +551,7 @@ exports.findPostage = async (req, res) => {
         let count = await dgBillModel.count(searcher);
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity,nofdata:count});
     } catch (err) {
-        console.log(err)
+
         logger.error("findReplacePostage", {
             level: req.user.role,
             response: `findReplacePostage Failed`,

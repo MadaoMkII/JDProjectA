@@ -29,13 +29,7 @@ exports.getAlreadySolved = async (req, res) => {
 exports.getDataAnalyst = async (req, res) => {
     try {
         let searchConditions = {};
-        for (let index in req.body) {
-            if (!tools.isEmpty(req.body[index])) {
-                searchConditions[index] = req.body[index];
-            }
-        }
-        delete searchConditions[`beforeDate`];
-        delete searchConditions[`afterDate`];
+
         if (req.body['beforeDate'] && req.body['afterDate']) {
             searchConditions['dateClock'] = {
                 $lte: new Date(req.body['beforeDate']),
@@ -66,10 +60,14 @@ exports.getDataAnalyst = async (req, res) => {
             ]
         );
         let resultMap = new Map();
-        resultMap.set(`淘寶/天貓/阿里巴巴代付`, {"totalAmount": 0, "count": 0,});
-        resultMap.set(`支付寶儲值`, {"totalAmount": 0, "count": 0,});
-        resultMap.set(`微信錢包儲值`, {"totalAmount": 0, "count": 0,});
-        resultMap.set(`其他網站代購`, {"totalAmount": 0, "count": 0,});
+
+        resultMap.set(`淘寶/天貓/阿里巴巴代付`, {"totalAmount": 0, "count": 0});
+        resultMap.set(`支付寶儲值`, {"totalAmount": 0, "count": 0});
+        resultMap.set(`微信錢包儲值`, {"totalAmount": 0, "count": 0});
+        resultMap.set(`其他網站代購`, {"totalAmount": 0, "count": 0});
+        resultMap.set(`R幣儲值`, {"totalAmount": 0, "count": 0});
+
+
         for (let resultEntityKey of result) {
             resultMap.set(resultEntityKey.itemWebType,
                 {"totalAmount": resultEntityKey.totalAmount, "count": resultEntityKey.count});
@@ -77,7 +75,6 @@ exports.getDataAnalyst = async (req, res) => {
         }
         let lastResult = [];
         resultMap.forEach((value, key) => {
-
             lastResult.push({itemWebType: key, count: value.count, totalAmount: value.totalAmount});
         });
         //let result = await dataAnalystModel.find(searchConditions, {}, {"group": `itemWebType`});
@@ -107,7 +104,7 @@ exports.returnRcoin = async (req, res) => {
         }
         if (billResult.dealState === 4) {
             return res.status(400).json({error_msg: 'This bill already has been Return', error_code: "400"});
-            billResult
+
         }
         let billUser = await userModel.findOne({uuid: billResult.userUUid});
 
@@ -139,7 +136,6 @@ exports.returnRcoin = async (req, res) => {
 
 
 exports.setOrderStatus = async (req, res) => {
-
 
     try {
         let setObject = {};
@@ -244,7 +240,7 @@ exports.addProcessOrder = async (req, res) => {
 
         let userResult;
 
-        if (dgBill.typeStr === `支付寶儲值` &&
+        if (dgBill.typeStr === `淘寶/天貓/阿里巴巴代付` &&
             dgBill.is_firstOrder === true &&
             dgBill.paymentInfo.paymentMethod === "Alipay") {
 
@@ -289,7 +285,7 @@ exports.addProcessOrder = async (req, res) => {
 
         await dataAnalystModel.findOneAndUpdate({
             dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
-            itemWebType: dgBill.itemInfo.itemWebType
+            itemWebType: dgBill.typeStr
         }, {$inc: {count: 1, amount: dgBill.NtdAmount}}, {new: true, upsert: true});
 
         logger.warn("addProcessOrder", {
@@ -430,7 +426,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
 
         await dataAnalystModel.findOneAndUpdate({
             dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
-            itemWebType: `Rcoin recharge`
+            itemWebType: chargeBill.typeStr
         }, {$inc: {count: 1, amount: chargeBill.RMBAmount}}, {new: true, upsert: true});
 
         logger.warn("addProcessOrderForRcoinCharge", {
