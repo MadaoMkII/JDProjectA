@@ -139,7 +139,6 @@ app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderControll
 
 app.post('/getPostage', isAuthenticated('Admin'), processOrderController.getAlreadySolved);
 
-
 app.get('/dujiuxing', isAuthenticated('User'), manageSettingController.dujiuxing);
 
 app.post('/user/updateNickname', isAuthenticated('User'), userController.update_nickName);
@@ -249,7 +248,6 @@ app.get('/checkhealth', function (req, res) {
 });
 app.post('/getSetting', isAuthenticated('User'), manageSettingController.getSetting);
 app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSetting);
-
 
 app.post('/item/addProcessOrder', isAuthenticated('Admin'), processOrderController.addProcessOrder);
 app.post('/item/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);

@@ -85,7 +85,7 @@ myEvent.set('toJSON', {
 
 const aliPayAccount = new mongoose.Schema(
     {
-        user_id: {type: String, required: true},
+        user_id: {type: String, index: { unique: true }, sparse: true},
         avatar: {type: String},
         province: {type: String},
         city: {type: String},

@@ -59,7 +59,7 @@ const dgBillSchema = new mongoose.Schema(
         chargeInfo: {chargeMethod: String, chargeAccount: String, toOurAccount: String},
         paymentInfo: {
             paymentMethod: String,//Rcoin ,alipay
-            paymentDFAccount: String, //alipay only
+            paymentDFAccount: {type: mongoose.Schema.Types.Mixed}, //alipay only
             friendAlipayAccount: String
         },
         itemInfo:

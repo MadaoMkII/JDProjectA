@@ -220,90 +220,103 @@ exports.findThisUserRcoinRecord = async (req, res) => {
 
 };
 
-exports.addDGByALIBill = async (req, res) => {
-
-    try {
-        let billObject = new dgBillModel();
-        billObject.itemInfo = {};
-        billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
-        billObject.itemInfo.itemName = req.body.itemInfo.itemName;
-
-        if (req.body.itemInfo.itemLink.search("detail.tmall.com") !== -1) {
-            billObject.itemInfo.itemWebType = "tmall";
-
-        } else if (req.body.itemInfo.itemLink.search("taobao.com") !== -1) {
-            billObject.itemInfo.itemWebType = "taobao";
-        } else {
-            billObject.itemInfo.itemWebType = "others";
-        }
-        if (req.body.typeStr === `淘寶/天貓/阿里巴巴代付`) {
-
-            billObject.isVirtualItem = req.body.isVirtualItem;
-            billObject.paymentInfo.paymentMethod = 'Alipay';
-            billObject.paymentInfo.friendAlipayAccount = `yubao0001@126.com`;
-            billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
-            billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
-        } else if (req.body.typeStr === `其他網站代購`) {
-            billObject.itemInfo.itemWebType = "others";
-            billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
-        } else {
-            return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
-        }
-        req.body.rateType = `AlipayAndWechatRate`;
-        let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
-        billObject.RMBAmount = req.body.RMBAmount;
-        billObject.feeRate = feeRate;
-        billObject.userUUid = req.user.uuid;
-        billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
-        billObject.comment = req.body.comment;
-        billObject.NtdAmount = totalAmount;
-        billObject.rate = rate;
-        billObject.fee = feeAmount;
-        billObject.chargeInfo = {};
-        billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
-        billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
-        billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
-        billObject.isVirtualItem = req.body.isVirtualItem;
-        billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
-
-        billObject.typeStr = req.body.typeStr;
-        let user = {};
-        if (!req.user.userStatus.isFirstTimePaid) {
-            billObject.is_firstOrder = true;
-        }
-        req.user = user;
-        let userObject = {};
-        userObject.tel_number = req.user.tel_number;
-        userObject.email_address = req.user.email_address;
-        userObject.realName = req.user.realName;
-        userObject.nickName = req.user.nickName;
-        userObject.Rcoins = req.user.Rcoins;
-        userObject.VIPLevel = req.user.VIPLevel;
-        billObject.userInfo = userObject;
-        await billObject.save();
-
-        logger.info("addDGByALIBill", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
-        return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
-    }
-    catch (err) {
-        logger.error("addDGByALIBill", {
-            level: req.user.role,
-            response: `addDGByALIBill Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-        return res.status(500).send({error_code: 500, error_msg: `addDGByALIBill Failed`});
-    }
-};
+// exports.addDGByALIBill = async (req, res) => {
+//
+//     try {
+//         let billObject = new dgBillModel();
+//         billObject.itemInfo = {};
+//         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
+//         billObject.itemInfo.itemName = req.body.itemInfo.itemName;
+//
+//         if (req.body.itemInfo.itemLink.search("detail.tmall.com") !== -1) {
+//             billObject.itemInfo.itemWebType = "tmall";
+//
+//         } else if (req.body.itemInfo.itemLink.search("taobao.com") !== -1) {
+//             billObject.itemInfo.itemWebType = "taobao";
+//         } else {
+//             billObject.itemInfo.itemWebType = "others";
+//         }
+//         if (req.body.typeStr === `淘寶/天貓/阿里巴巴代付`) {
+//
+//             billObject.isVirtualItem = req.body.isVirtualItem;
+//             billObject.paymentInfo.paymentMethod = 'Alipay';
+//             billObject.paymentInfo.friendAlipayAccount = `yubao0001@126.com`;
+//
+//             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
+//
+//             for (let alipayAccount of req.user.aliPayAccounts) {
+//
+//                 if (alipayAccount.user_id.toString() === req.body.paymentInfo.paymentDFAccount.toString()) {
+//                     billObject.paymentInfo.paymentDFAccount  = {
+//                         user_id: alipayAccount.user_id,
+//                         avatar: alipayAccount.avatar,
+//                         nickname: alipayAccount.nick_name
+//                     }
+//                 }
+//
+//             }
+//
+//         } else if (req.body.typeStr === `其他網站代購`) {
+//             billObject.itemInfo.itemWebType = "others";
+//             billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
+//         } else {
+//             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
+//         }
+//         req.body.rateType = `AlipayAndWechatRate`;
+//         let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
+//         billObject.RMBAmount = req.body.RMBAmount;
+//         billObject.feeRate = feeRate;
+//         billObject.userUUid = req.user.uuid;
+//         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
+//         billObject.comment = req.body.comment;
+//         billObject.NtdAmount = totalAmount;
+//         billObject.rate = rate;
+//         billObject.fee = feeAmount;
+//         billObject.chargeInfo = {};
+//         billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
+//         billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
+//         billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
+//         billObject.isVirtualItem = req.body.isVirtualItem;
+//         billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
+//
+//         billObject.typeStr = req.body.typeStr;
+//         let user = {};
+//         if (!req.user.userStatus.isFirstTimePaid) {
+//             billObject.is_firstOrder = true;
+//         }
+//         req.user = user;
+//         let userObject = {};
+//         userObject.tel_number = req.user.tel_number;
+//         userObject.email_address = req.user.email_address;
+//         userObject.realName = req.user.realName;
+//         userObject.nickName = req.user.nickName;
+//         userObject.Rcoins = req.user.Rcoins;
+//         userObject.VIPLevel = req.user.VIPLevel;
+//         billObject.userInfo = userObject;
+//         await billObject.save();
+//
+//         logger.info("addDGByALIBill", {
+//             level: req.user.role,
+//             user: req.user.uuid,
+//             email: req.user.email_address,
+//             location: (new Error().stack).split("at ")[1],
+//             body: req.body
+//         });
+//         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
+//     }
+//     catch (err) {
+//         logger.error("addDGByALIBill", {
+//             level: req.user.role,
+//             response: `addDGByALIBill Failed`,
+//             user: req.user.uuid,
+//             email: req.user.email_address,
+//             location: (new Error().stack).split("at ")[1],
+//             body: req.body,
+//             error: err
+//         });
+//         return res.status(500).send({error_code: 500, error_msg: `addDGByALIBill Failed`});
+//     }
+// };
 exports.addDGRcoinsBill = async (req, res) => {
 
     try {
@@ -331,9 +344,19 @@ exports.addDGRcoinsBill = async (req, res) => {
             billObject.typeStr = req.body.typeStr;
             billObject.paymentInfo.paymentMethod = 'Alipay';
             billObject.paymentInfo.friendAlipayAccount = "yubao0001@126.com";
-            billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
-            billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
 
+            billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
+            for (let alipayAccount of req.user.aliPayAccounts) {
+
+                if (alipayAccount.user_id.toString() === req.body.paymentInfo.paymentDFAccount.toString()) {
+                    billObject.paymentInfo.paymentDFAccount = {
+                        user_id: alipayAccount.user_id,
+                        avatar: alipayAccount.avatar,
+                        nickname: alipayAccount.nick_name
+                    }
+                }
+
+            }
         } else if (req.body.typeStr === `其他網站代購`) {
             billObject.isVirtualItem = null;
             billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
@@ -490,19 +513,34 @@ exports.addReplacePostageBill = async (req, res) => {
 };
 
 exports.findPostage = async (req, res) => {
-    let searcher;
-    let operator = searchModel.pageModel(req);
 
-    searcher = searchModel.reqSearchConditionsAssemble(req,
-        {"filedName": `replacePostage.status`, "require": false},
-        {"filedName": `tel_number`, "require": false},
-        {"filedName": `billID`, "require": false},
-        {"filedName": `email_address`, "require": false}
-    );
-    searcher = Object.assign(searchModel.createAndUpdateTimeSearchModel(req), searcher);
+    try {
+        let searcher;
+        let operator = searchModel.pageModel(req);
 
-    let dgBillEntity = await dgBillModel.find(searcher,{}, operator);
-    return res.status(200).json({error_msg: dgBillEntity, error_code: "0"});
+        searcher = searchModel.reqSearchConditionsAssemble(req,
+            {"filedName": `replacePostage.status`, "require": false},
+            {"filedName": `userInfo.tel_number`, "require": false},
+            {"filedName": `billID`, "require": false},
+            {"filedName": `userInfo.email_address`, "require": false}
+        );
+        searcher = Object.assign(searchModel.createAndUpdateTimeSearchModel(req), searcher);
+        searcher = Object.assign({replacePostage: {"$exists": true}}, searcher);
+        let dgBillEntity = await dgBillModel.find(searcher, {}, operator);
+        return res.status(200).json({error_msg: dgBillEntity, error_code: "0"});
+
+    } catch (err) {
+        logger.error("findReplacePostage", {
+            level: req.user.role,
+            response: `findReplacePostage Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(500).json({error_msg: `Find Replace Postage Failed`, error_code: "500"});
+    }
 }
 exports.payReplacePostage = async (req, res) => {
 
