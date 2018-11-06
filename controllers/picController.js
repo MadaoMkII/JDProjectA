@@ -36,8 +36,8 @@ const storage = new GridFsStorage({
         });
     }
 });
-const upload = multer({storage, limits: {fileSize: 10000000},}).single('file');
-const uploadArray = multer({storage, limits: {fileSize: 10000000},}).array('files');
+const upload = multer({storage, limits: {fileSize: 100000000},}).single('file');
+const uploadArray = multer({storage, limits: {fileSize: 100000000},}).array('files');
 exports.getImgs = (req, res) => {
     gridfs.files.find().toArray((err, files) => {
         // Check if files
