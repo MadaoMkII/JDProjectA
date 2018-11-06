@@ -179,8 +179,8 @@ app.post('/getDataAnalyst', isAuthenticated('User'), processOrderController.getD
 
 app.post('/setReferer', isAuthenticated('User'), userController.setReferer);
 app.post('/addUserRealName', isAuthenticated('User'), userController.addUserRealName);
-app.post('/setBaseRate', isAuthenticated('User'), dgPayment.setBaseRateOutside);
-app.get('/getBaseRate', isAuthenticated('User'), dgPayment.getBaseRateOutside);
+
+app.post('/bill/getBaseRate', isAuthenticated('User'), dgPayment.getThisUserBasicRate);
 
 app.post('/delbank', isAuthenticated('User'), userController.delUserBank);
 app.post('/addbank', isAuthenticated('User'), userController.addUserBank);

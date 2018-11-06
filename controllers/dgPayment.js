@@ -8,48 +8,6 @@ const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 
-
-let getBaseRate = (req) => {
-    return new Promise((resolve, reject) => {
-            baseRateModelModel.findOne({VIPLevel: req.user.VIPLevel}, (err, data) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(data);
-                }
-
-            });
-        }
-    );
-};
-
-
-exports.setBaseRateOutside = async (req, res) => {
-
-    try {
-        let baseRateModelEntity = new baseRateModelModel();
-        baseRateModelEntity.VIPLevel = req.body.VIPLevel;
-        baseRateModelEntity.detailRate = req.body.detailRate;
-        let result = await baseRateModelModel.findOneAndUpdate({VIPLevel: baseRateModelEntity.VIPLevel},
-            {$set: {detailRate: baseRateModelEntity.detailRate}}
-            , {upsert: true, new: true});
-        return res.status(200).send({error_code: 200, error_msg: `OK`, data: result});
-    } catch (e) {
-        return res.status(403).send({error_code: 403, error_msg: `Error when try to save`});
-    }
-
-};
-
-exports.getBaseRateOutside = async (req, res) => {
-    try {
-        let baseRate = await getBaseRate(req, res);
-        return res.status(200).send({error_code: 200, error_msg: `OK`, data: baseRate});
-    } catch (e) {
-        return res.status(403).send({error_code: 403, error_msg: `Need login first`});
-    }
-
-};
-
 let getRate = (req, res) => {
 
 
@@ -76,7 +34,7 @@ let getRate = (req, res) => {
                     rate = rateEntity.detailRate;
                 }
             }
-            let feeAmount = (managerConfig.feeRate / 100 * parseInt(req.body.RMBAmount) * rate ).toFixed(2);
+            let feeAmount = (managerConfig.feeRate / 100 * parseInt(req.body.RMBAmount) * rate).toFixed(2);
             let totalAmount = ((1 + managerConfig.feeRate / 100) * req.body.RMBAmount * rate).toFixed(2);
             resolve([rate, managerConfig.feeRate, feeAmount, totalAmount]);
 
@@ -86,7 +44,24 @@ let getRate = (req, res) => {
         }
     });
 };
+exports.getThisUserBasicRate = async (req, res) => {
+    try {
 
+        req.body.RMBAmount = 1;
+        let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
+
+        return res.status(200).send({
+            error_code: 0, error_msg: "OK", data: {
+                rate: rate,
+                feeRate: feeRate,
+                feeAmount: feeAmount,
+                totalAmount: totalAmount
+            }
+        });
+    } catch (e) {
+        return res.status(513).send({error_code: 513, error_msg: e});
+    }
+};
 exports.getThisUserRcoinRate = async (req, res) => {
     try {
         let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
@@ -100,10 +75,8 @@ exports.getThisUserRcoinRate = async (req, res) => {
             }
         });
     } catch (e) {
-
         return res.status(513).send({error_code: 513, error_msg: e});
     }
-
 };
 
 let findTradeDAO = async (req, res, searchArgs, operator) => {
@@ -548,7 +521,7 @@ exports.findPostage = async (req, res) => {
             "replacePostage.postageAmount": 1, "replacePostage.status": 1, "replacePostage.replaceTime": 1
         }, operator);
         let count = await dgBillModel.count(searcher);
-        return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity,nofdata:count});
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity, nofdata: count});
     } catch (err) {
 
         logger.error("findReplacePostage", {

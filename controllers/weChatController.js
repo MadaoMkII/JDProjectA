@@ -55,7 +55,6 @@ exports.getQR_code = async (req, res) => {
 exports.get_alipay_QR_code = async (req, res) => {
 
     try {
-
         let img = qr.image(config.alipay_auth_code_url, {size: 10});
         res.writeHead(200, {'Content-Type': 'image/png'});
         img.pipe(res);

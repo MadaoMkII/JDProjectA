@@ -1,6 +1,14 @@
 const crypto = require('crypto');
 const config = require('../config/develop');
 
+let checkIfExistInArray = (fieldValue,array,fieldName) => {
+    for(let entity of array){
+        if(entity[fieldName]   ){}
+
+    }
+
+    return false;
+};
 
 let isEmpty = (obj) => {
     if (obj === "") return true;
