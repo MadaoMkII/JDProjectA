@@ -1,4 +1,3 @@
-const queryString = require('query-string');
 const config = require('../config/develop');
 const userModel = require('../modules/userAccount').userAccountModel;
 const request = require('request');
@@ -39,7 +38,7 @@ exports.receiveCallback = async (req, res) => {
     // req.query.auth_code = 2016092000552091;
     try {
         let step_1_response = {
-            //code: req.query.auth_code,
+
             code: req.query[`auth_code`],
             grant_type: `authorization_code`,
         }
@@ -51,8 +50,6 @@ console.log(step_1_response)
         const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
             auth_token: step_2_response.accessToken
         });
-
-
 
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: step_3_response});
 
