@@ -4,15 +4,15 @@ const userModel = require('../modules/userAccount').userAccountModel;
 const request = require('request');
 const fs = require('fs');
 const AlipaySdk = require('alipay-sdk').default;
-const alipaySdk =  new AlipaySdk({
+const alipaySdk = new AlipaySdk({
     appId: "2016092000552091",
     privateKey: fs.readFileSync('./keys/应用私钥2048.txt', 'ascii'),
     alipayPublicKey: fs.readFileSync('./keys/应用公钥2048.txt', 'ascii'),
     camelcase: true,
-    format:`JSON`,
-    charset:`utf-8`,
-    sign_type:"RSA",
-    gateway:`https://openapi.alipaydev.com/gateway.do`
+    format: `JSON`,
+    charset: `utf-8`,
+    sign_type: "RSA",
+    gateway: `https://openapi.alipaydev.com/gateway.do`
 });
 let requestFun = (JSONObject, method, url) => {
 
@@ -32,53 +32,26 @@ let requestFun = (JSONObject, method, url) => {
     });
 };
 exports.receiveCallback = async (req, res) => {
-    Date.prototype.Format = (fmt) => {
-        let o = {
-            "M+": this.getMonth() + 1, //月份
-            "d+": this.getDate(), //日
-            "h+": this.getHours(), //小时
-            "m+": this.getMinutes(), //分
-            "s+": this.getSeconds(), //秒
-            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
-            "S": this.getMilliseconds() //毫秒
-        };
-        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-        for (let k in o)
-            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1,
-                (RegExp.$1.length === 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-        return fmt;
-    };
+
     // req.query.app_id = 2016092000552091;
     // req.query.source = 2016092000552091;
     // req.query.scope = 2016092000552091;
     // req.query.auth_code = 2016092000552091;
     try {
-    let sendQuery = {
-        timestamp: new Date(),
-        method: `alipay.system.oauth.token`,
-        app_id: `2016092000552091`,
-        sign_type: `RSA2`,
-        version: `1.0`,
-        grant_type: `authorization_code`,
-        code: req.query[`auth_code`],
-        charset: `utf-8`
-    };
-    let xrequest = {
-        code: "8bcda74191cc48c28c0d9816c6fcYX04",
-        grant_type: `authorization_code`,
+        let step_1_response = {
+            //code: req.query.auth_code,
+            code: req.query[`auth_code`],
+            grant_type: `authorization_code`,
+        }
 
-    }
-
-        //const result = await alipaySdk.exec('alipay.system.oauth.token', xrequest);
+        const step_2_response = await alipaySdk.exec('alipay.system.oauth.token', step_1_response);
 
         // result 为 API 介绍内容中 “响应参数” 对应的结果
-        //console.log(result);
-
-        const USER_result = await alipaySdk.exec('alipay.user.info.share', {
-
-            auth_token:"authusrBd7a075fd4ec746d38a21185674f82X04"
+        console.log(step_2_response)
+        const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
+            auth_token: step_2_response.accessToken
         });
-        return res.status(200).json({error_msg: `OK`, error_code: "0", data: USER_result});
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: step_3_response});
 
     } catch (err) {
         //...
