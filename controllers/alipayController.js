@@ -11,7 +11,7 @@ const alipaySdk = new AlipaySdk({
     camelcase: true,
     format: `JSON`,
     charset: `utf-8`,
-    sign_type: "RSA",
+    sign_type: "RSA2",
     gateway: `https://openapi.alipay.com/gateway.do`
 });
 let requestFun = (JSONObject, method, url) => {
