@@ -50,6 +50,24 @@ exports.receiveCallback = async (req, res) => {
         const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
             auth_token: step_2_response.accessToken
         });
+
+        const aliPayAccount =
+            {
+                alipayAccount: (req.query.state.toString()).split(`||`)[0],
+                user_id: step_3_response.user_id,
+                avatar: step_3_response.avatar,
+                province: step_3_response.province,
+                city: step_3_response.city,
+                nick_name: step_3_response.nickName,
+                is_student_certified: step_3_response.is_student_certified,
+                user_type: step_3_response.user_type,
+                user_status: step_3_response.user_status,
+                is_certified: step_3_response.is_certified,
+                gender: step_3_response.gender
+            };
+
+
+        await userModel.findOneAndUpdate({uuid: req.user.uuid}, {$push: {aliPayAccounts: aliPayAccount}});
         console.log(step_3_response)
         // return res.status(200).json({error_msg: `OK`, error_code: "0", data: step_3_response});
         res.redirect('/temp.html');
