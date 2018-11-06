@@ -5,14 +5,14 @@ const request = require('request');
 const fs = require('fs');
 const AlipaySdk = require('alipay-sdk').default;
 const alipaySdk = new AlipaySdk({
-    appId: "2016092000552091",
+    appId: "2018102961952197",
     privateKey: fs.readFileSync('./keys/应用私钥2048.txt', 'ascii'),
     alipayPublicKey: fs.readFileSync('./keys/应用公钥2048.txt', 'ascii'),
     camelcase: true,
     format: `JSON`,
     charset: `utf-8`,
     sign_type: "RSA",
-    gateway: `https://openapi.alipaydev.com/gateway.do`
+    gateway: `https://openapi.alipay.com/gateway.do`
 });
 let requestFun = (JSONObject, method, url) => {
 
