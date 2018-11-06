@@ -51,8 +51,9 @@ console.log(step_1_response)
             auth_token: step_2_response.accessToken
         });
 
-        return res.status(200).json({error_msg: `OK`, error_code: "0", data: step_3_response});
-
+      // return res.status(200).json({error_msg: `OK`, error_code: "0", data: step_3_response});
+        res.redirect('/temp.html');
+        res.end();
     } catch (err) {
         //...
         console.log(err);
