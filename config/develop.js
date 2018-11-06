@@ -19,7 +19,8 @@ module.exports = {
     showqrcode_link: `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=`,
     access_token: `15_enenXnsf02mXPa3eZ2uziuwFnar-ifgL3v1aSwm7a9GPG_qTUPeBn1_3xkwZbi_8GshyEntzm3duLbrPkKAJMUwOXon_c3vtpRCO6XBWNL04TSNCnATWgI2LDM6IpJ3UA8VsDES8yZkNnReCJQMdAEADKG`,
 
-    alipay_002_gatway: `https://openapi.alipaydev.com/gateway.do`,
+    alipay_auth_code_url:`https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=2018102961952197&scope=auth_user&redirect_uri=http%3a%2f%2fwww.yubaopay.com.tw%2falipay%2freceiveCallback`,
+    alipay_production_gatway: `https://openapi.alipaydev.com/gateway.do`,
     alipay_App_ID: 2016092000552091
 };
 

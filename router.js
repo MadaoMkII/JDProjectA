@@ -127,6 +127,8 @@ app.use(function (req, res, next) {
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
 app.get('/alipay/setAccount', isAuthenticated('Admin'), alipayController.set_AlipayAccount);
 
+app.get('/alipayQRcode', weChatController.get_alipay_QR_code);
+
 app.get('/wechat/getQR_code', isAuthenticated('Admin'), weChatController.getQR_code);
 app.post('/receive', weChatController.msg_holder);
 

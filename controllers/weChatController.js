@@ -50,7 +50,18 @@ exports.getQR_code = async (req, res) => {
     } catch (err) {
         return res.status(500).json({error_msg: "code can not use ", error_code: "500"});
     }
+};
 
+exports.get_alipay_QR_code = async (req, res) => {
+
+    try {
+
+        let img = qr.image(config.alipay_auth_code_url, {size: 10});
+        res.writeHead(200, {'Content-Type': 'image/png'});
+        img.pipe(res);
+    } catch (err) {
+        return res.status(500).json({error_msg: "code can not use ", error_code: "500"});
+    }
 };
 
 exports.msg_holder = async (req, res) => {

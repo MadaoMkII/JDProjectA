@@ -76,8 +76,8 @@ let getRate = (req, res) => {
                     rate = rateEntity.detailRate;
                 }
             }
-            let feeAmount = (managerConfig.feeRate / 100 * parseInt(req.body.RMBAmount) * rate / 100).toFixed(2);
-            let totalAmount = ((1 + managerConfig.feeRate / 100) * req.body.RMBAmount * rate / 100).toFixed(2);
+            let feeAmount = (managerConfig.feeRate / 100 * parseInt(req.body.RMBAmount) * rate ).toFixed(2);
+            let totalAmount = ((1 + managerConfig.feeRate / 100) * req.body.RMBAmount * rate).toFixed(2);
             resolve([rate, managerConfig.feeRate, feeAmount, totalAmount]);
 
         } catch (err) {

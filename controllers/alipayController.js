@@ -4,13 +4,16 @@ const userModel = require('../modules/userAccount').userAccountModel;
 const request = require('request');
 const fs = require('fs');
 const AlipaySdk = require('alipay-sdk').default;
-//
-// const alipaySdk = new AlipaySdk({
-//     appId: config.alipay_App_ID
-//     // privateKey: fs.readFileSync('./private-key.pem', 'ascii'),
-//     // alipayPublicKey: fs.readFileSync('./public-key.pem', 'ascii'),
-// });
-
+const alipaySdk =  new AlipaySdk({
+    appId: "2016092000552091",
+    privateKey: fs.readFileSync('./keys/应用私钥2048.txt', 'ascii'),
+    alipayPublicKey: fs.readFileSync('./keys/应用公钥2048.txt', 'ascii'),
+    camelcase: true,
+    format:`JSON`,
+    charset:`utf-8`,
+    sign_type:"RSA",
+    gateway:`https://openapi.alipaydev.com/gateway.do`
+});
 let requestFun = (JSONObject, method, url) => {
 
     return new Promise((resolve, reject) => {
@@ -49,7 +52,7 @@ exports.receiveCallback = async (req, res) => {
     // req.query.source = 2016092000552091;
     // req.query.scope = 2016092000552091;
     // req.query.auth_code = 2016092000552091;
-
+    try {
     let sendQuery = {
         timestamp: new Date(),
         method: `alipay.system.oauth.token`,
@@ -60,11 +63,30 @@ exports.receiveCallback = async (req, res) => {
         code: req.query[`auth_code`],
         charset: `utf-8`
     };
-    const stringified = queryString.stringify(sendQuery);
-    console.log(stringified)
-    let [response, body] = await requestFun({}, `GET`, config.alipay_002_gatway);
-console.log(body)
-    return res.status(200).json({error_msg: `OK`, error_code: "0", data: body});
+    let xrequest = {
+        code: "8bcda74191cc48c28c0d9816c6fcYX04",
+        grant_type: `authorization_code`,
+
+    }
+
+        //const result = await alipaySdk.exec('alipay.system.oauth.token', xrequest);
+
+        // result 为 API 介绍内容中 “响应参数” 对应的结果
+        //console.log(result);
+
+        const USER_result = await alipaySdk.exec('alipay.user.info.share', {
+
+            auth_token:"authusrBd7a075fd4ec746d38a21185674f82X04"
+        });
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: USER_result});
+
+    } catch (err) {
+        //...
+        console.log(err);
+
+    }
+
+
 };
 
 exports.set_AlipayAccount = async (req, res) => {
