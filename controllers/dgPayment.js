@@ -310,7 +310,7 @@ exports.addDGByALIBill = async (req, res) => {
             return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
         }
     } catch (err) {
-        console.log(err)
+
         logger.error("addDGByALIBill", {
             level: req.user.role,
             response: `addDGByALIBill Failed`,
@@ -400,9 +400,9 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.userInfo = userObject;
         await billObject.save();
         let recentRcoins = Number.parseInt(req.user.Rcoins) - Number.parseInt(billObject.RMBAmount);
-        await userModel.findOneAndUpdate({uuid: req.user.uuid},
+        let newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$set: {Rcoins: tool.encrypt(`` + recentRcoins)}}, {new: true});
-
+        req.user = newUser;
         logger.info("addDGRcoinsBill", {
             level: req.user.role,
             user: req.user.uuid,
@@ -413,7 +413,6 @@ exports.addDGRcoinsBill = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (err) {
-
         logger.error("addDGRcoinsBill", {
             level: req.user.role,
             response: `addDGRcoinsBill Failed`,

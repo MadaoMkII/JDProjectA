@@ -127,15 +127,13 @@ app.use(function (req, res, next) {
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
 app.get('/alipay/setAccount', isAuthenticated('Admin'), alipayController.set_AlipayAccount);
 
-app.get('/alipayQRcode', alipayController.get_alipay_QR_code);
+app.get('/alipayQRcode', isAuthenticated('Admin'),alipayController.get_alipay_QR_code);
 
 app.get('/wechat/getQR_code', isAuthenticated('Admin'), weChatController.getQR_code);
 app.post('/receive', weChatController.msg_holder);
 
 
 app.post('/wechat/checkToken', weChatController.msg_holder);
-
-
 app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
 
 app.post('/getPostage', isAuthenticated('Admin'), processOrderController.getAlreadySolved);

@@ -40,6 +40,7 @@ exports.get_alipay_QR_code = async (req, res) => {
         res.writeHead(200, {'Content-Type': 'image/png'});
         img.pipe(res);
     } catch (err) {
+        console.log(err)
         return res.status(500).json({error_msg: "code can not use ", error_code: "500"});
     }
 };
