@@ -389,6 +389,12 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.chargeInfo.chargeMethod = `Rcoin`;
         billObject.typeState = 1;
 
+
+        let recentRcoins = Number.parseInt(req.user.Rcoins) - Number.parseInt(billObject.RMBAmount);
+        let newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+            {$set: {Rcoins: tool.encrypt(`` + recentRcoins)}}, {new: true});
+        req.user = newUser;
+
         let userObject = {};
         userObject.tel_number = req.user.tel_number;
         userObject.email_address = req.user.email_address;
@@ -399,10 +405,7 @@ exports.addDGRcoinsBill = async (req, res) => {
 
         billObject.userInfo = userObject;
         await billObject.save();
-        let recentRcoins = Number.parseInt(req.user.Rcoins) - Number.parseInt(billObject.RMBAmount);
-        let newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
-            {$set: {Rcoins: tool.encrypt(`` + recentRcoins)}}, {new: true});
-        req.user = newUser;
+
         logger.info("addDGRcoinsBill", {
             level: req.user.role,
             user: req.user.uuid,
