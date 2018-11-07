@@ -1,12 +1,15 @@
 const dgBillModel = require('../modules/dgBill').dgBillModel;
-const replacePostageBillModel = require('../modules/dgBill').replacePostageBillModel;
-const baseRateModelModel = require('../modules/managerConfigFeatures').baseRateModel;
 const userModel = require('../modules/userAccount').userAccountModel;
 const searchModel = require('../controllers/searchModel');
 const manageSettingController = require('../controllers/manageSettingController');
 const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
+
+
+exports.getFriendAccount = (req, res) => {
+    return res.status(200).send({error_code: 0, error_msg: `OK`, data: "yubao0001@126.com"});
+};
 
 let getRate = (req, res) => {
 
@@ -315,7 +318,7 @@ exports.addDGRcoinsBill = async (req, res) => {
             billObject.isVirtualItem = req.body.isVirtualItem;
             billObject.typeStr = req.body.typeStr;
             billObject.paymentInfo.paymentMethod = 'Alipay';
-            billObject.paymentInfo.friendAlipayAccount = "yubao0001@126.com";
+            billObject.paymentInfo.friendAlipayAccount = req.body.friendAlipayAccount;
 
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
             for (let alipayAccount of req.user.aliPayAccounts) {
@@ -451,7 +454,7 @@ exports.addReplacePostageBill = async (req, res) => {
             {"filedName": `replaceTime`, "require": false},
             {"filedName": `billID`, "require": true},
             {"filedName": `status`, "require": true}
-        )
+        );
 
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
             {$set: {replacePostage: replacePostageBillEntity, payFreight: 1}}, {new: true}).populate(`processOrder`);
@@ -515,7 +518,7 @@ exports.findPostage = async (req, res) => {
                 searcher["replacePostage.replaceTime"] = {$gte: new Date(req.body['afterDate'])};
             }
         }
-        console.log(searcher)
+
         let dgBillEntity = await dgBillModel.find(searcher, {
             "userInfo.tel_number": 1, "userInfo.email_address": 1, "replacePostage.comment": 1, billID: 1,
             "replacePostage.postageAmount": 1, "replacePostage.status": 1, "replacePostage.replaceTime": 1
@@ -535,7 +538,7 @@ exports.findPostage = async (req, res) => {
         });
         return res.status(400).json({error_msg: err.message, error_code: "500"});
     }
-}
+};
 exports.payReplacePostage = async (req, res) => {
 
     try {

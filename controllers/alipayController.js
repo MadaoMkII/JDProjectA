@@ -3,6 +3,8 @@ const userModel = require('../modules/userAccount').userAccountModel;
 const request = require('request');
 const fs = require('fs');
 const AlipaySdk = require('alipay-sdk').default;
+let qr = require('qr-image');
+
 const alipaySdk = new AlipaySdk({
     appId: "2018102961952197",
     privateKey: fs.readFileSync('./keys/应用私钥2048.txt', 'ascii'),
@@ -29,6 +31,17 @@ let requestFun = (JSONObject, method, url) => {
             }
         });
     });
+};
+exports.get_alipay_QR_code = async (req, res) => {
+
+    try {
+        let img = qr.image(config.alipay_auth_code_url + `&state=${req.user.uuid}||${req.query.alipayAccount}
+        ||${req.query["alipayRealname"]}`, {size: 10});
+        res.writeHead(200, {'Content-Type': 'image/png'});
+        img.pipe(res);
+    } catch (err) {
+        return res.status(500).json({error_msg: "code can not use ", error_code: "500"});
+    }
 };
 exports.receiveCallback = async (req, res) => {
 
@@ -66,8 +79,8 @@ exports.receiveCallback = async (req, res) => {
                 gender: step_3_response.gender
             };
 
-
-        await userModel.findOneAndUpdate({uuid: req.user.uuid}, {$push: {aliPayAccounts: aliPayAccount}});
+        let new_user = await userModel.findOneAndUpdate({uuid: (req.query.state.toString()).split(`||`)[0]}, {$push: {aliPayAccounts: aliPayAccount}}, {new: true});
+        req.user = new_user;
         console.log(step_3_response)
         // return res.status(200).json({error_msg: `OK`, error_code: "0", data: step_3_response});
         res.redirect('/temp.html');
