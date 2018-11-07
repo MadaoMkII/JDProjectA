@@ -253,7 +253,7 @@ app.post('/getSetting', isAuthenticated('User'), manageSettingController.getSett
 app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSetting);
 
 app.post('/item/addProcessOrder', isAuthenticated('Admin'), processOrderController.addProcessOrder);
-app.post('/item/addRcoinsBill', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
+app.post('/item/addBillByRcoins', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
 app.post('/item/addBillByBank', isAuthenticated('User'), dgPayment.addDGByALIBill);
 
 app.post('/recharger/addProcessOrderForCharge', isAuthenticated('Admin'), processOrderController.addProcessOrderForCharge);
