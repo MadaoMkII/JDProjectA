@@ -216,20 +216,22 @@ exports.addDGByALIBill = async (req, res) => {
 
             billObject.isVirtualItem = req.body.isVirtualItem;
             billObject.paymentInfo.paymentMethod = 'Alipay';
-            billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
-
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
+            if(!tool.isEmpty(req.body.paymentInfo) ) {
 
-            for (let alipayAccount of req.user.aliPayAccounts) {
+                billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
+                if (!tool.isEmpty(req.body.paymentInfo.paymentDFAccount)) {
+                    for (let alipayAccount of req.user.aliPayAccounts) {
 
-                if (alipayAccount.user_id.toString() === req.body.paymentInfo.paymentDFAccount.toString()) {
-                    billObject.paymentInfo.paymentDFAccount = {
-                        user_id: alipayAccount.user_id,
-                        avatar: alipayAccount.avatar,
-                        nickname: alipayAccount.nick_name
+                        if (alipayAccount.user_id.toString() === req.body.paymentInfo.paymentDFAccount.toString()) {
+                            billObject.paymentInfo.paymentDFAccount = {
+                                user_id: alipayAccount.user_id,
+                                avatar: alipayAccount.avatar,
+                                nickname: alipayAccount.nick_name
+                            }
+                        }
                     }
                 }
-
             }
 
         } else if (req.body.typeStr === `其他網站代購`) {
@@ -254,12 +256,12 @@ exports.addDGByALIBill = async (req, res) => {
         //billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
         //billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
         let webBankArray = await bankAccountModel.find();
-console.log(webBankArray)
+
         for (let bankAccount of webBankArray) {
             if (bankAccount.bankCode.toString() === req.body.chargeInfo.toOurAccount.toString()) {
                 billObject.chargeInfo.toOurAccount = {
                     "accountCode": bankAccount.accountCode,
-                    "accountName":bankAccount.accountName,
+                    "accountName": bankAccount.accountName,
                     "bankName": bankAccount.bankName,
                     "bankType": bankAccount.bankType,
                     "bankCode": bankAccount.bankCode
@@ -268,7 +270,6 @@ console.log(webBankArray)
         }
 
         for (let bankAcc of req.user.bankAccounts) {
-
             if (bankAcc.last6digital.toString() === req.body.chargeInfo.chargeAccount.toString()) {
                 billObject.chargeInfo.chargeAccount = {
                     "accountTelNumber": bankAcc.accountTelNumber,
@@ -383,8 +384,8 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.fee = feeAmount;
         billObject.chargeInfo = {};
         billObject.chargeInfo.chargeMethod = `Rcoin`;
-
         billObject.typeState = 1;
+
         let userObject = {};
         userObject.tel_number = req.user.tel_number;
         userObject.email_address = req.user.email_address;
