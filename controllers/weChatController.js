@@ -15,11 +15,11 @@ let sha1 = (str) => {
 
 exports.jiade = async (req, res) => {
     let newX = {
-        "nickname": "宫保鸡丁饭",
+        "nickname": "鱼香茄子",
         "activeStatus": true,
         "hasRealNameAuthed": true,
         "profileImgUrl": "http://thirdwx.qlogo.cn/mmopen/2U4Ev5icwu4ErqpLiasibdtsWEttypks99JAojofYd56SDLDfq2jqhbLXZIBCvNbKsm81HCVicHAN4kXpHWEmYvH2NIsWUS4I9OB/132",
-        "openID": "d0c04dd0-db3a-11e8-8743-a710340f75f8",
+        "openID": "aac04dd0-db3a-11e8-8743-a710340f75f8",
         "qr_info": {
             "ticket": "gQES8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAycDR6UFFDTXJkMm0xTmY5cDFyYzUAAgTvHthbAwRg6gAA",
             "eventkey": "qrscene_d0c04dd0-db3a-11e8-8743-a710340f75f8",
@@ -43,7 +43,7 @@ exports.jiade = async (req, res) => {
             "city": "Milpitas",
             "language": "zh_CN",
             "sex": 1,
-            "nickname": "宫保鸡丁饭",
+            "nickname": "鱼香茄子",
             "openid": "ocNtC1m_8d2YZ36KWbilvqf0K5LQ",
             "subscribe": 1
         },
@@ -60,11 +60,11 @@ exports.jiade = async (req, res) => {
         "user_status": "T",
         "user_type": "1",
         "is_student_certified": true,
-        "nick_name": "支付宝小三",
-        "city": "安庆",
-        "province": "安徽省",
+        "nick_name": "滑蛋牛柳",
+        "city": "大兴",
+        "province": "北京省",
         "avatar": "http://tfsimg.alipay.com/images/partner/T1uIxXXbpXXXXXXXX",
-        "user_id": "2088102104794936"
+        "user_id": "1029102104794936"
     }
 
     let newUser2 = await userModel.findOneAndUpdate({uuid: req.user.uuid},
