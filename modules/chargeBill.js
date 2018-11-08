@@ -30,7 +30,7 @@ const chargeBillSchema = new mongoose.Schema(
         chargeInfo: {
             chargeMethod: {type: String},
             chargeFromAccount: {type: mongoose.Schema.Types.Object},
-            toOurAccount: String
+            toOurAccount: {type: mongoose.Schema.Types.Object}
         },//alipay wechat Rcoin,
         processOrder: {type: processOrder}
     }, {

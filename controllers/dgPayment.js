@@ -495,7 +495,7 @@ exports.addReplacePostageBill = async (req, res) => {
             {"filedName": `billID`, "require": true},
             {"filedName": `status`, "require": true}
         );
-
+        replacePostageBillEntity.status = 0;
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
             {$set: {replacePostage: replacePostageBillEntity, payFreight: 1}}, {new: true}).populate(`processOrder`);
 
@@ -582,7 +582,8 @@ exports.findPostage = async (req, res) => {
 exports.payReplacePostage = async (req, res) => {
 
     try {
-
+        let replacePostageBillEntity = {};
+        searchModel.requestCheckBox(req, "toOurAccount", "chargeFromAccount");
         let billEntity = await dgBillModel.findOne({
             billID: req.body.billID,
             userUUid: req.user.uuid
@@ -591,19 +592,54 @@ exports.payReplacePostage = async (req, res) => {
         if (tool.isEmpty(billEntity)) {
             return res.status(404).json({error_msg: `Can not find bill`, error_code: "404"});
         }
+        if (tool.isEmpty(billEntity.replacePostage)) {
+            return res.status(404).json({error_msg: `No need to pay`, error_code: "404"});
+        }
 
-        let replacePostageBillEntity = {};
-        searchModel.requestCheckBox(req, "RMBAmount", "rechargeInfo",
-            "rechargeInfo.rechargeToAccount", "chargeInfo", "chargeInfo.chargeFromAccount");
 
-        for (let index in req.body) {
-            if (!tool.isEmpty(req.body[index])) {
-                replacePostageBillEntity[index] = req.body[index];
+        req.body.rateType = `RcoinRate`;
+        req.body.RMBAmount = billEntity.replacePostage.postageAmount;
+        replacePostageBillEntity.postageAmount = billEntity.replacePostage.postageAmount;
+
+        let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
+        replacePostageBillEntity.rate = rate;
+        replacePostageBillEntity.feeRate = feeRate;
+        replacePostageBillEntity.feeAmount = parseInt(feeAmount);
+        replacePostageBillEntity.totalAmount = parseInt(totalAmount);
+
+        for (let bankAcc of req.user.bankAccounts) {
+            if (bankAcc.last6digital.toString() === req.body.chargeFromAccount.toString()) {
+                replacePostageBillEntity.chargeFromAccount = {
+                    "accountTelNumber": bankAcc.accountTelNumber,
+                    "last6digital": bankAcc.last6digital,
+                    "accountName": bankAcc.accountName,
+                    "bankName": bankAcc.bankName,
+                    "bankType": bankAcc.bankType
+                }
             }
         }
 
+        let webBankArray = await bankAccountModel.find();
+        for (let bankAccount of webBankArray) {
+            if (bankAccount.bankCode.toString() === req.body.toOurAccount.toString()) {
+                replacePostageBillEntity.toOurAccount = {
+                    "accountCode": bankAccount.accountCode,
+                    "accountName": bankAccount.accountName,
+                    "bankName": bankAccount.bankName,
+                    "bankType": bankAccount.bankType,
+                    "bankCode": bankAccount.bankCode
+                };
+            }
+        }
+
+
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID, userUUid: req.user.uuid},
-            {$set: {"replacePostage.replacePostagePayment": replacePostageBillEntity}}, {new: true})
+            {
+                $set: {
+                    "replacePostage.replacePostagePayment": replacePostageBillEntity,
+                    "replacePostage.status": 1
+                }
+            }, {new: true})
             .populate(`processOrder`);
 
         if (!dgBillEntity) {
@@ -618,7 +654,7 @@ exports.payReplacePostage = async (req, res) => {
         });
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
     } catch (err) {
-
+        console.log(err)
         logger.error("payReplacePostage", {
             level: req.user.role,
             response: `payReplacePostage Failed`,

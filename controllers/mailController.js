@@ -4,6 +4,7 @@ const config = require('../config/develop');
 const redis = require("redis"),
     redisClient = redis.createClient();
 const userAccountModel = require('../modules/userAccount').userAccountModel;
+const dgBillModel = require('../modules/dgBill').dgBillModel;
 
 let smtpConfig = {
     host: 'hwsmtp.exmail.qq.com',
@@ -50,8 +51,18 @@ let sendEmail = async (emailAddress, massage) => {
 };
 exports.func_send_Email = async (req, res) => {
     try {
+        let billObject = await dgBillModel.findOne({billID: req.body.billID});
 
-        let email_address = req.body.email_address;
+        //let email_address = billObject.userInfo.email_address;
+       let email_address="shaunli319@gmail.com"
+        let picArray = billObject.processOrder.imageFilesNames;
+        let resultArray = [];
+
+        for (let pic of picArray) {
+            resultArray += `<img style="-webkit-user-select: none;cursor: zoom-out;"
+            src=${pic} width="610" height="610">`;
+
+        }
 
         await sendEmail(email_address, `<div id="dv_15" class="blk_wrapper" style="">
                                                 <table width="600" cellspacing="0" cellpadding="0" border="0"
@@ -115,26 +126,8 @@ exports.func_send_Email = async (req, res) => {
                                                                                            width="187" height="222">
                                                                                         <tbody>
                                                                                         <tr>
-                                                                                            <td name="bmeImgHolder"
-                                                                                                style="padding:20px;"
-                                                                                                align="left"
-                                                                                                valign="top"
-                                                                                                height="202"><img
-                                                                                                    src="http://www.yubaopay.com.tw/image/14897589306197.jpg"
-                                                                                                    width="300" height="350"
-                                                                                                    style="max-width: 700px; display: block;"
-                                                                                                    alt="" border="0">
-                                                                                            </td>
-                                                                                            <td name="bmeImgHolder"
-                                                                                                style="padding:20px;"
-                                                                                                align="left"
-                                                                                                valign="top"
-                                                                                                height="202"><img
-                                                                                                    src="http://www.yubaopay.com.tw/image/14897589306197.jpg"
-                                                                                                    width="300" height="350"
-                                                                                                    style="max-width: 700px; display: block;"
-                                                                                                    alt="" border="0">
-                                                                                            </td>
+                                                                                          ${resultArray}
+                                                                                      
                                                                                         </tr>
                                                                                         </tbody>
                                                                                     </table>
@@ -199,8 +192,9 @@ exports.func_send_Email = async (req, res) => {
             location: (new Error().stack).split("at ")[1],
             body: req.body
         });
-        return res.json({error_msg: "OK", error_code: "0", verity_code: verity_code});
+        return res.json({error_msg: "OK", error_code: "0"});
     } catch (err) {
+        console.log(err)
         logger.error("send_Email", {
             level: req.user.role,
             response: `Internal Service Error`,

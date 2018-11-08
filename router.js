@@ -7,6 +7,7 @@ const alipayController = require('./controllers/alipayController');
 //const debug = require('debug')('http');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
+const mailController = require('./controllers/mailController');
 //const massageChecker = require('./controllers/massageController');
 const picController = require('./controllers/picController');
 const advertisingController = require('./controllers/advertisingController');
@@ -265,7 +266,7 @@ app.post('/recharger/addChargeAliBills', isAuthenticated('User'), rechargeContro
 // app.post('/mail/change_Email', mailController.checkConfirmationEmail);
 // app.post('/mail/getbackmail', mailController.getBackFromEmail);
 
-//app.post('/sendemail', mailController.sendConfirmationEmail);//done
+app.post('/mail/send_pic_mail', mailController.func_send_Email);//done
 
 
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);

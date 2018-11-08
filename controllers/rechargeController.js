@@ -1,4 +1,5 @@
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
+const bankAccountModel = require('../modules/bankAccount').bankAccountModel;
 const manageSettingController = require('../controllers/manageSettingController');
 const dgPayment = require('../controllers/dgPayment');
 const tool = require('../config/tools');
@@ -96,7 +97,18 @@ exports.addChargeWechatBills = async (req, res) => {
             }
 
         }
-
+        let webBankArray = await bankAccountModel.find();
+        for (let bankAccount of webBankArray) {
+            if (bankAccount.bankCode.toString() === req.body.chargeInfo.toOurAccount.toString()) {
+                billObject.chargeInfo.toOurAccount = {
+                    "accountCode": bankAccount.accountCode,
+                    "accountName": bankAccount.accountName,
+                    "bankName": bankAccount.bankName,
+                    "bankType": bankAccount.bankType,
+                    "bankCode": bankAccount.bankCode
+                };
+            }
+        }
         //billObject.rechargeInfo.rechargeToAccount = req.body.rechargeInfo.rechargeToAccount;
 
         billObject.chargeInfo.chargeMethod = "bankAccount";
@@ -142,7 +154,7 @@ exports.addChargeWechatBills = async (req, res) => {
 
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
     } catch (err) {
-
+console.log(err)
         logger.error("addChargeBills", {
             level: req.user.role,
             response: `addChargeBills Failed`,
