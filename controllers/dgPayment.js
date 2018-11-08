@@ -324,8 +324,8 @@ exports.addBillByBank = async (req, res) => {
         });
         return res.status(500).send({error_code: 500, error_msg: `addDGByALIBill Failed`});
     }
-}
-;
+};
+
 exports.addDGRcoinsBill = async (req, res) => {
     try {
 

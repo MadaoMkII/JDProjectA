@@ -58,7 +58,7 @@ exports.findMyChargeBills = async (req, res) => {
         }, operator);
         let billCount = await chargeBillModel.count({userUUid: req.user.uuid});
 
-        return res.status(200).send({error_code: 200, error_msg: billResult, nofdata: billCount});
+        return res.status(200).send({error_code: 200, error_msg: `OK`, data: billResult, nofdata: billCount});
     } catch (err) {
         logger.error("findMyChargeBills", {
             level: req.user.role,
@@ -205,7 +205,7 @@ exports.addRcoinChargeBills = async (req, res) => {
             location: (new Error().stack).split("at ")[1],
             body: req.body
         });
-        return res.status(200).send({error_code: 0, error_msg: `OK`,data:billObject});
+        return res.status(200).send({error_code: 0, error_msg: `OK`, data: billObject});
     } catch (err) {
         logger.error("addRcoinChargeBills", {
             level: req.user.role,

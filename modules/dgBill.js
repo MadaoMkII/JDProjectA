@@ -1,12 +1,12 @@
 const mongoose = require('../db/db').mongoose;
 const processOrder = require('../modules/processOrder').processOrder;
 
-const replacePostagePayment = new mongoose.Schema(
-    {
-        ourAccount: String,
-        userPaymentAccount: {type: String}
-    }, {_id: false}
-);
+// const replacePostagePayment = new mongoose.Schema(
+//     {
+//         ourAccount: String,
+//         userPaymentAccount: {type: String}
+//     }, {_id: false}
+// );
 
 const replacePostageBill = new mongoose.Schema(
     {
@@ -14,7 +14,7 @@ const replacePostageBill = new mongoose.Schema(
         comment: String,
         replaceTime: Date,
         postageAmount: {type: Number, required: true},
-        replacePostagePayment: {type: replacePostagePayment}
+        replacePostagePayment: {type: mongoose.Schema.Types.Mixed}
     }, {_id: false, 'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 
