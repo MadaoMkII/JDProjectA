@@ -169,7 +169,6 @@ exports.addChargeWechatBills = async (req, res) => {
 };
 exports.addRcoinChargeBills = async (req, res) => {
 
-
     try {
         req.body.rateType = `RcoinRate`;
         let billObject = new chargeBillModel();
@@ -206,7 +205,7 @@ exports.addRcoinChargeBills = async (req, res) => {
             location: (new Error().stack).split("at ")[1],
             body: req.body
         });
-        return res.status(200).send({error_code: 0, error_msg: billObject});
+        return res.status(200).send({error_code: 0, error_msg: `OK`,data:billObject});
     } catch (err) {
         logger.error("addRcoinChargeBills", {
             level: req.user.role,
@@ -250,17 +249,14 @@ exports.addChargeAliBills = async (req, res) => {
                     alipayAccount: alipayAccount.alipayAccount
                 }
             }
-
         }
 
         //billObject.rechargeInfo.rechargeToAccount = req.body.rechargeInfo.rechargeToAccount;
 
         billObject.chargeInfo.chargeMethod = "bankAccount";
-
         if (billObject.chargeInfo.chargeMethod === "bankAccount") {
 
             for (let account of  req.user.bankAccounts) {
-
                 if (account.last6digital.toString() === req.body.chargeInfo.chargeFromAccount.toString()) {
                     account.updated_at = undefined;
                     account.created_at = undefined;

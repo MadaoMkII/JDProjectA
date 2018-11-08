@@ -64,12 +64,28 @@ exports.jiade = async (req, res) => {
         "city": "大兴",
         "province": "北京省",
         "avatar": "http://tfsimg.alipay.com/images/partner/T1uIxXXbpXXXXXXXX",
-        "user_id": "1029102104794936"
+        "user_id": "1029102104794936",
+        "alipayAccount":"abc@gmail.com"
     }
-
-    let newUser2 = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+    let newA2 = {
+        "gender": "F",
+        "is_certified": true,
+        "user_status": "T",
+        "user_type": "1",
+        "is_student_certified": true,
+        "nick_name": "芥末蚕豆",
+        "city": "铁岭",
+        "province": "天津市",
+        "avatar": "http://tfsimg.alipay.com/images/partner/T1uIxXXbpXXXXXXXX",
+        "user_id": "1029102104794936",
+        "alipayAccount":"tfsimgc@126.com"
+    }
+   await userModel.findOneAndUpdate({uuid: req.user.uuid},
+        {$set: {aliPayAccounts: []}});
+     await userModel.findOneAndUpdate({uuid: req.user.uuid},
         {$push: {aliPayAccounts: newA}}, {new: true});
-
+    let newUser2 = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+        {$push: {aliPayAccounts: newA2}}, {new: true});
     return res.status(200).json({error_msg: newUser2, error_code: "200"});
 
 }
