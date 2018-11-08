@@ -185,8 +185,21 @@ exports.addRcoinChargeBills = async (req, res) => {
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
-        billObject.chargeInfo.chargeMethod = req.body.chargeInfo.chargeMethod;
-        billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
+
+        billObject.chargeInfo.chargeMethod = "bankAccount";
+        let webBankArray = await bankAccountModel.find();
+
+        for (let bankAccount of webBankArray) {
+            if (bankAccount.bankCode.toString() === req.body.chargeInfo.toOurAccount.toString()) {
+                billObject.chargeInfo.toOurAccount = {
+                    "accountCode": bankAccount.accountCode,
+                    "accountName": bankAccount.accountName,
+                    "bankName": bankAccount.bankName,
+                    "bankType": bankAccount.bankType,
+                    "bankCode": bankAccount.bankCode
+                };
+            }
+        }
         for (let account of  req.user.bankAccounts) {
 
             if (account.last6digital === req.body.chargeInfo.chargeFromAccount) {
