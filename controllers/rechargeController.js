@@ -42,13 +42,6 @@ exports.findMyChargeBills = async (req, res) => {
 
         let command = {};
         command.userUUid = req.user.uuid;
-        if (req.body['beginData'] && req.body['endData']) {
-            command['created_at'] = {
-                $gte: new Date(req.query['beginData']),
-                $lte: new Date(req.query['endData'])
-            };
-        }
-
 
         let operator = searchModel.pageModel(req);
 

@@ -582,6 +582,16 @@ exports.findPostage = async (req, res) => {
 exports.payReplacePostage = async (req, res) => {
 
     try {
+
+        let billEntity = await dgBillModel.findOne({
+            billID: req.body.billID,
+            userUUid: req.user.uuid
+        }).populate(`processOrder`);
+
+        if (tool.isEmpty(billEntity)) {
+            return res.status(404).json({error_msg: `Can not find bill`, error_code: "404"});
+        }
+
         let replacePostageBillEntity = {};
         searchModel.requestCheckBox(req, "RMBAmount", "rechargeInfo",
             "rechargeInfo.rechargeToAccount", "chargeInfo", "chargeInfo.chargeFromAccount");
