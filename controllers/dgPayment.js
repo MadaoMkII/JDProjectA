@@ -195,10 +195,9 @@ exports.findThisUserRcoinRecord = async (req, res) => {
 
 };
 
-exports.addDGByALIBill = async (req, res) => {
+exports.addBillByBank = async (req, res) => {
 
     try {
-
         let billObject = new dgBillModel();
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
@@ -234,83 +233,81 @@ exports.addDGByALIBill = async (req, res) => {
                 //         }
                 //     }
                 // }
-
-            } else if (req.body.typeStr === `其他網站代購`) {
-                billObject.itemInfo.itemWebType = "others";
-                billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
-            } else {
-                return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
             }
-            req.body.rateType = `AlipayAndWechatRate`;
-            let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
-            billObject.RMBAmount = req.body.RMBAmount;
-            billObject.feeRate = feeRate;
-            billObject.userUUid = req.user.uuid;
-            billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
-            billObject.comment = req.body.comment;
-            billObject.NtdAmount = totalAmount;
-            billObject.rate = rate;
-            billObject.fee = feeAmount;
-
-            billObject.chargeInfo = {};
-            billObject.chargeInfo.chargeMethod = `bank`;
-            //billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
-            //billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
-            let webBankArray = await bankAccountModel.find();
-
-            for (let bankAccount of webBankArray) {
-                if (bankAccount.bankCode.toString() === req.body.chargeInfo.toOurAccount.toString()) {
-                    billObject.chargeInfo.toOurAccount = {
-                        "accountCode": bankAccount.accountCode,
-                        "accountName": bankAccount.accountName,
-                        "bankName": bankAccount.bankName,
-                        "bankType": bankAccount.bankType,
-                        "bankCode": bankAccount.bankCode
-                    };
-                }
-            }
-
-            for (let bankAcc of req.user.bankAccounts) {
-                if (bankAcc.last6digital.toString() === req.body.chargeInfo.chargeAccount.toString()) {
-                    billObject.chargeInfo.chargeAccount = {
-                        "accountTelNumber": bankAcc.accountTelNumber,
-                        "last6digital": bankAcc.last6digital,
-                        "accountName": bankAcc.accountName,
-                        "bankName": bankAcc.bankName,
-                        "bankType": bankAcc.bankType
-                    }
-                }
-            }
-            billObject.isVirtualItem = req.body.isVirtualItem;
-            billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
-
-            billObject.typeStr = req.body.typeStr;
-            let user = {};
-            if (!req.user.userStatus.isFirstTimePaid) {
-                billObject.is_firstOrder = true;
-            }
-            req.user = user;
-            let userObject = {};
-            userObject.tel_number = req.user.tel_number;
-            userObject.email_address = req.user.email_address;
-            userObject.realName = req.user.realName;
-            userObject.nickName = req.user.nickName;
-            userObject.Rcoins = req.user.Rcoins;
-            userObject.VIPLevel = req.user.VIPLevel;
-            billObject.userInfo = userObject;
-            await billObject.save();
-
-            logger.info("addDGByALIBill", {
-                level: req.user.role,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body
-            });
-            return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
+        } else if (req.body.typeStr === `其他網站代購`) {
+            billObject.itemInfo.itemWebType = "others";
+            billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
+        } else {
+            return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }
-    } catch (err) {
+        req.body.rateType = `AlipayAndWechatRate`;
+        let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
+        billObject.RMBAmount = req.body.RMBAmount;
+        billObject.feeRate = feeRate;
+        billObject.userUUid = req.user.uuid;
+        billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
+        billObject.comment = req.body.comment;
+        billObject.NtdAmount = totalAmount;
+        billObject.rate = rate;
+        billObject.fee = feeAmount;
 
+        billObject.chargeInfo = {};
+        billObject.chargeInfo.chargeMethod = `bank`;
+        //billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
+        //billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
+        let webBankArray = await bankAccountModel.find();
+
+        for (let bankAccount of webBankArray) {
+            if (bankAccount.bankCode.toString() === req.body.chargeInfo.toOurAccount.toString()) {
+                billObject.chargeInfo.toOurAccount = {
+                    "accountCode": bankAccount.accountCode,
+                    "accountName": bankAccount.accountName,
+                    "bankName": bankAccount.bankName,
+                    "bankType": bankAccount.bankType,
+                    "bankCode": bankAccount.bankCode
+                };
+            }
+        }
+
+        for (let bankAcc of req.user.bankAccounts) {
+            if (bankAcc.last6digital.toString() === req.body.chargeInfo.chargeAccount.toString()) {
+                billObject.chargeInfo.chargeAccount = {
+                    "accountTelNumber": bankAcc.accountTelNumber,
+                    "last6digital": bankAcc.last6digital,
+                    "accountName": bankAcc.accountName,
+                    "bankName": bankAcc.bankName,
+                    "bankType": bankAcc.bankType
+                }
+            }
+        }
+        billObject.isVirtualItem = req.body.isVirtualItem;
+        billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
+
+        billObject.typeStr = req.body.typeStr;
+        let user = {};
+        if (!req.user.userStatus.isFirstTimePaid) {
+            billObject.is_firstOrder = true;
+        }
+        req.user = user;
+        let userObject = {};
+        userObject.tel_number = req.user.tel_number;
+        userObject.email_address = req.user.email_address;
+        userObject.realName = req.user.realName;
+        userObject.nickName = req.user.nickName;
+        userObject.Rcoins = req.user.Rcoins;
+        userObject.VIPLevel = req.user.VIPLevel;
+        billObject.userInfo = userObject;
+        await billObject.save();
+
+        logger.info("addDGByALIBill", {
+            level: req.user.role,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+        return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
+    } catch (err) {
         logger.error("addDGByALIBill", {
             level: req.user.role,
             response: `addDGByALIBill Failed`,
@@ -322,10 +319,11 @@ exports.addDGByALIBill = async (req, res) => {
         });
         return res.status(500).send({error_code: 500, error_msg: `addDGByALIBill Failed`});
     }
-};
+}
+;
 exports.addDGRcoinsBill = async (req, res) => {
-
     try {
+
         let billObject = new dgBillModel();
         billObject.itemInfo = {};
         billObject.itemInfo.itemLink = req.body.itemInfo.itemLink;
@@ -366,7 +364,8 @@ exports.addDGRcoinsBill = async (req, res) => {
             // }
 
             billObject.paymentInfo.paymentDFAccount = `全进去`;
-        } else if (req.body.typeStr === `其他網站代購`) {
+        }
+        if (req.body.typeStr === `其他網站代購`) {
             billObject.isVirtualItem = null;
             billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
             billObject.typeStr = req.body.typeStr;

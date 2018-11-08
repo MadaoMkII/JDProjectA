@@ -245,7 +245,8 @@ exports.addChargeAliBills = async (req, res) => {
                 billObject.rechargeInfo.rechargeToAccount = {
                     user_id: alipayAccount.user_id,
                     avatar: alipayAccount.avatar,
-                    nickname: alipayAccount.nick_name
+                    nickname: alipayAccount.nick_name,
+                    alipayAccount: alipayAccount.alipayAccount
                 }
             }
 

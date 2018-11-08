@@ -252,11 +252,11 @@ app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSett
 
 app.post('/item/addProcessOrder', isAuthenticated('Admin'), processOrderController.addProcessOrder);
 app.post('/item/addBillByRcoins', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
-app.post('/item/addBillByBank', isAuthenticated('User'), dgPayment.addDGByALIBill);
+app.post('/item/addBillByBank', isAuthenticated('User'), dgPayment.addBillByBank);
 
 app.post('/recharger/addProcessOrderForCharge', isAuthenticated('Admin'), processOrderController.addProcessOrderForCharge);
 app.post('/recharger/addRcoinChargeBill', isAuthenticated('User'), rechargeController.addRcoinChargeBills);
-app.post('/recharger/addChargeAliBills', isAuthenticated('User'), rechargeController.addChargeAliBills);
+app.post('/recharger/addChargeAliBill', isAuthenticated('User'), rechargeController.addChargeAliBills);
 app.post('/recharger/findChargeBill', isAuthenticated('User'), rechargeController.findMyChargeBills);
 app.post('/recharger/addChargeWechatBills', isAuthenticated('User'), rechargeController.addChargeWechatBills);
 app.post('/recharger/addChargeAliBills', isAuthenticated('User'), rechargeController.addChargeAliBills);
