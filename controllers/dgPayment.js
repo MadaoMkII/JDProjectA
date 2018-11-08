@@ -268,7 +268,9 @@ exports.addBillByBank = async (req, res) => {
                 };
             }
         }
-
+        if (tool.isEmpty(billObject.chargeInfo.toOurAccount)) {
+            billObject.chargeInfo.toOurAccount = `Bank Infomation error`
+        }
         for (let bankAcc of req.user.bankAccounts) {
             if (bankAcc.last6digital.toString() === req.body.chargeInfo.chargeAccount.toString()) {
                 billObject.chargeInfo.chargeAccount = {
@@ -279,6 +281,9 @@ exports.addBillByBank = async (req, res) => {
                     "bankType": bankAcc.bankType
                 }
             }
+        }
+        if (tool.isEmpty(billObject.chargeInfo.chargeAccount)) {
+            billObject.chargeInfo.chargeAccount = `Bank Infomation error`
         }
         billObject.isVirtualItem = req.body.isVirtualItem;
         billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;

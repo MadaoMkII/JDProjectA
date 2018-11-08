@@ -13,7 +13,66 @@ let sha1 = (str) => {
     return str;
 };
 
+exports.jiade = async (req, res) => {
+    let newX = {
+        "nickname": "宫保鸡丁饭",
+        "activeStatus": true,
+        "hasRealNameAuthed": true,
+        "profileImgUrl": "http://thirdwx.qlogo.cn/mmopen/2U4Ev5icwu4ErqpLiasibdtsWEttypks99JAojofYd56SDLDfq2jqhbLXZIBCvNbKsm81HCVicHAN4kXpHWEmYvH2NIsWUS4I9OB/132",
+        "openID": "d0c04dd0-db3a-11e8-8743-a710340f75f8",
+        "qr_info": {
+            "ticket": "gQES8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAycDR6UFFDTXJkMm0xTmY5cDFyYzUAAgTvHthbAwRg6gAA",
+            "eventkey": "qrscene_d0c04dd0-db3a-11e8-8743-a710340f75f8",
+            "event": "subscribe",
+            "msgtype": "event",
+            "createtime": "1540891403",
+            "fromusername": "ocNtC1m_8d2YZ36KWbilvqf0K5LQ",
+            "tousername": "gh_139fe21b74d8"
+        },
+        "wechat_user_info": {
+            "qr_scene_str": "d0c04dd0-db3a-11e8-8743-a710340f75f8",
+            "qr_scene": 2,
+            "subscribe_scene": "ADD_SCENE_QR_CODE",
+            "tagid_list": [],
+            "groupid": 0,
+            "remark": "",
+            "subscribe_time": 1540953772,
+            "headimgurl": "http://thirdwx.qlogo.cn/mmopen/2U4Ev5icwu4ErqpLiasibdtsWEttypks99JAojofYd56SDLDfq2jqhbLXZIBCvNbKsm81HCVicHAN4kXpHWEmYvH2NIsWUS4I9OB/132",
+            "country": "US",
+            "province": "California",
+            "city": "Milpitas",
+            "language": "zh_CN",
+            "sex": 1,
+            "nickname": "宫保鸡丁饭",
+            "openid": "ocNtC1m_8d2YZ36KWbilvqf0K5LQ",
+            "subscribe": 1
+        },
+        "wechatID": "WE13718136782871"
+    }
 
+    let newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+        {$push: {wechatAccounts: newX}}, {new: true});
+
+
+    let newA = {
+        "gender": "F",
+        "is_certified": true,
+        "user_status": "T",
+        "user_type": "1",
+        "is_student_certified": true,
+        "nick_name": "支付宝小三",
+        "city": "安庆",
+        "province": "安徽省",
+        "avatar": "http://tfsimg.alipay.com/images/partner/T1uIxXXbpXXXXXXXX",
+        "user_id": "2088102104794936"
+    }
+
+    let newUser2 = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+        {$push: {aliPayAccounts: newA}}, {new: true});
+
+    return res.status(200).json({error_msg: newUser2, error_code: "200"});
+
+}
 let requestFun = (JSONObject, method, url) => {
     return new Promise((resolve, reject) => {
 
@@ -51,7 +110,6 @@ exports.getQR_code = async (req, res) => {
         return res.status(500).json({error_msg: "code can not use ", error_code: "500"});
     }
 };
-
 
 
 exports.msg_holder = async (req, res) => {

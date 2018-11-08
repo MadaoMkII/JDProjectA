@@ -97,7 +97,8 @@ exports.addChargeWechatBills = async (req, res) => {
                 billObject.rechargeInfo.rechargeToAccount = {
                     wechatID: wechatAccount.wechatID,
                     openID: wechatAccount.openID,
-                    nickname: wechatAccount.nickname
+                    nickname: wechatAccount.nickname,
+                    profileImgUrl: wechatAccount.profileImgUrl
                 }
             }
 

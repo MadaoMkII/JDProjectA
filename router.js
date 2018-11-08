@@ -122,7 +122,7 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-
+app.get('/test', isAuthenticated('Admin'),weChatController.jiade);
 
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
 app.get('/alipay/setAccount', isAuthenticated('Admin'), alipayController.set_AlipayAccount);
