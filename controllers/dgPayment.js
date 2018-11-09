@@ -267,7 +267,7 @@ exports.addBillByBank = async (req, res) => {
         });
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     } catch (err) {
-console.log(err)
+
         logger.error("addDGByALIBill", {
             level: req.user.role,
             response: `addDGByALIBill Failed`,
@@ -438,7 +438,8 @@ exports.findMyBills = async (req, res) => {
             dealState: 1,
             typeState: 1,
             created_at: 1,
-            dealDate: 1
+            dealDate: 1,
+            replacePostage:1
         };
 
         command.searchCondition = searchModel.reqSearchConditionsAssemble(req,

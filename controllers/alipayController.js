@@ -80,9 +80,8 @@ exports.receiveCallback = async (req, res) => {
                 gender: step_3_response.gender
             };
 
-        let new_user = await userModel.findOneAndUpdate({$push: {aliPayAccounts: aliPayAccount}},
+        req.user = await userModel.findOneAndUpdate({$push: {aliPayAccounts: aliPayAccount}},
             {uuid: (req.query.state.toString()).split(`||`)[0]}, {new: true});
-        req.user = new_user;
 
         // return res.status(200).json({error_msg: `OK`, error_code: "0", data: step_3_response});
         res.redirect('/temp.html');
