@@ -55,7 +55,7 @@ exports.receiveCallback = async (req, res) => {
             code: req.query[`auth_code`],
             grant_type: `authorization_code`,
         };
-console.log(step_1_response)
+        console.log(step_1_response)
         const step_2_response = await alipaySdk.exec('alipay.system.oauth.token', {
             code: step_1_response.code,
             grant_type: `authorization_code`
@@ -66,7 +66,7 @@ console.log(step_1_response)
         const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
             auth_token: step_2_response.accessToken
         });
-
+        console.log(step_3_response)
         const aliPayAccount =
             {
                 alipayAccount: (req.query.state.toString()).split(`||`)[0],
@@ -82,11 +82,11 @@ console.log(step_1_response)
                 gender: step_3_response.gender
             };
 
-        req.user = await userModel.findOneAndUpdate({uuid: (req.query.state.toString()).split(`||`)[0]},
+        let alipayUser = await userModel.findOneAndUpdate({uuid: (req.query.state.toString()).split(`||`)[0]},
             {$push: {aliPayAccounts: aliPayAccount}}, {new: true});
-
+        console.log(alipayUser)
         // return res.status(200).json({error_msg: `OK`, error_code: "0", data: step_3_response});
-        res.redirect('http://www.yubaopay.com.tw/#/center.html');
+        res.redirect('/temp.html');
         res.end();
     } catch (err) {
         //...
