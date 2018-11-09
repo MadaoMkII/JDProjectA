@@ -459,6 +459,57 @@ exports.adminGetBills = async (req, res) => {
         }
 
         command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req, res));
+        if (req.user.role === `User`) {
+            command.userUUid = req.user.uuid;
+        }
+        let operator = searchModel.pageModel(req, res);
+
+        let [result, count] = await findTradeDAO(req, res, command, operator);
+
+        return res.status(200).send({error_code: 0, error_msg: `OK`, data: result, nofdata: count});
+
+    } catch (err) {
+        logger.error("adminGetBills", {
+            level: req.user.role,
+            response: `adminGetBills Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(503).send({error_code: 503, error_msg: err});
+    }
+
+};
+exports.findMyBills = async (req, res) => {
+
+    try {
+
+        let command = {};
+        command.showCondition = {
+            typeStr: 1,
+            billID: 1,
+            RMBAmount: 1,
+            rate: 1,
+            NtdAmount: 1,
+            dealState: 1,
+            typeState: 1,
+            created_at: 1,
+            dealDate: 1
+        };
+
+        command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
+            {"filedName": `typeStr`, "require": false},
+            {"filedName": `dealState`, "require": false},
+        );
+        if (!tool.isEmpty(req.body.billID)) {
+            command.searchCondition = Object.assign(command.searchCondition, {billID: {$regex: `.*${req.body.billID}.*`}});
+        }
+
+        command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req, res));
+
+            command.userUUid = req.user.uuid;
 
         let operator = searchModel.pageModel(req, res);
 
@@ -480,7 +531,6 @@ exports.adminGetBills = async (req, res) => {
     }
 
 };
-
 exports.addReplacePostageBill = async (req, res) => {
 
     try {

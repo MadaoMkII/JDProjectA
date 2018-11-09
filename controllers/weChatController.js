@@ -133,22 +133,31 @@ exports.getQR_code_link = async (req, res) => {
 
     try {
 
-        let query = querystring.stringify({grant_type: `client_credential`, appid: config.alipay_App_ID});
-        let [, body] = await requestFun("", "GET", );
+        let getTokenQuery = config.wechat_token_url + querystring.stringify({
+            grant_type: `client_credential`,
+            appid: config.wechat_appID,
+            secret: config.wechat_secret
+        });
+        let [, returnBody] = await requestFun("", "GET", getTokenQuery);
+        if (returnBody[`errcode`] === 42001) {
+            return res.status(405).json({error_msg: "access_token expired", error_code: "405"});
+        }
 
         let JSONObject = {
             "expire_seconds": 60000,
             "action_name": "QR_STR_SCENE",
-            "action_info": {"scene": {"scene_id": "002", "scene_str": req.user.uuid}}
+            "action_info": {"scene": {"scene_str": req.user.uuid}}
         };
-        let [, body2] = await requestFun(JSONObject, "POST", config.qrcode_create_link + config.access_token);
-        if (body[`errcode`] === 42001) {
+        let getQrcodeQuery = config.qrcode_create_link + querystring.stringify({access_token: returnBody[`access_token`]});
+
+        let [, qrTicketRes] = await requestFun(JSONObject, "POST", getQrcodeQuery);
+        if (qrTicketRes[`errcode`] === 42001) {
             return res.status(405).json({error_msg: "access_token expired", error_code: "405"});
         }
-        console.log(body)
-        let img = qr.image(body.url, {size: 10});
-        res.writeHead(200, {'Content-Type': 'image/png'});
-        img.pipe(res);
+        let finalTicketUrl = config.wechat_showqrcode_link + querystring.stringify({ticket: qrTicketRes.ticket});
+
+        return res.status(200).json({error_msg: "OK", error_code: "0", data: {QRUrl: finalTicketUrl}});
+
     } catch (err) {
         console.log(err)
         return res.status(500).json({error_msg: "code can not use ", error_code: "500"});

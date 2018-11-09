@@ -123,16 +123,14 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-app.get('/test', isAuthenticated('Admin'),weChatController.jiade);
+app.get('/test', isAuthenticated('Admin'), weChatController.jiade);
 
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
 app.get('/alipay/setAccount', isAuthenticated('Admin'), alipayController.set_AlipayAccount);
 
-app.get('/alipayQRcode', isAuthenticated('Admin'),alipayController.get_alipay_QR_code);
-
-app.get('/wechat/getQR_code', isAuthenticated('Admin'), weChatController.getQR_code);
+app.get('/alipayQRcode', isAuthenticated('Admin'), alipayController.get_alipay_QR_code);
+app.get('/wechat/getQRcodeUrl', isAuthenticated('User'), weChatController.getQR_code_link);
 app.post('/receive', weChatController.msg_holder);
-
 
 app.post('/wechat/checkToken', weChatController.msg_holder);
 app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
@@ -188,6 +186,7 @@ app.get('/getBankAccounts', isAuthenticated('User'), manageSettingController.get
 
 app.post('/getThisUserRate', isAuthenticated('User'), dgPayment.getThisUserRcoinRate);
 app.post('/bills/getBills', isAuthenticated('Admin'), dgPayment.adminGetBills);
+app.post('/bills/findMyBills', isAuthenticated('Admin'), dgPayment.findMyBills);
 app.post('/bills/getBillDetail', isAuthenticated('Admin'), rechargeController.getChargeBillDetail);
 app.post('/bills/setBillStatus', isAuthenticated('Admin'), processOrderController.setOrderStatus);
 
@@ -265,6 +264,7 @@ app.post('/recharger/addChargeAliBills', isAuthenticated('User'), rechargeContro
 // app.post('/mail/send_mail', mailController.sendConfirmationEmail);
 // app.post('/mail/change_Email', mailController.checkConfirmationEmail);
 // app.post('/mail/getbackmail', mailController.getBackFromEmail);
+
 
 app.post('/mail/send_pic_mail', mailController.func_send_Email);//done
 

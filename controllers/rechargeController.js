@@ -36,7 +36,30 @@ exports.getChargeBillDetail = async (req, res) => {
     }
 
 };
+let bankAccountsPair = async (req, billObject) => {
+    billObject.chargeInfo = {};
+    billObject.chargeInfo.chargeMethod = "bankAccount";
+    let webBankArray = await bankAccountModel.find();
+    for (let bankAccount of webBankArray) {
+        if (bankAccount.bankCode.toString() === req.body.chargeInfo.toOurAccount.toString()) {
+            billObject.chargeInfo.toOurAccount = {
+                "accountCode": bankAccount.accountCode,
+                "accountName": bankAccount.accountName,
+                "bankName": bankAccount.bankName,
+                "bankType": bankAccount.bankType,
+                "bankCode": bankAccount.bankCode
+            };
+        }
+    }
+    for (let account of  req.user.bankAccounts) {
+        if (account.last6digital === req.body.chargeInfo.chargeFromAccount) {
+            account.updated_at = undefined;
+            account.created_at = undefined;
+            billObject.chargeInfo.chargeFromAccount = account;
+        }
+    }
 
+};
 
 exports.findMyChargeBills = async (req, res) => {
     try {
@@ -109,7 +132,6 @@ exports.addChargeWechatBills = async (req, res) => {
                 };
             }
         }
-        //billObject.rechargeInfo.rechargeToAccount = req.body.rechargeInfo.rechargeToAccount;
 
         billObject.chargeInfo.chargeMethod = "bankAccount";
 
@@ -154,7 +176,7 @@ exports.addChargeWechatBills = async (req, res) => {
 
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
     } catch (err) {
-console.log(err)
+
         logger.error("addChargeBills", {
             level: req.user.role,
             response: `addChargeBills Failed`,
@@ -186,29 +208,7 @@ exports.addRcoinChargeBills = async (req, res) => {
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
 
-        billObject.chargeInfo.chargeMethod = "bankAccount";
-        let webBankArray = await bankAccountModel.find();
-
-        for (let bankAccount of webBankArray) {
-            if (bankAccount.bankCode.toString() === req.body.chargeInfo.toOurAccount.toString()) {
-                billObject.chargeInfo.toOurAccount = {
-                    "accountCode": bankAccount.accountCode,
-                    "accountName": bankAccount.accountName,
-                    "bankName": bankAccount.bankName,
-                    "bankType": bankAccount.bankType,
-                    "bankCode": bankAccount.bankCode
-                };
-            }
-        }
-        for (let account of  req.user.bankAccounts) {
-
-            if (account.last6digital === req.body.chargeInfo.chargeFromAccount) {
-                account.updated_at = undefined;
-                account.created_at = undefined;
-                billObject.chargeInfo.chargeFromAccount = account;
-            }
-        }
-
+        await bankAccountsPair(req, billObject);
         let [rate, feeRate, feeAmount, totalAmount] = await dgPayment.getRate(req, res);
         billObject.NtdAmount = totalAmount;
         billObject.rate = rate;
@@ -269,22 +269,7 @@ exports.addChargeAliBills = async (req, res) => {
             }
         }
 
-        //billObject.rechargeInfo.rechargeToAccount = req.body.rechargeInfo.rechargeToAccount;
 
-        billObject.chargeInfo.chargeMethod = "bankAccount";
-        if (billObject.chargeInfo.chargeMethod === "bankAccount") {
-
-            for (let account of  req.user.bankAccounts) {
-                if (account.last6digital.toString() === req.body.chargeInfo.chargeFromAccount.toString()) {
-                    account.updated_at = undefined;
-                    account.created_at = undefined;
-                    billObject.chargeInfo.chargeFromAccount = account;
-                    break;
-                } else {
-                    billObject.chargeInfo.chargeFromAccount = req.body.chargeInfo.chargeFromAccount;
-                }
-            }
-        }
 
         let [rate, feeRate, feeAmount, totalAmount] = await dgPayment.getRate(req, res);
         if (req.body.RMBAmount < managerConfig.threshold[`alipay`]) {
