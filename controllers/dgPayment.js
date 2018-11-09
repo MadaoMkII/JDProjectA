@@ -577,7 +577,7 @@ exports.payReplacePostage = async (req, res) => {
 
     try {
         let replacePostageBillEntity = {};
-        searchModel.requestCheckBox(req, "toOurAccount", "chargeFromAccount");
+        //searchModel.requestCheckBox(req, "toOurAccount", "chargeFromAccount");
         let billEntity = await dgBillModel.findOne({
             billID: req.body.billID,
             userUUid: req.user.uuid

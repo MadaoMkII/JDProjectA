@@ -66,9 +66,14 @@ let bankAccountsPair = async (req, billObject) => {
 
     for (let account of  req.user.bankAccounts) {
         if (account.last6digital.toString() === req.body.chargeInfo.chargeFromAccount.toString()) {
-            account.updated_at = undefined;
-            account.created_at = undefined;
-            billObject.chargeInfo.chargeFromAccount = account;
+
+            billObject.chargeInfo.chargeFromAccount = {
+                "bankType": account.bankType,
+                "bankName": account.bankName,
+                "accountName": account.accountName,
+                "last6digital": account.last6digital,
+                "accountTelNumber": account.accountTelNumber
+            }
         }
     }
 };
