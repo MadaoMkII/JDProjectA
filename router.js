@@ -128,7 +128,7 @@ app.get('/test', isAuthenticated('Admin'), weChatController.jiade);
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
 app.get('/alipay/setAccount', isAuthenticated('Admin'), alipayController.set_AlipayAccount);
 
-app.get('/alipay/getQRcode', isAuthenticated('Admin'), alipayController.get_alipay_QR_code);
+app.get('/alipay/QRcode', isAuthenticated('Admin'), alipayController.get_alipay_QR_code);
 app.get('/wechat/getQRcodeUrl', isAuthenticated('User'), weChatController.getQR_code_link);
 
 app.post('/receive', weChatController.msg_holder);
