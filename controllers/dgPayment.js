@@ -306,7 +306,7 @@ exports.addDGRcoinsBill = async (req, res) => {
             billObject.isVirtualItem = req.body.isVirtualItem;
             billObject.typeStr = req.body.typeStr;
             billObject.paymentInfo.paymentMethod = 'Alipay';
-            billObject.paymentInfo.friendAlipayAccount = req.body.friendAlipayAccount;
+            billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
 
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
 
