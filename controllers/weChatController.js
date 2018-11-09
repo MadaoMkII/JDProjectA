@@ -5,7 +5,7 @@ let qr = require('qr-image');
 const request = require('request');
 const userModel = require('../modules/userAccount').userAccountModel;
 const tool = require('../config/tools');
-
+const querystring = require("querystring");
 let sha1 = (str) => {
     let md5sum = crypto.createHash("sha1");
     md5sum.update(str);
@@ -65,7 +65,7 @@ exports.jiade = async (req, res) => {
         "province": "北京省",
         "avatar": "http://tfsimg.alipay.com/images/partner/T1uIxXXbpXXXXXXXX",
         "user_id": "1029102104794936",
-        "alipayAccount":"abc@gmail.com"
+        "alipayAccount": "abc@gmail.com"
     }
     let newA2 = {
         "gender": "F",
@@ -78,11 +78,11 @@ exports.jiade = async (req, res) => {
         "province": "天津市",
         "avatar": "http://tfsimg.alipay.com/images/partner/T1uIxXXbpXXXXXXXX",
         "user_id": "1029102104794936",
-        "alipayAccount":"tfsimgc@126.com"
+        "alipayAccount": "tfsimgc@126.com"
     }
-   await userModel.findOneAndUpdate({uuid: req.user.uuid},
+    await userModel.findOneAndUpdate({uuid: req.user.uuid},
         {$set: {aliPayAccounts: []}});
-     await userModel.findOneAndUpdate({uuid: req.user.uuid},
+    await userModel.findOneAndUpdate({uuid: req.user.uuid},
         {$push: {aliPayAccounts: newA}}, {new: true});
     let newUser2 = await userModel.findOneAndUpdate({uuid: req.user.uuid},
         {$push: {aliPayAccounts: newA2}}, {new: true});
@@ -119,15 +119,41 @@ exports.getQR_code = async (req, res) => {
         if (body[`errcode`] === 42001) {
             return res.status(405).json({error_msg: "access_token expired", error_code: "405"});
         }
+        console.log(body)
         let img = qr.image(body.url, {size: 10});
         res.writeHead(200, {'Content-Type': 'image/png'});
         img.pipe(res);
     } catch (err) {
+        console.log(err)
         return res.status(500).json({error_msg: "code can not use ", error_code: "500"});
     }
 };
 
+exports.getQR_code_link = async (req, res) => {
 
+    try {
+
+        let query = querystring.stringify({grant_type: `client_credential`, appid: config.alipay_App_ID});
+        let [, body] = await requestFun("", "GET", );
+
+        let JSONObject = {
+            "expire_seconds": 60000,
+            "action_name": "QR_STR_SCENE",
+            "action_info": {"scene": {"scene_id": "002", "scene_str": req.user.uuid}}
+        };
+        let [, body2] = await requestFun(JSONObject, "POST", config.qrcode_create_link + config.access_token);
+        if (body[`errcode`] === 42001) {
+            return res.status(405).json({error_msg: "access_token expired", error_code: "405"});
+        }
+        console.log(body)
+        let img = qr.image(body.url, {size: 10});
+        res.writeHead(200, {'Content-Type': 'image/png'});
+        img.pipe(res);
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({error_msg: "code can not use ", error_code: "500"});
+    }
+};
 exports.msg_holder = async (req, res) => {
     try {
         // let returnData = {

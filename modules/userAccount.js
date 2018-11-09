@@ -106,7 +106,7 @@ const wechatAccount = new mongoose.Schema(
         qr_info: {type: mongoose.Schema.Types.Mixed},
         openID: {type: String, required: true},
         profileImgUrl: String,
-        hasRealNameAuthed: Boolean,
+        hasRealNameAuthed: {type: Boolean, default: true},
         activeStatus: Boolean,
         nickname: String
 
