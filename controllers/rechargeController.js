@@ -32,7 +32,7 @@ exports.getChargeBillDetail = async (req, res) => {
             body: req.body
         });
 
-        return res.status(503).send({error_code: 503, error_msg: `Search Failed`});
+        return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
 };
@@ -72,7 +72,6 @@ let bankAccountsPair = async (req, billObject) => {
             billObject.chargeInfo.chargeFromAccount = account;
         }
     }
-
 };
 
 exports.findMyChargeBills = async (req, res) => {
@@ -100,7 +99,7 @@ exports.findMyChargeBills = async (req, res) => {
             body: req.body
         });
 
-        return res.status(503).send({error_code: 503, error_msg: `Search Failed`});
+        return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
 };
@@ -176,7 +175,7 @@ exports.addChargeWechatBills = async (req, res) => {
 
             return res.status(409).json({error_msg: `409`, error_code: err.message});
         }
-        return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
+        return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
 };
@@ -219,7 +218,7 @@ exports.addRcoinChargeBills = async (req, res) => {
             location: (new Error().stack).split("at ")[1],
             body: req.body
         });
-        return res.status(503).send({error_code: 503, error_msg: 'Add ChargeBill Failed'});
+        return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
 

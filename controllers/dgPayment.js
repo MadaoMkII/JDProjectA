@@ -61,7 +61,7 @@ exports.getThisUserBasicRate = async (req, res) => {
             }
         });
     } catch (err) {
-        return res.status(513).send({error_code: 513, error_msg: err});
+        return res.status(513).send({error_code: 513, error_msg: err.message});
     }
 };
 
@@ -78,7 +78,7 @@ exports.getThisUserRcoinRate = async (req, res) => {
             }
         });
     } catch (err) {
-        return res.status(513).send({error_code: 513, error_msg: err});
+        return res.status(513).send({error_code: 513, error_msg: err.message});
     }
 };
 
@@ -183,8 +183,8 @@ exports.findThisUserRcoinRecord = async (req, res) => {
         return res.status(200).send({
             error_code: 0, error_msg: "OK", data: resultArray2, nofdata: count
         });
-    } catch (e) {
-        return res.status(513).send({error_code: 513, error_msg: e});
+    } catch (err) {
+        return res.status(513).send({error_code: 513, error_msg: err.message});
     }
 
 };
@@ -213,7 +213,7 @@ exports.addBillByBank = async (req, res) => {
             if (!tool.isEmpty(req.body.paymentInfo)) {
 
                 billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
-                billObject.paymentInfo.paymentDFAccount = `全进去`;
+                billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
 
             }
         } else if (req.body.typeStr === `其他網站代購`) {
@@ -277,7 +277,7 @@ console.log(err)
             body: req.body,
             error: err
         });
-        return res.status(500).send({error_code: 500, error_msg: `addDGByALIBill Failed`});
+        return res.status(500).send({error_code: 500, error_msg: err.message});
     }
 };
 
@@ -371,7 +371,7 @@ exports.addDGRcoinsBill = async (req, res) => {
             body: req.body,
             error: err
         });
-        return res.status(500).send({error_code: 500, error_msg: `addDGRcoinsBill Failed`});
+        return res.status(500).send({error_code: 500, error_msg: err.message});
     }
 };
 
@@ -420,7 +420,7 @@ exports.adminGetBills = async (req, res) => {
             body: req.body,
             error: err
         });
-        return res.status(503).send({error_code: 503, error_msg: err});
+        return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
 };
@@ -469,7 +469,7 @@ exports.findMyBills = async (req, res) => {
             body: req.body,
             error: err
         });
-        return res.status(503).send({error_code: 503, error_msg: err});
+        return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
 };
@@ -513,7 +513,7 @@ exports.addReplacePostageBill = async (req, res) => {
             body: req.body,
             error: err
         });
-        return res.status(500).json({error_msg: `addReplacePostageBill Failed`, error_code: "500"});
+        return res.status(500).json({error_msg: err.message, error_code: "500"});
 
     }
 
@@ -624,10 +624,7 @@ exports.payReplacePostage = async (req, res) => {
             body: req.body,
             error: err
         });
-        return res.status(500).json({error_msg: `Pay Replace Postage Failed`, error_code: "500"});
-
+        return res.status(500).json({error_msg: err.message, error_code: "500"});
     }
-
-
 };
 exports.getRate = getRate;
