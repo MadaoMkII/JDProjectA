@@ -55,12 +55,11 @@ exports.receiveCallback = async (req, res) => {
             code: req.query[`auth_code`],
             grant_type: `authorization_code`,
         };
-
+console.log(step_1_response)
         const step_2_response = await alipaySdk.exec('alipay.system.oauth.token', {
-            code: step_1_response.access_token,
-            grant_type: `authorization_code`
+            code: step_1_response.access_token
         });
-
+        console.log(step_2_response)
         // result 为 API 介绍内容中 “响应参数” 对应的结果
 
         const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
