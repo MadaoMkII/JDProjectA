@@ -2,10 +2,10 @@ const dgBillModel = require('../modules/dgBill').dgBillModel;
 const userModel = require('../modules/userAccount').userAccountModel;
 const searchModel = require('../controllers/searchModel');
 const manageSettingController = require('../controllers/manageSettingController');
+const bankAccountsPair = require('../controllers/rechargeController').bankAccountsPair;
 const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
-const bankAccountModel = require('../modules/bankAccount').bankAccountModel;
 
 exports.getFriendAccount = (req, res) => {
     return res.status(200).send({error_code: 0, error_msg: `OK`, data: "yubao0001@126.com"});
@@ -49,7 +49,6 @@ let getRate = (req, res) => {
 };
 exports.getThisUserBasicRate = async (req, res) => {
     try {
-
         req.body.RMBAmount = 1;
         let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
 
@@ -61,10 +60,11 @@ exports.getThisUserBasicRate = async (req, res) => {
                 totalAmount: totalAmount
             }
         });
-    } catch (e) {
-        return res.status(513).send({error_code: 513, error_msg: e});
+    } catch (err) {
+        return res.status(513).send({error_code: 513, error_msg: err});
     }
 };
+
 exports.getThisUserRcoinRate = async (req, res) => {
     try {
         let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
@@ -77,8 +77,8 @@ exports.getThisUserRcoinRate = async (req, res) => {
                 totalAmount: totalAmount
             }
         });
-    } catch (e) {
-        return res.status(513).send({error_code: 513, error_msg: e});
+    } catch (err) {
+        return res.status(513).send({error_code: 513, error_msg: err});
     }
 };
 
@@ -127,19 +127,13 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
                     searchArgs.showCondition,
                     B_operator);
 
-
                 let resultArray = A_Result.concat(B_result);
                 resolve([resultArray, chargeBil_count + dgBill_count]);
             }
-
         } catch (err) {
-
             reject(err);
         }
-
     });
-
-
 };
 
 exports.findThisUserRcoinRecord = async (req, res) => {
@@ -220,19 +214,7 @@ exports.addBillByBank = async (req, res) => {
 
                 billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
                 billObject.paymentInfo.paymentDFAccount = `全进去`;
-                //     if (!tool.isEmpty(req.body.paymentInfo.paymentDFAccount)) {
-                //         for (let alipayAccount of req.user.aliPayAccounts) {
-                //
-                //             if (alipayAccount.user_id.toString() === req.body.paymentInfo.paymentDFAccount.toString()) {
-                //                 billObject.paymentInfo.paymentDFAccount = {
-                //                     user_id: alipayAccount.user_id,
-                //                     avatar: alipayAccount.avatar,
-                //                     nickname: alipayAccount.nick_name
-                //                 }
-                //             }
-                //         }
-                //     }
-                // }
+
             }
         } else if (req.body.typeStr === `其他網站代購`) {
             billObject.itemInfo.itemWebType = "others";
@@ -240,6 +222,7 @@ exports.addBillByBank = async (req, res) => {
         } else {
             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }
+
         req.body.rateType = `AlipayAndWechatRate`;
         let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
         billObject.RMBAmount = req.body.RMBAmount;
@@ -253,38 +236,9 @@ exports.addBillByBank = async (req, res) => {
 
         billObject.chargeInfo = {};
         billObject.chargeInfo.chargeMethod = `bank`;
-        //billObject.chargeInfo.chargeAccount = req.body.chargeInfo.chargeAccount;
-        //billObject.chargeInfo.toOurAccount = req.body.chargeInfo.toOurAccount;
-        let webBankArray = await bankAccountModel.find();
 
-        for (let bankAccount of webBankArray) {
-            if (bankAccount.bankCode.toString() === req.body.chargeInfo.toOurAccount.toString()) {
-                billObject.chargeInfo.toOurAccount = {
-                    "accountCode": bankAccount.accountCode,
-                    "accountName": bankAccount.accountName,
-                    "bankName": bankAccount.bankName,
-                    "bankType": bankAccount.bankType,
-                    "bankCode": bankAccount.bankCode
-                };
-            }
-        }
-        if (tool.isEmpty(billObject.chargeInfo.toOurAccount)) {
-            billObject.chargeInfo.toOurAccount = `Bank Infomation error`
-        }
-        for (let bankAcc of req.user.bankAccounts) {
-            if (bankAcc.last6digital.toString() === req.body.chargeInfo.chargeAccount.toString()) {
-                billObject.chargeInfo.chargeAccount = {
-                    "accountTelNumber": bankAcc.accountTelNumber,
-                    "last6digital": bankAcc.last6digital,
-                    "accountName": bankAcc.accountName,
-                    "bankName": bankAcc.bankName,
-                    "bankType": bankAcc.bankType
-                }
-            }
-        }
-        if (tool.isEmpty(billObject.chargeInfo.chargeAccount)) {
-            billObject.chargeInfo.chargeAccount = `Bank Infomation error`
-        }
+        await bankAccountsPair(req, billObject);
+
         billObject.isVirtualItem = req.body.isVirtualItem;
         billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
 
@@ -355,18 +309,6 @@ exports.addDGRcoinsBill = async (req, res) => {
             billObject.paymentInfo.friendAlipayAccount = req.body.friendAlipayAccount;
 
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
-
-            // for (let alipayAccount of req.user.aliPayAccounts) {
-            //
-            //     if (alipayAccount.user_id.toString() === req.body.paymentInfo.paymentDFAccount.toString()) {
-            //         billObject.paymentInfo.paymentDFAccount = {
-            //             user_id: alipayAccount.user_id,
-            //             avatar: alipayAccount.avatar,
-            //             nickname: alipayAccount.nick_name
-            //         }
-            //     }
-            //
-            // }
 
             billObject.paymentInfo.paymentDFAccount = `全进去`;
         }
@@ -509,7 +451,7 @@ exports.findMyBills = async (req, res) => {
 
         command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req, res));
 
-            command.userUUid = req.user.uuid;
+        command.userUUid = req.user.uuid;
 
         let operator = searchModel.pageModel(req, res);
 
@@ -531,6 +473,7 @@ exports.findMyBills = async (req, res) => {
     }
 
 };
+
 exports.addReplacePostageBill = async (req, res) => {
 
     try {
@@ -646,7 +589,6 @@ exports.payReplacePostage = async (req, res) => {
             return res.status(404).json({error_msg: `No need to pay`, error_code: "404"});
         }
 
-
         req.body.rateType = `RcoinRate`;
         req.body.RMBAmount = billEntity.replacePostage.postageAmount;
         replacePostageBillEntity.postageAmount = billEntity.replacePostage.postageAmount;
@@ -657,31 +599,7 @@ exports.payReplacePostage = async (req, res) => {
         replacePostageBillEntity.feeAmount = parseInt(feeAmount);
         replacePostageBillEntity.totalAmount = parseInt(totalAmount);
 
-        for (let bankAcc of req.user.bankAccounts) {
-            if (bankAcc.last6digital.toString() === req.body.chargeFromAccount.toString()) {
-                replacePostageBillEntity.chargeFromAccount = {
-                    "accountTelNumber": bankAcc.accountTelNumber,
-                    "last6digital": bankAcc.last6digital,
-                    "accountName": bankAcc.accountName,
-                    "bankName": bankAcc.bankName,
-                    "bankType": bankAcc.bankType
-                }
-            }
-        }
-
-        let webBankArray = await bankAccountModel.find();
-        for (let bankAccount of webBankArray) {
-            if (bankAccount.bankCode.toString() === req.body.toOurAccount.toString()) {
-                replacePostageBillEntity.toOurAccount = {
-                    "accountCode": bankAccount.accountCode,
-                    "accountName": bankAccount.accountName,
-                    "bankName": bankAccount.bankName,
-                    "bankType": bankAccount.bankType,
-                    "bankCode": bankAccount.bankCode
-                };
-            }
-        }
-
+        await bankAccountsPair(req, replacePostageBillEntity);
 
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID, userUUid: req.user.uuid},
             {
@@ -704,7 +622,6 @@ exports.payReplacePostage = async (req, res) => {
         });
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
     } catch (err) {
-        console.log(err)
         logger.error("payReplacePostage", {
             level: req.user.role,
             response: `payReplacePostage Failed`,

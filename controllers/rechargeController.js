@@ -36,10 +36,18 @@ exports.getChargeBillDetail = async (req, res) => {
     }
 
 };
+
+
 let bankAccountsPair = async (req, billObject) => {
     billObject.chargeInfo = {};
     billObject.chargeInfo.chargeMethod = "bankAccount";
     let webBankArray = await bankAccountModel.find();
+
+    if (tool.isEmpty(req.body.chargeInfo.toOurAccount)) {
+
+        throw new Error(`chargeInfo.toOurAccount can not be empty`);
+    }
+
     for (let bankAccount of webBankArray) {
         if (bankAccount.bankCode.toString() === req.body.chargeInfo.toOurAccount.toString()) {
             billObject.chargeInfo.toOurAccount = {
@@ -51,8 +59,13 @@ let bankAccountsPair = async (req, billObject) => {
             };
         }
     }
+    if (tool.isEmpty(req.body.chargeInfo.chargeFromAccount)) {
+
+        throw new Error(`chargeInfo.chargeFromAccount can not be empty`);
+    }
     for (let account of  req.user.bankAccounts) {
-        if (account.last6digital === req.body.chargeInfo.chargeFromAccount) {
+
+        if (account.last6digital.toString() === req.body.chargeInfo.chargeFromAccount.toString()) {
             account.updated_at = undefined;
             account.created_at = undefined;
             billObject.chargeInfo.chargeFromAccount = account;
@@ -120,35 +133,7 @@ exports.addChargeWechatBills = async (req, res) => {
             }
 
         }
-        let webBankArray = await bankAccountModel.find();
-        for (let bankAccount of webBankArray) {
-            if (bankAccount.bankCode.toString() === req.body.chargeInfo.toOurAccount.toString()) {
-                billObject.chargeInfo.toOurAccount = {
-                    "accountCode": bankAccount.accountCode,
-                    "accountName": bankAccount.accountName,
-                    "bankName": bankAccount.bankName,
-                    "bankType": bankAccount.bankType,
-                    "bankCode": bankAccount.bankCode
-                };
-            }
-        }
-
-        billObject.chargeInfo.chargeMethod = "bankAccount";
-
-        if (billObject.chargeInfo.chargeMethod === "bankAccount") {
-
-            for (let account of  req.user.bankAccounts) {
-
-                if (account.last6digital.toString() === req.body.chargeInfo.chargeFromAccount.toString()) {
-                    account.updated_at = undefined;
-                    account.created_at = undefined;
-                    billObject.chargeInfo.chargeFromAccount = account;
-                    break;
-                } else {
-                    billObject.chargeInfo.chargeFromAccount = req.body.chargeInfo.chargeFromAccount;
-                }
-            }
-        }
+        await bankAccountsPair(req, billObject);
 
         let [rate, feeRate, feeAmount, totalAmount] = await dgPayment.getRate(req, res);
         if (req.body.RMBAmount < managerConfig.threshold[`wechat`]) {
@@ -252,7 +237,7 @@ exports.addChargeAliBills = async (req, res) => {
         billObject.userUUid = req.user.uuid;
         billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
 
-        if (req.user.userStatus.isFirstWechatCharge === false) {
+        if (req.user.userStatus.isFirstAlipayCharge === false) {
             billObject.is_firstOrder = true;
         }
         billObject.rechargeInfo.rechargeAccountType = `alipay`;
@@ -270,7 +255,7 @@ exports.addChargeAliBills = async (req, res) => {
         }
 
 
-
+        await bankAccountsPair(req, billObject);
         let [rate, feeRate, feeAmount, totalAmount] = await dgPayment.getRate(req, res);
         if (req.body.RMBAmount < managerConfig.threshold[`alipay`]) {
             return res.status(403).send({
@@ -315,3 +300,5 @@ exports.addChargeAliBills = async (req, res) => {
     }
 
 };
+
+exports.bankAccountsPair = bankAccountsPair;
