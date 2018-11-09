@@ -487,7 +487,7 @@ exports.addReplacePostageBill = async (req, res) => {
             {"filedName": `billID`, "require": true},
             {"filedName": `status`, "require": true}
         );
-        replacePostageBillEntity.status = 0;
+        replacePostageBillEntity.status = req.body.status;
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
             {$set: {replacePostage: replacePostageBillEntity, payFreight: 1}}, {new: true}).populate(`processOrder`);
 
@@ -591,20 +591,13 @@ exports.payReplacePostage = async (req, res) => {
         req.body.rateType = `RcoinRate`;
         req.body.RMBAmount = billEntity.replacePostage.postageAmount;
         replacePostageBillEntity.postageAmount = billEntity.replacePostage.postageAmount;
-
-        let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
-        replacePostageBillEntity.rate = rate;
-        replacePostageBillEntity.feeRate = feeRate;
-        replacePostageBillEntity.feeAmount = parseInt(feeAmount);
-        replacePostageBillEntity.totalAmount = parseInt(totalAmount);
-
         await bankAccountsPair(req, replacePostageBillEntity);
 
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID, userUUid: req.user.uuid},
             {
                 $set: {
                     "replacePostage.replacePostagePayment": replacePostageBillEntity,
-                    "replacePostage.status": 1
+                    "replacePostage.status": 2
                 }
             }, {new: true})
             .populate(`processOrder`);
