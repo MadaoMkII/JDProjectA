@@ -54,7 +54,7 @@ const dgBillSchema = new mongoose.Schema(
         fee: {type: Number},
         chargeInfo: {
             chargeMethod: String,
-            chargeAccount: {type: mongoose.Schema.Types.Mixed},
+            chargeFromAccount: {type: mongoose.Schema.Types.Mixed},
             toOurAccount: {type: mongoose.Schema.Types.Mixed}
         },
         paymentInfo: {

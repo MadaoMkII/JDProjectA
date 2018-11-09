@@ -63,8 +63,9 @@ let bankAccountsPair = async (req, billObject) => {
 
         throw new Error(`chargeInfo.chargeFromAccount can not be empty`);
     }
-    for (let account of  req.user.bankAccounts) {
 
+
+    for (let account of  req.user.bankAccounts) {
         if (account.last6digital.toString() === req.body.chargeInfo.chargeFromAccount.toString()) {
             account.updated_at = undefined;
             account.created_at = undefined;
