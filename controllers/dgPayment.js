@@ -301,8 +301,8 @@ exports.addDGRcoinsBill = async (req, res) => {
         } else {
             billObject.itemInfo.itemWebType = "others";
         }
-        if (req.body.typeStr === `淘寶/天貓/阿里巴巴代付`) {
 
+        if (req.body.typeStr === `淘寶/天貓/阿里巴巴代付`) {
             billObject.isVirtualItem = req.body.isVirtualItem;
             billObject.typeStr = req.body.typeStr;
             billObject.paymentInfo.paymentMethod = 'Alipay';
@@ -311,8 +311,7 @@ exports.addDGRcoinsBill = async (req, res) => {
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
 
             billObject.paymentInfo.paymentDFAccount = `全进去`;
-        }
-        if (req.body.typeStr === `其他網站代購`) {
+        } else if (req.body.typeStr === `其他網站代購`) {
             billObject.isVirtualItem = null;
             billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
             billObject.typeStr = req.body.typeStr;
