@@ -1,6 +1,6 @@
 const config = require('../config/develop');
 const userModel = require('../modules/userAccount').userAccountModel;
-const request = require('request');
+//const request = require('request');
 const fs = require('fs');
 const AlipaySdk = require('alipay-sdk').default;
 let qr = require('qr-image');
@@ -15,23 +15,23 @@ const alipaySdk = new AlipaySdk({
     sign_type: "RSA2",
     gateway: `https://openapi.alipay.com/gateway.do`
 });
-let requestFun = (JSONObject, method, url) => {
-
-    return new Promise((resolve, reject) => {
-        request({
-            url: url,
-            method: method,
-            json: true,   // <--Very important!!!
-            body: JSONObject
-        }, (error, response, body) => {
-            if (error) {
-                reject(error)
-            } else {
-                resolve([response, body]);
-            }
-        });
-    });
-};
+// let requestFun = (JSONObject, method, url) => {
+//
+//     return new Promise((resolve, reject) => {
+//         request({
+//             url: url,
+//             method: method,
+//             json: true,   // <--Very important!!!
+//             body: JSONObject
+//         }, (error, response, body) => {
+//             if (error) {
+//                 reject(error)
+//             } else {
+//                 resolve([response, body]);
+//             }
+//         });
+//     });
+// };
 exports.get_alipay_QR_code = async (req, res) => {
 
     try {
@@ -51,6 +51,9 @@ exports.receiveCallback = async (req, res) => {
     // req.query.scope = 2016092000552091;
     // req.query.auth_code = 2016092000552091;
     try {
+        console.log(`Account1:`+(req.query.state.toString()).split(`||`)[0]);
+        console.log(`Account2:`+(req.query.state.toString()).split(`||`)[0]);
+        console.log(`Account3:`+(req.query.state.toString()).split(`||`)[0]);
         let step_1_response = {
 
             code: req.query[`auth_code`],
