@@ -35,8 +35,10 @@ const alipaySdk = new AlipaySdk({
 exports.get_alipay_QR_code = async (req, res) => {
 
     try {
-        let img = qr.image(config.alipay_auth_code_url + `&state=${req.user.uuid}||${req.query.alipayAccount}
-        ||${req.query["alipayRealname"]}`, {size: 10});
+        let query = `&state=${req.user.uuid}||${req.query.alipayAccount}
+        ||${req.query["alipayRealname"]}`
+        let img = qr.image(config.alipay_auth_code_url + query, {size: 10});
+        console.log(query)
         res.writeHead(200, {'Content-Type': 'image/png'});
         img.pipe(res);
     } catch (err) {
@@ -57,9 +59,9 @@ exports.receiveCallback = async (req, res) => {
             code: req.query[`auth_code`],
             grant_type: `authorization_code`,
         };
-
+console.log(step_1_response)
         const step_2_response = await alipaySdk.exec('alipay.system.oauth.token', step_1_response);
-console.log(step_2_response)
+
         // result 为 API 介绍内容中 “响应参数” 对应的结果
 
         const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
