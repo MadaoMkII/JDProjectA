@@ -40,7 +40,7 @@ exports.get_alipay_QR_code = async (req, res) => {
         res.writeHead(200, {'Content-Type': 'image/png'});
         img.pipe(res);
     } catch (err) {
-        console.log(err)
+
         return res.status(500).json({error_msg: "code can not use ", error_code: "500"});
     }
 };
@@ -55,8 +55,8 @@ exports.receiveCallback = async (req, res) => {
 
             code: req.query[`auth_code`],
             grant_type: `authorization_code`,
-        }
-        console.log("state:" + req.query.state)
+        };
+
         const step_2_response = await alipaySdk.exec('alipay.system.oauth.token', step_1_response);
 
         // result 为 API 介绍内容中 “响应参数” 对应的结果
@@ -80,9 +80,10 @@ exports.receiveCallback = async (req, res) => {
                 gender: step_3_response.gender
             };
 
-        let new_user = await userModel.findOneAndUpdate({uuid: (req.query.state.toString()).split(`||`)[0]}, {$push: {aliPayAccounts: aliPayAccount}}, {new: true});
+        let new_user = await userModel.findOneAndUpdate({$push: {aliPayAccounts: aliPayAccount}},
+            {uuid: (req.query.state.toString()).split(`||`)[0]}, {new: true});
         req.user = new_user;
-        console.log(step_3_response)
+
         // return res.status(200).json({error_msg: `OK`, error_code: "0", data: step_3_response});
         res.redirect('/temp.html');
         res.end();

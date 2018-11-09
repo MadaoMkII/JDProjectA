@@ -9,7 +9,6 @@ const dgBillModel = require('../modules/dgBill').dgBillModel;
 
 exports.getChargeBillDetail = async (req, res) => {
     try {
-
         let billResult = await chargeBillModel.findOne({billID: req.body.billID}, {
             __v: 0,
             _id: 0
