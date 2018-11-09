@@ -22,7 +22,7 @@ module.exports = {
     wechat_showqrcode_link: `https://mp.weixin.qq.com/cgi-bin/showqrcode?`,
 
     alipay_auth_code_url:`https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=2018102961952197&scope=auth_user&redirect_uri=http%3a%2f%2fwww.yubaopay.com.tw%2falipay%2freceiveCallback`,
-    alipay_production_gatway: `https://openapi.alipaydev.com/gateway.do`,
+    alipay_production_gatway: `https://openapi.alipay.com/gateway.do`,
     alipay_App_ID: 2016092000552091
 };
 
