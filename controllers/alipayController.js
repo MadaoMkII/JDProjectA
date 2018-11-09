@@ -47,20 +47,16 @@ exports.get_alipay_QR_code = async (req, res) => {
 };
 exports.receiveCallback = async (req, res) => {
 
-    // req.query.app_id = 2016092000552091;
-    // req.query.source = 2016092000552091;
-    // req.query.scope = 2016092000552091;
-    // req.query.auth_code = 2016092000552091;
     try {
-        console.log(`Account1:`+(req.query.state.toString()).split(`||`)[0]);
-        console.log(`Account2:`+(req.query.state.toString()).split(`||`)[1]);
-        console.log(`Account3:`+(req.query.state.toString()).split(`||`)[2]);
+        console.log(`Account1:` + (req.query.state.toString()).split(`||`)[0]);
+        console.log(`Account2:` + (req.query.state.toString()).split(`||`)[1]);
+
         let step_1_response = {
             code: req.query[`auth_code`],
             grant_type: `authorization_code`,
         };
-console.log(step_1_response)
-        const step_2_response = await alipaySdk.exec('alipay.system.oauth.token', step_1_response);
+
+        const step_2_response = await alipaySdk.exec('alipay.system.oauth.token', step_1_response.access_token);
 
         // result 为 API 介绍内容中 “响应参数” 对应的结果
 
@@ -83,11 +79,11 @@ console.log(step_1_response)
                 gender: step_3_response.gender
             };
 
-        req.user = await userModel.findOneAndUpdate({$push: {aliPayAccounts: aliPayAccount}},
-            {uuid: (req.query.state.toString()).split(`||`)[0]}, {new: true});
+        req.user = await userModel.findOneAndUpdate({uuid: (req.query.state.toString()).split(`||`)[0]},
+            {$push: {aliPayAccounts: aliPayAccount}}, {new: true});
 
         // return res.status(200).json({error_msg: `OK`, error_code: "0", data: step_3_response});
-        res.redirect('/temp.html');
+        res.redirect('http://www.yubaopay.com.tw/#/center.html');
         res.end();
     } catch (err) {
         //...
