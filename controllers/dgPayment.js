@@ -2,7 +2,7 @@ const dgBillModel = require('../modules/dgBill').dgBillModel;
 const userModel = require('../modules/userAccount').userAccountModel;
 const searchModel = require('../controllers/searchModel');
 const manageSettingController = require('../controllers/manageSettingController');
-const bankAccountsPair = require('../controllers/rechargeController').bankAccountsPair;
+const rechargeController = require('../controllers/rechargeController');
 const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
@@ -237,7 +237,7 @@ exports.addBillByBank = async (req, res) => {
         billObject.chargeInfo = {};
         billObject.chargeInfo.chargeMethod = `bank`;
 
-        await bankAccountsPair(req, billObject);
+        await rechargeController.bankAccountsPair(req, billObject);
 
         billObject.isVirtualItem = req.body.isVirtualItem;
         billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
@@ -267,6 +267,7 @@ exports.addBillByBank = async (req, res) => {
         });
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     } catch (err) {
+
         logger.error("addDGByALIBill", {
             level: req.user.role,
             response: `addDGByALIBill Failed`,
@@ -591,7 +592,7 @@ exports.payReplacePostage = async (req, res) => {
         req.body.rateType = `RcoinRate`;
         req.body.RMBAmount = billEntity.replacePostage.postageAmount;
         replacePostageBillEntity.postageAmount = billEntity.replacePostage.postageAmount;
-        await bankAccountsPair(req, replacePostageBillEntity);
+        await rechargeController.bankAccountsPair(req, replacePostageBillEntity);
 
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID, userUUid: req.user.uuid},
             {
