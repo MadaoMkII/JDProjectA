@@ -35,7 +35,7 @@ const alipaySdk = new AlipaySdk({
 exports.get_alipay_QR_code = async (req, res) => {
 
     try {
-        let query = `&state=${req.user.uuid}||${req.query.alipayAccount}`
+        let query = `&state=${req.user.uuid}||${req.query.alipayAccount}`;
         let img = qr.image(config.alipay_auth_code_url + query, {size: 10});
         res.writeHead(200, {'Content-Type': 'image/png'});
         img.pipe(res);
