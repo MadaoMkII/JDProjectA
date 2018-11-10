@@ -70,15 +70,15 @@ console.log(step_3_response)
         const aliPayAccount =
             {
                 alipayAccount: (req.query.state.toString()).split(`||`)[1],
-                user_id: step_3_response.user_id,
+                userId: step_3_response.userId,
                 avatar: step_3_response.avatar,
                 province: step_3_response.province,
                 city: step_3_response.city,
-                nick_name: step_3_response.nickName,
-                is_student_certified: step_3_response.is_student_certified,
-                user_type: step_3_response.user_type,
-                user_status: step_3_response.user_status,
-                is_certified: step_3_response.is_certified,
+                nickName: step_3_response.nickName,
+                isStudentCertified: step_3_response.isStudentCertified,
+                userType: step_3_response.userType,
+                userStatus: step_3_response.userStatus,
+                isCertified: step_3_response.isCertified,
                 gender: step_3_response.gender
             };
 
