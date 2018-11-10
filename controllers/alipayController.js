@@ -66,10 +66,10 @@ exports.receiveCallback = async (req, res) => {
         const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
             auth_token: step_2_response.accessToken
         });
-
+console.log(step_3_response)
         const aliPayAccount =
             {
-                alipayAccount: (req.query.state.toString()).split(`||`)[0],
+                alipayAccount: (req.query.state.toString()).split(`||`)[1],
                 user_id: step_3_response.user_id,
                 avatar: step_3_response.avatar,
                 province: step_3_response.province,
