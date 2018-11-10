@@ -35,7 +35,7 @@ const alipaySdk = new AlipaySdk({
 exports.get_alipay_QR_code = async (req, res) => {
 
     try {
-        let query = `&state=${req.user.uuid}||${req.query.alipayAccount}}`
+        let query = `&state=${req.user.uuid}||${req.query.alipayAccount}`
         let img = qr.image(config.alipay_auth_code_url + query, {size: 10});
         res.writeHead(200, {'Content-Type': 'image/png'});
         img.pipe(res);
@@ -48,28 +48,28 @@ exports.receiveCallback = async (req, res) => {
     try {
 
         console.log(req.query.state)
-        console.log(`Account1:` + (req.query.state.toString()).split(`|`)[0]);
-        console.log(`Account2:` + (req.query.state.toString()).split(`|`)[1]);
+        console.log(`Account1:` + (req.query.state.toString()).split(`||`)[0]);
+        console.log(`Account2:` + (req.query.state.toString()).split(`||`)[1]);
 
         let step_1_response = {
             code: req.query[`auth_code`],
             grant_type: `authorization_code`,
         };
-        console.log(step_1_response)
+
         const step_2_response = await alipaySdk.exec('alipay.system.oauth.token', {
             code: step_1_response.code,
             grant_type: `authorization_code`
         });
-        console.log(step_2_response)
+
         // result 为 API 介绍内容中 “响应参数” 对应的结果
 
         const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
             auth_token: step_2_response.accessToken
         });
-        console.log(step_3_response)
+
         const aliPayAccount =
             {
-                alipayAccount: (req.query.state.toString()).split(`|`)[0],
+                alipayAccount: (req.query.state.toString()).split(`||`)[0],
                 user_id: step_3_response.user_id,
                 avatar: step_3_response.avatar,
                 province: step_3_response.province,
