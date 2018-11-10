@@ -46,8 +46,10 @@ exports.get_alipay_QR_code = async (req, res) => {
 exports.receiveCallback = async (req, res) => {
 
     try {
-        console.log(`Account1:` + (req.query.state.toString()).split(`||`)[0]);
-        console.log(`Account2:` + (req.query.state.toString()).split(`||`)[1]);
+
+        console.log(req.query.state)
+        console.log(`Account1:` + (req.query.state.toString()).split(`|`)[0]);
+        console.log(`Account2:` + (req.query.state.toString()).split(`|`)[1]);
 
         let step_1_response = {
             code: req.query[`auth_code`],
@@ -67,7 +69,7 @@ exports.receiveCallback = async (req, res) => {
         console.log(step_3_response)
         const aliPayAccount =
             {
-                alipayAccount: (req.query.state.toString()).split(`||`)[0],
+                alipayAccount: (req.query.state.toString()).split(`|`)[0],
                 user_id: step_3_response.user_id,
                 avatar: step_3_response.avatar,
                 province: step_3_response.province,
