@@ -102,7 +102,8 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
             {
                 A_operator = {
                     skip: Math.round(operator.skip / 2),
-                    limit: Math.round(parseInt(operator.limit) / 2)
+                    limit: Math.round(parseInt(operator.limit) / 2),
+                    sort: {dealDate: -1}
                 };
 
                 let A_Result = await A_model.find(
@@ -113,12 +114,14 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
                 if (A_Result.length === 0) {
                     B_operator = {
                         skip: operator.skip - (dgBill_count < chargeBil_count ? dgBill_count : chargeBil_count),
-                        limit: operator.limit
+                        limit: operator.limit,
+                        sort: {dealDate: -1}
                     }
                 } else {
                     B_operator = {
                         skip: Math.round(operator.skip / 2),
-                        limit: Math.round(parseInt(operator.limit) - A_Result.length)
+                        limit: Math.round(parseInt(operator.limit) - A_Result.length),
+                        sort: {dealDate: -1}
                     };
                 }
 
@@ -126,7 +129,7 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
                     searchArgs.searchCondition,
                     searchArgs.showCondition,
                     B_operator);
-
+console.log(B_result)
                 let resultArray = A_Result.concat(B_result);
                 resolve([resultArray, chargeBil_count + dgBill_count]);
             }
