@@ -129,7 +129,7 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
                     searchArgs.searchCondition,
                     searchArgs.showCondition,
                     B_operator);
-console.log(B_result)
+
                 let resultArray = A_Result.concat(B_result);
                 resolve([resultArray, chargeBil_count + dgBill_count]);
             }
