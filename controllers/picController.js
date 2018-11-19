@@ -88,7 +88,7 @@ exports.uploadImgForEndpoint = async (req, res) => {
         });
 
 
-        return res.status(400).json({error_msg: `400`, error_code: "upload Images Error"});
+        return res.status(400).json({error_msg: `400`, error_code: err.message});
     }
 
 }
