@@ -191,7 +191,7 @@ exports.msg_holder = async (req, res) => {
             });
 
         }
-        let token = config.access_token;
+        let token = config[`access_token`];
         let OPENID = returnData[`fromusername`];
         let userLink = `https://api.weixin.qq.com/cgi-bin/user/info?access_token=${token}&openid=${OPENID}&lang=zh_CN`;
         let [, requestResult] = await requestFun(null, 'GET', userLink);
@@ -219,8 +219,6 @@ exports.msg_holder = async (req, res) => {
 
         return res.status(500).json({error_msg: "Verification code confirmed", error_code: "500"});
     }
-
-
 };
 
 exports.checkToken = (req, res) => {
