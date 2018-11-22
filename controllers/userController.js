@@ -11,6 +11,16 @@ const uuidv1 = require('uuid/v1');
 const tools = require("../config/tools");
 const getAsync = promisify(redisClient.get).bind(redisClient);
 
+
+exports.setEmployee = async (req, res) => {
+    let newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+        {$set: {"userStatus.isEmployee": !req.user.userStatus.isEmployee}}, {new: true});
+    return res.status(200).json({
+        "error_code": 0,
+        "data": newUser
+    });
+
+};
 exports.zhuce = async (req, res) => {
     let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
     let uuid = uuidv1();
@@ -23,11 +33,11 @@ exports.zhuce = async (req, res) => {
         email_address: req.body.email, referrer: new refererModel()
     };
 
-    let a = await new userModel(userInfo).save();
+    let newUser = await new userModel(userInfo).save();
 
     return res.status(200).json({
         "error_code": 0,
-        "data": a
+        "data": newUser
     });
 
 };

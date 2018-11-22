@@ -128,7 +128,8 @@ let userAccountSchema = new mongoose.Schema({
         isFirstTimePaid: {type: Boolean, default: false},
         isRefereed: {type: Boolean, default: false},
         isFirstAlipayCharge: {type: Boolean, default: false},
-        isFirstWechatCharge: {type: Boolean, default: false}
+        isFirstWechatCharge: {type: Boolean, default: false},
+        isEmployee: {type: Boolean, default: false}
     },
     tel_number: {
         required: true,
