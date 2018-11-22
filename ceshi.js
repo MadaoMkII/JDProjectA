@@ -24,18 +24,18 @@ client.execute('taobao.tbk.uatm.favorites.get', {
     if (!error) console.log(response.results.tbk_favorites);
     else console.log(error);
 })//557572892785
-// client.execute('taobao.tbk.uatm.favorites.item.get', {
-//     'platform':'1',
-//     'page_size':'20',
-//     'adzone_id':'57411200488',
-//     'unid':'3456',
-//     'favorites_id':'18853340',
-//     'page_no':'1',
-//     'fields':'num_iid,title,pict_url,small_images,reserve_price,zk_final_price,user_type,provcity,item_url,seller_id,volume,nick,shop_title,zk_final_price_wap,event_start_time,event_end_time,tk_rate,status,type'
-// }, function(error, response) {
-//     if (!error) console.log(response.results);
-//     else console.log(error);
-// })
+client.execute('taobao.tbk.uatm.favorites.item.get', {
+    'platform':'1',
+    'page_size':'20',
+    'adzone_id':'57411200488',
+    'unid':'3456',
+    'favorites_id':'18853340',
+    'page_no':'1',
+    'fields':'num_iid,title,pict_url,small_images,reserve_price,zk_final_price,user_type,provcity,item_url,seller_id,volume,nick,shop_title,zk_final_price_wap,event_start_time,event_end_time,tk_rate,status,type'
+}, function(error, response) {
+    if (!error) console.log(response.results);
+    else console.log(error);
+})
 
 client.execute('taobao.tbk.item.info.get', {
     'num_iids':'558479490380',

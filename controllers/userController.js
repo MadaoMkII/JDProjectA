@@ -497,6 +497,61 @@ exports.delUserBank = async (req, res) => {
     }
 
 };
+exports.delUserWechat = async (req, res) => {
+    try {
+
+        let wechatID = req.body.wechatID;
+
+        let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+            {$pull: {wechatAccounts: {wechatID: wechatID}}}, {password: 0, new: true});
+        logger.info("delUserWechat", {
+            level: `USER`,
+            user: req.user.uuid,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+        res.status(200).json({error_code: 0, error_massage: 'OK', data: user});
+    } catch (err) {
+        logger.error("Error: delUserWechat", {
+            status: 503,
+            level: `USER`,
+            response: `delUserWechat Failed`,
+            user: req.user.uuid,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(500).json({error_code: 500, error_massage: 'Failed to del'});
+    }
+};
+
+exports.delUserAliPayAccounts = async (req, res) => {
+    try {
+
+        let alipayAccount = req.body.alipayAccount;
+
+        let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+            {$pull: {aliPayAccounts: {alipayAccount: alipayAccount}}}, {password: 0, new: true});
+        logger.info("delUseralipayAccount", {
+            level: `USER`,
+            user: req.user.uuid,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body
+        });
+        res.status(200).json({error_code: 0, error_massage: 'OK', data: user});
+    } catch (err) {
+        logger.error("Error: delUseralipayAccount", {
+            status: 503,
+            level: `USER`,
+            response: `delUseralipayAccount Failed`,
+            user: req.user.uuid,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error: err
+        });
+        return res.status(500).json({error_code: 500, error_massage: 'Failed to del'});
+    }
+};
 
 
 exports.addUserRealName = async (req, res) => {

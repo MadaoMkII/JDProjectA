@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const passport = require('./config/passport');
+const paybackController = require('./controllers/paybackController');
 const userController = require('./controllers/userController');
 const weChatController = require('./controllers/weChatController');
 const alipayController = require('./controllers/alipayController');
@@ -123,6 +124,9 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+
+app.get('/payback/getFavorites', paybackController.getFavorites);
+
 app.get('/test', isAuthenticated('Admin'), weChatController.jiade);
 
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
@@ -180,6 +184,8 @@ app.post('/addUserRealName', isAuthenticated('User'), userController.addUserReal
 
 app.post('/bill/getBaseRate', isAuthenticated('User'), dgPayment.getThisUserBasicRate);
 
+app.post('/user/delAliPayAccount', isAuthenticated('User'), userController.delUserAliPayAccounts);
+app.post('/user/delUserWechat', isAuthenticated('User'), userController.delUserWechat);
 app.post('/delbank', isAuthenticated('User'), userController.delUserBank);
 app.post('/addbank', isAuthenticated('User'), userController.addUserBank);
 app.post('/addBankAccounts', isAuthenticated('Super_Admin'), manageSettingController.addBankAccounts);
