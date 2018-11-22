@@ -245,16 +245,18 @@ exports.findUser = async (req, res) => {
 
         let command = {};
         command.showCondition = {
-            role: 1,
+
             tel_number: 1,
             email_address: 1,
-            nickName: 1,
             realName: 1,
             bankAccounts: 1,
-            growthPoints: 1,
+            aliPayAccounts: 1,
+            wechatAccounts: 1,
             Rcoins: 1,
+            VIPLevel: 1,
             uuid: 1,
-            referrer: 1
+            referrer: 1,
+            "userStatus.isEmployee": 1
         };
 
         command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
