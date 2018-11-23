@@ -14,7 +14,7 @@ const getAsync = promisify(redisClient.get).bind(redisClient);
 
 exports.setEmployee = async (req, res) => {
     let newUser = await userModel.findOneAndUpdate({uuid: req.body.uuid},
-        {$set: {"userStatus.isEmployee": !req.user.userStatus.isEmployee}}, {new: true});
+        {$set: {"userStatus.isEmployee": req.body.isEmployee}}, {new: true});
     return res.status(200).json({
         "error_code": 0,
         "data": newUser
