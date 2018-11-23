@@ -31,7 +31,7 @@ exports.zhuce = async (req, res) => {
         role: 'Super_Admin',
         Rcoins: 188,
         tel_number: req.body.tel_number,
-        email_address: req.body.email, referrer: new refererModel()
+        email_address: req.body.email_address, referrer: new refererModel()
     };
 
     let newUser = await new userModel(userInfo).save();
