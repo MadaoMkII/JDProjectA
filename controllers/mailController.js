@@ -29,7 +29,7 @@ transporter.verify((error, success) => {
 let sendEmail = async (emailAddress, massage) => {
 
     let mailOptions = {
-        from: '邮箱验证提醒系统<baodan@usaboluo.com>', // sender address
+        from: '邮箱验证提醒系统<sendmail@yubaopay.com.tw>', // sender address
         to: emailAddress, // list of receivers
         subject: "邮箱验证邮件", // Subject line
         text: '', // plain text body

@@ -260,12 +260,12 @@ exports.findUser = async (req, res) => {
         };
 
         command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
-            {"filedName": `role`, "require": false},
+            {"filedName": `userStatus.isEmployee`, "require": false},
             {"filedName": `tel_number`, "require": false},
-            {"filedName": `email`, "require": false}
+            {"filedName": `email_address`, "require": false}
         );
-        if (!tools.isEmpty(req.body.vipLevel)) {
-            switch (req.body.vipLevel) {
+        if (!tools.isEmpty(req.body.VIPLevel)) {
+            switch (req.body.VIPLevel) {
                 case `VIP0`:
                     Object.assign(command.searchCondition, {growthPoints: {$lt: 22}});
                     break;
