@@ -1,6 +1,7 @@
 const logger = require('../logging/logging').logger;
 const nodemailer = require('nodemailer');
 const config = require('../config/develop');
+const tools = require('../config/tools');
 const redis = require("redis"),
     redisClient = redis.createClient();
 const userAccountModel = require('../modules/userAccount').userAccountModel;
@@ -33,9 +34,9 @@ let sendEmail = async (emailAddress, massage) => {
         subject: "邮箱验证邮件", // Subject line
         text: '', // plain text body
         html: '<b>' + "邮箱验证" + '</b>  <td id="QQMAILSTATIONERY" ' +
-            'style="background:url(https://rescdn.qqmail.com/zh_CN/htmledition/images/xinzhi/bg/b_01.jpg);' +
-            ' min-height:550px; padding:100px 55px 200px; ">' +
-            `<div>${massage}</div></td>` // html body
+        'style="background:url(https://rescdn.qqmail.com/zh_CN/htmledition/images/xinzhi/bg/b_01.jpg);' +
+        ' min-height:550px; padding:100px 55px 200px; ">' +
+        `<div>${massage}</div></td>` // html body
     };
 
     await transporter.sendMail(mailOptions);
@@ -54,7 +55,11 @@ exports.func_send_Email = async (req, res) => {
         let billObject = await dgBillModel.findOne({billID: req.body.billID});
 
         //let email_address = billObject.userInfo.email_address;
-       let email_address="shaunli319@gmail.com"
+        let email_address = "shaunli319@gmail.com"
+
+        if (tools.isEmpty(billObject.processOrder) || tools.isEmpty(billObject.processOrder.imageFilesNames)) {
+            return res.status(404).json({error_msg: "can not find images", error_code: "404"});
+        }
         let picArray = billObject.processOrder.imageFilesNames;
         let resultArray = [];
 
