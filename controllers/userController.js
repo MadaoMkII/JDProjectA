@@ -246,7 +246,7 @@ exports.findUser = async (req, res) => {
 
         let command = {};
         command.showCondition = {
-
+            growthPoints:1,
             tel_number: 1,
             email_address: 1,
             realName: 1,
