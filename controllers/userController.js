@@ -27,6 +27,7 @@ exports.zhuce = async (req, res) => {
     let userInfo = {
         uuid: uuid,
         password: result,
+        growthPoints:req.body.growthPoints,
         role: 'Super_Admin',
         Rcoins: 188,
         tel_number: req.body.tel_number,
