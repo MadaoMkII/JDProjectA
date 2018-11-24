@@ -5,6 +5,23 @@ const GridFsStorage = require('multer-gridfs-storage');
 const mongoose = require('../db/db').mongoose;
 const logger = require('../logging/logging').logger;
 const grid = require('gridfs-stream');
+const aliOssStorage = require('multer-ali-oss');
+
+let upload_oss = multer( {
+    storage: aliOssStorage({
+        config: {
+            accessKeyId: 'LTAI98iZQpjrZpDz',
+            accessKeySecret: 'HWmBDNZKQ7vIaXIeSurwi5awUxPuFE',
+            region: 'oss-cn-hongkong',
+            bucket: 'yubaopay',
+        },
+        filename: function (req, file, cb) {
+            const filename = (Math.random() * Date.now() * 10).toFixed(0) + '.jpg';
+            cb(null, `images/`+filename)
+        }
+    })
+}).single('file');
+
 
 let gridfs = {};
 mongoose.connection.once("open", () => {
@@ -15,6 +32,10 @@ mongoose.connection.once("open", () => {
     }
     gridfs.collection('images');
 });
+
+
+
+
 const storage = new GridFsStorage({
     url: config.url,
     //file: (req, file) => {
@@ -29,15 +50,16 @@ const storage = new GridFsStorage({
                     filename: filename,
                     bucketName: 'images'
                 };
-
                 resolve(fileInfo);
-
             });
         });
     }
 });
+
 const upload = multer({storage, limits: {fileSize: 100000000},}).single('file');
 const uploadArray = multer({storage, limits: {fileSize: 100000000},}).array('files');
+const upload_new = upload_oss;
+
 exports.getImgs = (req, res) => {
     gridfs.files.find().toArray((err, files) => {
         // Check if files
@@ -48,7 +70,7 @@ exports.getImgs = (req, res) => {
                 file.isImage = file.contentType === 'image/jpeg' ||
                     file.contentType === 'image/png';
             });
-            res.render(`../views/${req.path}`, {files: files});
+            res.status(200).render(`../views/${req.path}`, {files: files});
         }
     });
 };
@@ -56,8 +78,7 @@ exports.uploadImgForEndpoint = async (req, res) => {
 
     try {
 
-        const [returnReq] = await uploadImgAsync(req, res);
-
+        const [returnReq,] = await uploadImgAsync(req, res);
 
         logger.info("uploadImgForEndpoint", {
             level: req.user.role,
@@ -73,7 +94,7 @@ exports.uploadImgForEndpoint = async (req, res) => {
         return res.json({
             error_msg: `OK`,
             error_code: "0",
-            data: `http://www.yubaopay.com.tw/image/${returnReq.file.filename}`
+            data:returnReq.file.url
         });
 
     }
@@ -87,12 +108,11 @@ exports.uploadImgForEndpoint = async (req, res) => {
             body: req.body
         });
 
-
         return res.status(400).json({error_msg: `400`, error_code: err.message});
     }
 
-}
-;
+};
+
 exports.uploadImgArray = async (req, res, callback) => {
 
     uploadArray(req, res, (err) => {
@@ -113,7 +133,8 @@ exports.uploadImgArray = async (req, res, callback) => {
 let uploadImgAsync = (req, res) => {
 
     return new Promise((resolve, reject) => {
-        upload(req, res, (err) => {
+        upload_new(req, res, (err) => {
+
             if (err) {
                 reject(err)
             } else {
@@ -160,7 +181,38 @@ exports.deleteImpsForController = (req, res) => {
     });
 };
 
+exports.deleteImgs_new =async (req, res) => {
+    let filename;
+    if (req.params.filename) {
+        filename = req.params.filename;
+    } else if (req.body.filename) {
+        filename = req.body.filename;
+    } else {
 
+        return res.status(404).json("filename is not here");
+    }
+    filename = filename.replace(`http://yubaopay.oss-cn-hongkong.aliyuncs.com/`,``);
+    let OSS = require('ali-oss');
+    let client = new OSS({
+        accessKeyId: 'LTAI98iZQpjrZpDz',
+        accessKeySecret: 'HWmBDNZKQ7vIaXIeSurwi5awUxPuFE',
+        region: 'oss-cn-hongkong',
+        bucket: 'yubaopay',
+    });
+    try {
+        let result = await client.delete(filename);
+
+        return res.status(200).json({
+            error_msg: "OK",
+            error_code: 0
+        });
+    } catch (err) {
+        return res.status(400).json({
+            error_msg: err.message,
+            error_code: 400
+        });
+    }
+};
 exports.deleteImgs = (req, res, callback) => {
     let filename;
     if (req.params.filename) {

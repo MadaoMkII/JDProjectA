@@ -74,7 +74,7 @@ app.use((req, res, next) => {
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
     res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader("Content-Type", 'application/json');
+    //res.setHeader("Content-Type", 'application/json');
 
 
     if (req.method === 'OPTIONS') {
@@ -233,7 +233,7 @@ app.post('/delAdvertising', isAuthenticated('Admin'), advertisingController.delA
 app.get('/index', picController.getImgs);
 app.get('/image/:filename', picController.findImgById);
 app.post('/upload', isAuthenticated('User'), appealFormController.addAppealForm);
-app.get('/delImage/:filename', isAuthenticated('Admin'), picController.deleteImpsForController);
+app.post('/delImage', isAuthenticated('Admin'), picController.deleteImgs_new);
 app.post('/setSetting', isAuthenticated('Super_Admin'), manageSettingController.setSetting);
 app.get('/getSetting', isAuthenticated('User'), manageSettingController.getSetting);
 app.get('/get3level', isAuthenticated('User'), manageSettingController.find3L);
