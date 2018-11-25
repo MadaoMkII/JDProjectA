@@ -6,8 +6,14 @@ const mongoose = require('../db/db').mongoose;
 const logger = require('../logging/logging').logger;
 const grid = require('gridfs-stream');
 const aliOssStorage = require('multer-ali-oss');
-
-let upload_oss = multer( {
+let OSS = require('ali-oss');
+let client = new OSS({
+    accessKeyId: 'LTAI98iZQpjrZpDz',
+    accessKeySecret: 'HWmBDNZKQ7vIaXIeSurwi5awUxPuFE',
+    region: 'oss-cn-hongkong',
+    bucket: 'yubaopay',
+});
+let upload_oss = multer({
     storage: aliOssStorage({
         config: {
             accessKeyId: 'LTAI98iZQpjrZpDz',
@@ -17,7 +23,7 @@ let upload_oss = multer( {
         },
         filename: function (req, file, cb) {
             const filename = (Math.random() * Date.now() * 10).toFixed(0) + '.jpg';
-            cb(null, `images/`+filename)
+            cb(null, `images/` + filename)
         }
     })
 }).single('file');
@@ -32,8 +38,6 @@ mongoose.connection.once("open", () => {
     }
     gridfs.collection('images');
 });
-
-
 
 
 const storage = new GridFsStorage({
@@ -60,20 +64,36 @@ const upload = multer({storage, limits: {fileSize: 100000000},}).single('file');
 const uploadArray = multer({storage, limits: {fileSize: 100000000},}).array('files');
 const upload_new = upload_oss;
 
-exports.getImgs = (req, res) => {
-    gridfs.files.find().toArray((err, files) => {
-        // Check if files
-        if (!files || files.length === 0) {
-            res.render('index', {files: false});
-        } else {
-            files.map(file => {
-                file.isImage = file.contentType === 'image/jpeg' ||
-                    file.contentType === 'image/png';
-            });
-            res.status(200).render(`../views/${req.path}`, {files: files});
-        }
-    });
+
+exports.getImgs = async (req, res) => {
+    try {
+        let result = await client.list({
+            prefix: `images/`,
+            delimiter: '/'
+        },null);
+console.log(result)
+        res.status(200).render(`../views/${req.path}`, {files: result.objects});
+    } catch (err) {
+        console.log(err)
+        return res.status(400).json({error_msg: `400`, error_code: err.message});
+    }
 };
+
+
+// exports.getImgs = (req, res) => {
+//     gridfs.files.find().toArray((err, files) => {
+//         // Check if files
+//         if (!files || files.length === 0) {
+//             res.render('index', {files: false});
+//         } else {
+//             files.map(file => {
+//                 file.isImage = file.contentType === 'image/jpeg' ||
+//                     file.contentType === 'image/png';
+//             });
+//             res.status(200).render(`../views/${req.path}`, {files: files});
+//         }
+//     });
+// };
 exports.uploadImgForEndpoint = async (req, res) => {
 
     try {
@@ -94,7 +114,7 @@ exports.uploadImgForEndpoint = async (req, res) => {
         return res.json({
             error_msg: `OK`,
             error_code: "0",
-            data:returnReq.file.url
+            data: returnReq.file.url
         });
 
     }
@@ -181,8 +201,9 @@ exports.deleteImpsForController = (req, res) => {
     });
 };
 
-exports.deleteImgs_new =async (req, res) => {
+exports.deleteImgs_new = async (req, res) => {
     let filename;
+    console.log(req.body)
     if (req.params.filename) {
         filename = req.params.filename;
     } else if (req.body.filename) {
@@ -191,14 +212,8 @@ exports.deleteImgs_new =async (req, res) => {
 
         return res.status(404).json("filename is not here");
     }
-    filename = filename.replace(`http://yubaopay.oss-cn-hongkong.aliyuncs.com/`,``);
-    let OSS = require('ali-oss');
-    let client = new OSS({
-        accessKeyId: 'LTAI98iZQpjrZpDz',
-        accessKeySecret: 'HWmBDNZKQ7vIaXIeSurwi5awUxPuFE',
-        region: 'oss-cn-hongkong',
-        bucket: 'yubaopay',
-    });
+    filename = filename.replace(`http://yubaopay.oss-cn-hongkong.aliyuncs.com/`, ``);
+
     try {
         let result = await client.delete(filename);
 
