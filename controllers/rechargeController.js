@@ -248,9 +248,9 @@ exports.addChargeAliBills = async (req, res) => {
 
         for (let alipayAccount of req.user.aliPayAccounts) {
 
-            if (alipayAccount.user_id.toString() === req.body.rechargeInfo.rechargeToAccount.toString()) {
+            if (alipayAccount.userId.toString() === req.body.rechargeInfo.rechargeToAccount.toString()) {
                 billObject.rechargeInfo.rechargeToAccount = {
-                    user_id: alipayAccount.user_id,
+                    userId: alipayAccount.userId,
                     avatar: alipayAccount.avatar,
                     nickname: alipayAccount.nick_name,
                     alipayAccount: alipayAccount.alipayAccount
@@ -286,7 +286,7 @@ exports.addChargeAliBills = async (req, res) => {
 
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
     } catch (err) {
-
+console.log(err)
         logger.error("addalipayChargeBills", {
             level: req.user.role,
             response: `addalipayChargeBills Failed`,

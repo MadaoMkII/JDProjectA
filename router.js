@@ -186,8 +186,8 @@ app.post('/bill/getBaseRate', isAuthenticated('User'), dgPayment.getThisUserBasi
 
 app.post('/user/delAliPayAccount', isAuthenticated('User'), userController.delUserAliPayAccounts);
 app.post('/user/delUserWechat', isAuthenticated('User'), userController.delUserWechat);
-app.post('/delbank', isAuthenticated('User'), userController.delUserBank);
-app.post('/addbank', isAuthenticated('User'), userController.addUserBank);
+app.post('/user/addbank', isAuthenticated('User'), userController.delUserBank);
+app.post('/user/addbank', isAuthenticated('User'), userController.addUserBank);
 app.post('/addBankAccounts', isAuthenticated('Super_Admin'), manageSettingController.addBankAccounts);
 app.get('/getBankAccounts', isAuthenticated('User'), manageSettingController.getBankAccounts);
 
