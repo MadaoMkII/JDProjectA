@@ -47,7 +47,6 @@ exports.receiveCallback = async (req, res) => {
 
     try {
 
-        console.log(req.query.state)
         console.log(`Account1:` + (req.query.state.toString()).split(`||`)[0]);
         console.log(`Account2:` + (req.query.state.toString()).split(`||`)[1]);
 
@@ -60,7 +59,7 @@ exports.receiveCallback = async (req, res) => {
             code: step_1_response.code,
             grant_type: `authorization_code`
         });
-
+        console.log(step_2_response)
         // result 为 API 介绍内容中 “响应参数” 对应的结果
 
         const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
