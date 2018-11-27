@@ -29,12 +29,12 @@ transporter.verify((error, success) => {
 let sendEmail = async (emailAddress, massage) => {
 
     let mailOptions = {
-        from: '邮箱验证提醒系统<sendmail@yubaopay.com.tw>', // sender address
+        from: '交易截圖郵件<sendmail@yubaopay.com.tw>', // sender address
         to: emailAddress, // list of receivers
-        subject: "邮箱验证邮件", // Subject line
+        subject: "交易截圖郵件", // Subject line
         text: '', // plain text body
-        html: '<b>' + "邮箱验证" + '</b>  <td id="QQMAILSTATIONERY" ' +
-        'style="background:url(https://rescdn.qqmail.com/zh_CN/htmledition/images/xinzhi/bg/b_01.jpg);' +
+        html: '<td id="QQMAILSTATIONERY" ' +
+        'style="background:url(http://yubaopay.oss-cn-hongkong.aliyuncs.com/images/4917823771418.jpg);' +
         ' min-height:550px; padding:100px 55px 200px; ">' +
         `<div>${massage}</div></td>` // html body
     };
@@ -55,140 +55,129 @@ exports.func_send_Email = async (req, res) => {
         let billObject = await dgBillModel.findOne({billID: req.body.billID});
 
         //let email_address = billObject.userInfo.email_address;
-        let email_address = "shaunli319@gmail.com"
+        let email_address = "js19870219@126.com";
 
         if (tools.isEmpty(billObject.processOrder) || tools.isEmpty(billObject.processOrder.imageFilesNames)) {
             return res.status(404).json({error_msg: "can not find images", error_code: "404"});
         }
         let picArray = billObject.processOrder.imageFilesNames;
-        let resultArray = [];
+        let resultArray = ``;
 
-        for (let pic of picArray) {
+        for (let picUrl of picArray) {
             resultArray += `<img style="-webkit-user-select: none;cursor: zoom-out;"
-            src=${pic} width="610" height="610">`;
+            src=${picUrl} width="610" height="610">`;
 
         }
 
-        await sendEmail(email_address, `<div id="dv_15" class="blk_wrapper" style="">
-                                                <table width="600" cellspacing="0" cellpadding="0" border="0"
-                                                       class="blk" name="blk_card">
-                                                    <tbody>
-                                                    <tr>
-                                                        <td class="bmeImageCard" align="center"
-                                                            style="padding-left:20px; padding-right:20px; padding-top:0px; padding-bottom:0px;">
-                                                            <table width="100%" cellspacing="0" cellpadding="0"
-                                                                   border="0">
-                                                                <tbody>
-                                                                <tr>
-                                                                    <td valign="top" class="bmeImageContainer"
-                                                                        style="border-collapse: collapse; background-color: rgba(0, 0, 0, 0);"
-                                                                        width="560">
-                                                                        <table cellspacing="0" cellpadding="0"
-                                                                               border="1" width="100%">
-                                                                            <tbody>
-                                                                            <tr>
-                                                                                <td valign="top" align="top"
-                                                                                    class="tdPart">
-                                                                                    <table cellspacing="0"
-                                                                                           cellpadding="0" border="1"
-                                                                                           class="bmeCaptionTable"
-                                                                                           style="float:top;"
-                                                                                           width="373" align="right">
-                                                                                        <tbody>
-                                                                                        <tr>
-                                                                                            <td style="padding: 20px 0px 20px 20px; font-family: Arial, Helvetica, sans-serif; font-weight: normal; font-size: 14px; color: rgb(56, 56, 56); text-align: left;"
-                                                                                                name="tblCell"
-                                                                                                valign="top"
-                                                                                                align="left"
-                                                                                                class="tblCell">
-                                                                                                <div style="line-height: 150%;">
+        await sendEmail(email_address, `<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
 
-                                                                                                    <br><span
-                                                                                                        style="font-size: 30px; font-family: Helvetica, Arial, sans-serif; color: #d63c3c; line-height: 150%;">
-                                                                                                    <span style="font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #1e1e1e; line-height: 150%;"><strong> 提示：</strong></span>
+<style type="text/css">
+	*{
+	margin:0;
+	padding:0;
+	}
+    a{text-decoration:none;}	
+    li{list-style:none;}
+    img{border:none;}
+	body{
+		background-color:#f5f5f5;
+		width:100%;
+	}
+	.mean{
+		margin-left: 96px;
+	}
+	.head{
+		padding:32px 0 32px 0; 
+		height:80px;
+		width:1200px;
+	}
+	.content{
+		width:1072px; 
+		height:100%;
+		background-color:#fff;
+		padding:56px 64px 40px 64px;
+		border-radius: 4px;
+		box-shadow: 0 6px 6px 0 rgba(0,0,0,0.08);
+	}
+	.logo{
+		float:left;
+	}
+	.slogen{
+		margin-left:24px;
+		margin-top:16px;
+		float:left;
+	}
 
-                                                                                                    <em><strong>您有一個交易已經被處理</strong></em></span>
-                                                                                                    <br><span
-                                                                                                        style="font-size: 14px; font-family: Helvetica, Arial, sans-serif; color: #929292; line-height: 150%;"><strong>交易提示： -</strong> 匯款證明截圖，請您及時確認</span>
-                                                                                                    <br>
-                                                                                                    <br>
-                                                                                                    <!--<br><span-->
-                                                                                                        <!--style="font-size: 14px; font-family: Helvetica, Arial, sans-serif; color: #929292; line-height: 150%;">Use code: </span><span-->
-                                                                                                        <!--style="font-size: 14px; font-family: Helvetica, Arial, sans-serif; color: #d63c3c; line-height: 150%;"><strong>QprZ33</strong></span>-->
-                                                                                                </div>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                        </tbody>
-                                                                                    </table>
-                                                                                </td>
-                                                                                <td valign="top" align="center"
-                                                                                    class="tdPart">
-                                                                                    <table cellspacing="0"
-                                                                                           cellpadding="0" border="0"
-                                                                                           class="bmeImageTable"
-                                                                                           style="float:left; height: 222px;"
-                                                                                           align="center" dimension="30%"
-                                                                                           width="187" height="222">
-                                                                                        <tbody>
-                                                                                        <tr>
-                                                                                          ${resultArray}
-                                                                                      
-                                                                                        </tr>
-                                                                                        </tbody>
-                                                                                    </table>
-                                                                                </td>
-                                                                            </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </td>
-                                                                </tr>
-                                                                </tbody>
-                                                            </table>
-                                                        </td>
-                                                    </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                       <div id="dv_16" class="blk_wrapper" style="">
-                                                <table width="600" cellspacing="0" cellpadding="0" border="0"
-                                                       class="blk" name="blk_button" style="">
-                                                    <tbody>
-                                                    <tr>
-                                                        <td width="40"></td>
-                                                        <td align="center">
-                                                            <table class="tblContainer" cellspacing="0" cellpadding="0"
-                                                                   border="0" width="100%">
-                                                                <tbody>
-                                                                <tr>
-                                                                    <td height="0"></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td align="left">
-                                                                        <table cellspacing="0" cellpadding="0"
-                                                                               border="0" class="bmeButton" align="left"
-                                                                               style="border-collapse: separate;">
-                                                                            <tbody>
-                                                                            <tr>
-                                                                                <td style="border-radius: 20px; border: 0px none transparent; text-align: center; font-family: Arial, Helvetica, sans-serif; font-size: 14px; padding: 10px 40px; font-weight: bold; background-color: rgb(214, 60, 60);"
-                                                                                    class="bmeButtonText"><span
-                                                                                        style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: rgb(255, 255, 255);">
-<a style="color:#FFFFFF;text-decoration:none;" target="_blank" href="http://www.baidu.com">點擊了解詳情</a></span></td>
-                                                                            </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td height="0"></td>
-                                                                </tr>
-                                                                </tbody>
-                                                            </table>
-                                                        </td>
-                                                        <td width="40"></td>
-                                                    </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>`);
+	.content_head{
+		height:224px;
+		width:1072px;
+	}
+	.order{
+	float:left;
+	margin-right:48px;
+	}
+	.p1{
+		float:left;
+		width:816px;
+		line-height:64px;
+		font-size:40px;
+		font-family: PingFangSC-Semibold;
+        color: #333333;
+		margin-top:16px;
+	}
+    .p2{
+		float:left;
+		width:816px;
+		line-height:56px;
+		font-size:36px;
+		font-family: PingFangSC-Regular;
+        color: #08BF69;
+		margin:16px 0 24px 0;
+	}
+	.p3{
+		float:left;
+		width:816px;
+		line-height:32px;
+		font-size:20px;
+		font-family: PingFangSC-Regular;
+        color: #999999;
+	}
+	.content_bottom{
+		width:1072px;
+		margin-top:40px;
+	}
+	.content_bottom img{
+		width:1072px;
+		margin-bottom:16px;
+	}
+</style>
+
+</head>
+
+<body>
+<div class="mean">
+	<div class="head">
+		<img src="http://yubaopay.oss-cn-hongkong.aliyuncs.com/images/14444080183464.jpg" class="logo"/>
+		<img src="http://yubaopay.oss-cn-hongkong.aliyuncs.com/images/11006012922637.jpg" class="slogen"/>
+	</div>
+	<div class="content">
+    	<div class="content_head">
+    		<img src="http://yubaopay.oss-cn-hongkong.aliyuncs.com/images/6778641964630.jpg" class="order"/>
+    		<p class="p1">订单号：${billObject.billID}</p>
+			<p class="p2">您有一个交易已被处理</p>
+			<p class="p3">交易提示：汇款证明截图，请您及时确认</p>
+		</div>
+		<div class="content_bottom">
+			${resultArray}
+		</div>
+	</div>
+</div>
+</body>
+</html>
+`);
 
         logger.info("send_Email", {
             level: req.user.role,

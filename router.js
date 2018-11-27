@@ -274,7 +274,7 @@ app.post('/recharger/addChargeAliBills', isAuthenticated('User'), rechargeContro
 
 
 app.post('/user/setEmployee', isAuthenticated('User'), userController.setEmployee);
-app.post('/mail/send_pic_mail', mailController.func_send_Email);//done
+app.post('/mail/send_pic_mail', isAuthenticated('User'),mailController.func_send_Email);//done
 
 
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);

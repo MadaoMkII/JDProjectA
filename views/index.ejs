@@ -33,12 +33,12 @@
             <% if(files){ %>
             <% files.forEach(function(file) { %>
             <div class="card card-body mb-3">
-                <% if(file.isImage) {  %>
-                <img src="image/<%= file.filename %>" alt="">
+                <% if(file) {  %>
+                <img src="<%= file.url %>" alt="">
                 <% } else { %>
-                <%= file.filename %>
+                <%= file.url %>
                 <% } %>
-                <form method="DELETE" action="/delImage/<%= file.filename %>?_method=DELETE">
+                <form method="DELETE" action="/delImage/<%= file.url %>?_method=DELETE">
                     <button class="btn btn-danger btn-block mt-4">Delete</button>
                 </form>
             </div>

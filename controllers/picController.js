@@ -71,7 +71,7 @@ exports.getImgs = async (req, res) => {
             prefix: `images/`,
             delimiter: '/'
         },null);
-console.log(result)
+
         res.status(200).render(`../views/${req.path}`, {files: result.objects});
     } catch (err) {
         console.log(err)
@@ -203,7 +203,7 @@ exports.deleteImpsForController = (req, res) => {
 
 exports.deleteImgs_new = async (req, res) => {
     let filename;
-    console.log(req.body)
+
     if (req.params.filename) {
         filename = req.params.filename;
     } else if (req.body.filename) {
