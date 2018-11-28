@@ -186,8 +186,9 @@ app.post('/bill/getBaseRate', isAuthenticated('User'), dgPayment.getThisUserBasi
 
 app.post('/user/delAliPayAccount', isAuthenticated('User'), userController.delUserAliPayAccounts);
 app.post('/user/delUserWechat', isAuthenticated('User'), userController.delUserWechat);
-app.post('/user/addbank', isAuthenticated('User'), userController.delUserBank);
-app.post('/user/addbank', isAuthenticated('User'), userController.addUserBank);
+app.get('/user/addUserBankSendMassage', isAuthenticated('User'), userController.addUserBank_sendMassage);
+app.post('/user/delBank', isAuthenticated('User'), userController.delUserBank);
+app.post('/user/addBank', isAuthenticated('User'), userController.addUserBank);
 app.post('/addBankAccounts', isAuthenticated('Super_Admin'), manageSettingController.addBankAccounts);
 app.get('/getBankAccounts', isAuthenticated('User'), manageSettingController.getBankAccounts);
 
@@ -274,12 +275,13 @@ app.post('/recharger/addChargeAliBills', isAuthenticated('User'), rechargeContro
 
 
 app.post('/user/setEmployee', isAuthenticated('User'), userController.setEmployee);
-app.post('/mail/send_pic_mail', isAuthenticated('User'),mailController.func_send_Email);//done
+app.post('/mail/send_pic_mail', isAuthenticated('User'), mailController.func_send_Email);//done
 
 
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
 
-app.post('/msg/send_sign_massage', userController.userSignUp_sendMassage);
+app.post('/msg/send_sign_massage', userController.user_signUp_sendMassage);
+app.post('/msg/check_sign_massage', userController.user_signUp_check_code);
 app.post('/user/signup', userController.userSignUp);
 
 app.post('/user/login', loginUser.loginUser);

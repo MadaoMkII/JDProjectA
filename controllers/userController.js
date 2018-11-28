@@ -6,9 +6,9 @@ const redis = require("redis"),
 const {promisify} = require('util');
 const refererModel = require('../modules/userAccount').refererModel;
 const searchModel = require('../controllers/searchModel');
-
+const tools = require('../config/tools');
 const uuidv1 = require('uuid/v1');
-const tools = require("../config/tools");
+const logger = require('../logging/logging').logger;
 const getAsync = promisify(redisClient.get).bind(redisClient);
 
 
@@ -128,7 +128,7 @@ exports.setReferer = async (req, res) => {
         if (err.toString().indexOf(`E11000`)) {
             return res.status(400).json({
                 error_code: 400, error_massage: 'referrer ID is duplicate,' +
-                    'please recommend another user'
+                'please recommend another user'
             });
         }
         return res.status(503).json({error_code: 503, error_massage: 'Set Referer Failed'});
@@ -327,13 +327,14 @@ exports.findUser = async (req, res) => {
     }
 
 };
-exports.userSignUp_sendMassage = async (req, res) => {
+
+exports.user_signUp_sendMassage = async (req, res) => {
     try {
         let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
         if (!wanwan_phone_reg.test(req.body.tel_number)) {
             return res.status(403).send({error_code: 403, error_msg: `wrong input tel_number`});
         }
-        await searchModel.requestCheckBox(req, 'tel_number')
+        await searchModel.requestCheckBox(req, 'tel_number');
         let isExist = await userModel.count({tel_number: req.body.tel_number});
         if (isExist > 0) {
             return res.status(400).send({error_code: 400, error_msg: `this number has already been used`});
@@ -341,7 +342,6 @@ exports.userSignUp_sendMassage = async (req, res) => {
         await massager.shin_smsSend(req, res, `userSignUp`, req.body.tel_number);
 
     } catch (err) {
-        console.log(err)
         logger.error("Error: findUser", {
             status: 503,
             level: `USER`,
@@ -352,21 +352,36 @@ exports.userSignUp_sendMassage = async (req, res) => {
         });
         return res.status(503).send({error_code: 503, error_msg: `send userSignUp message Failed`});
     }
+};
 
+exports.user_signUp_check_code = async (req, res) => {
+
+    let result = await massager.check_code(req, res, `userSignUp`, req.body.tel_number);
+
+    if (!result) {
+        return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
+    }
+
+
+    return res.status(200).json({
+        error_msg: "OK",
+        error_code: "0"
+    });
 };
 
 exports.userSignUp = async (req, res) => {
 
     try {
+
         await searchModel.reqSearchConditionsAssemble(req,
-            {"filedName": `code`, "require": true, custom: true},
             {"filedName": `tel_number`, "require": true, custom: true},
             {"filedName": `email_address`, "require": true, custom: true}
         );
-         let check_result = await massager.check_code(req, res, `userSignUp`, req.body.tel_number);
-        // if (!check_result) {
-        //     return res.status(406).send({error_code: 406, error_msg: `Verify code is wrong`});
-        // }
+        let key = `category:userSignUp,tel_number:${req.body.tel_number}`;
+        let verity_result = await getAsync(key);
+        if (!verity_result || verity_result !== `CHECKED`) {
+            return res.status(404).json({error_msg: "You need to verify current number first", error_code: "404"});
+        }
 
         let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
         let uuid = uuidv1();
@@ -420,7 +435,7 @@ exports.getUserInfo = async (req, res) => {
 
         return res.status(200).json({error_code: 0, error_massage: `OK`, data: userInfo});
     } catch (err) {
-        tools.erroe_handler_func(err,req,);
+        tools.erroe_handler_func(err, req,);
         return res.status(503).json({error_code: 503, error_massage: `Get User Info Failed`});
     }
 
@@ -446,8 +461,31 @@ exports.getUserInfo = async (req, res) => {
 
 
 };
+
+exports.addUserBank_sendMassage = async (req, res) => {
+    try {
+
+        await massager.shin_smsSend(req, res, `addUserBank`, req.user.tel_number);
+
+    } catch (err) {
+        logger.error("Error: addUserBank", {
+            status: 503,
+            level: `USER`,
+            response: `addUserBank Failed`,
+            action: `addUserBank message`,
+            body: req.body,
+            error: err
+        });
+        return res.status(503).send({error_code: 503, error_msg: `send addUserBank message Failed`});
+    }
+};
 exports.addUserBank = async (req, res) => {
     try {
+        let result = await massager.check_code(req, res, `addUserBank`, req.user.tel_number);
+
+        if (!result) {
+            return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
+        }
 
         let bankObject = {};
         for (let index in req.body) {
@@ -468,6 +506,7 @@ exports.addUserBank = async (req, res) => {
 
         res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
     } catch (err) {
+        console.log(err)
         logger.error("Error: addUserBank", {
             status: 503,
             level: `USER`,
@@ -841,7 +880,6 @@ exports.update_email_sendMassage = async (req, res) => {
 exports.update_email = async (req, res) => {
 
     try {
-
 
         let result = await massager.check_code(req, res, `update_email`, req.user.tel_number);
 

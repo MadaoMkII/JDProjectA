@@ -48,7 +48,7 @@ exports.shin_smsSend = async (req, res, category, tel_number_1) => {
         message.set_project('WnDSX2');
         message.add_var('code', verity_code);
         message.add_var('time', '10分鐘');
-        await message.xsend();
+        //await message.xsend();
 
         //限制访问频率60秒
         await redisClient.set(key, verity_code, 'EX', 600, redis.print);
@@ -141,9 +141,7 @@ exports.check_code = async (req, res, category, tel_number) => {
 
     let verity_code = req.body.code;
     if (tools.isEmpty(verity_code)) {
-
         throw new Error("code can not be empty");
-
     }
     let key = `category:${category},tel_number:${tel_number}`;
 
@@ -169,9 +167,11 @@ exports.confirm_smsMassage = async (req, res, category) => {
         let tel_number = req.body.tel_number;
 
         let result = await redisClient.get(`category:${category},tel_number:${tel_number}`);
+
         if (!result) {
             return res.status(404).json({error_msg: "No verification code", error_code: "404"});
         }
+
         if (parseInt(code) === parseInt(result)) {
 
             await  redisClient.multi().set('registerNumber:' + tel_number, "OK", 'EX', 45);
