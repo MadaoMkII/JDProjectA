@@ -57,6 +57,6 @@ try {
 
     throw x
 }catch (e) {
-    console.log(e)
+    console.log(e.stack)
 }
 

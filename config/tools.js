@@ -1,17 +1,26 @@
 const crypto = require('crypto');
 const config = require('../config/develop');
+const logger = require('../logging/logging').logger;
+let erroe_handler_func = (error, req, methodName) => {
+    if (req.user) {
+        logger.error(methodName, {
+            level: req.user.role,
+            response: `addProcessOrderForRcoinCharge Failed`,
+            user: req.user.uuid,
+            email: req.user.email_address,
+            location: (new Error().stack).split("at ")[1],
+            body: req.body,
+            error_massage: err
+        });
 
-let erroe_handler_func = (error)=>{
-
-
-
-
+    }
 };
 
 
-let checkIfExistInArray = (fieldValue,array,fieldName) => {
-    for(let entity of array){
-        if(entity[fieldName]   ){}
+let checkIfExistInArray = (fieldValue, array, fieldName) => {
+    for (let entity of array) {
+        if (entity[fieldName]) {
+        }
 
     }
 
@@ -53,7 +62,7 @@ const KEY = config.KEY; // This key should be stored in an environment variable
 const HMAC_KEY = config.HMAC_KEY; // This key should be stored in an environment variable
 //加密
 exports.encrypt = (plain_text) => {
-    plain_text=plain_text+``;
+    plain_text = plain_text + ``;
     let IV = new Buffer(crypto.randomBytes(16)); // ensure that the IV (initialization vector) is random
     let cipher_text;
     let hmac;
@@ -99,7 +108,7 @@ exports.decrypt = function (cipher_text) {
 };
 
 let constant_time_compare = function (val1, val2) {
-    let sentinel=``;
+    let sentinel = ``;
 
     if (val1.length !== val2.length) {
         return false;

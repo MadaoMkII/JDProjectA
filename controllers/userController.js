@@ -6,7 +6,7 @@ const redis = require("redis"),
 const {promisify} = require('util');
 const refererModel = require('../modules/userAccount').refererModel;
 const searchModel = require('../controllers/searchModel');
-const logger = require('../logging/logging').logger;
+
 const uuidv1 = require('uuid/v1');
 const tools = require("../config/tools");
 const getAsync = promisify(redisClient.get).bind(redisClient);
@@ -737,6 +737,7 @@ exports.update_nickName = async (req, res) => {
 
 
 exports.getBack_password_sendMassage = async (req, res) => {
+    await searchModel.requestCheckBox(`tel_number`);
     let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
     if (!wanwan_phone_reg.test(req.body.tel_number)) {
         return res.status(406).json({
