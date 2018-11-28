@@ -329,6 +329,7 @@ exports.findUser = async (req, res) => {
 };
 exports.userSignUp_sendMassage = async (req, res) => {
     try {
+        await searchModel.requestCheckBox(req,'tel_number')
         let isExist = await userModel.count({tel_number: req.body.tel_number});
         if (isExist > 0) {
             return res.status(400).send({error_code: 400, error_msg: `this number has already been used`});
@@ -405,55 +406,7 @@ exports.userSignUp = async (req, res) => {
             return res.status(400).send({error_code: 400, error_msg: err.message});
         }
     }
-
-    // redis.createClient().get("registerNumber:" + userInfo.tel_number, function (err, result) {
-    //
-    //     if (result === 'OK') {
-    //         new userModel(userInfo).save((err) => {
-    //             if (err) {
-    //
-    //                 logger.error("Error: userSignUp", {
-    //                     status: 503,
-    //                     level: `USER`,
-    //                     response: `user Sign Up Failed`,
-    //                     user: req.user.uuid,
-    //                     action: `userSignUp`,
-    //                     body: req.body,
-    //                     error: err
-    //                 });
-    //
-    //
-    //                 if (err.toString().includes('duplicate')) {
-    //
-    //
-    //                     return res.status(406).json({
-    //                         success: false,
-    //                         message: 'Duplication tel_number. The tel_number is : ' + userInfo.tel_number
-    //                     });
-    //                 } else {
-    //                     return res.status(409).json({
-    //                         success: false,
-    //                         message: 'Error happen when adding to DB',
-    //                         data: err
-    //                     });
-    //                 }
-    //             }
-    //             return res.status(200).json({
-    //                 "error_code": 0,
-    //                 "data": {
-    //                     role: userInfo.role,
-    //                     tel_number: req.body.tel_number
-    //                 }
-    //             });
-    //         });
-    //     } else {
-    //
-    //         return res.status(403).json({"error_code": 403, error_massage: "Not yet verified"});
-    //     }
-    // })
-
-}
-;
+};
 
 
 exports.getUserInfo = async (req, res) => {
@@ -702,10 +655,10 @@ exports.update_phoneNumber_sendMassage = async (req, res) => {
     await massager.shin_smsSend(req, res, `changeNumber`, req.body.tel_number);
 };
 
-
 exports.update_phoneNumber = async (req, res) => {
 
     try {
+        searchModel.requestCheckBox(req, "tel_number", `code`);
         let isTelIsExist = await userModel.count({tel_number: req.body.tel_number}) > 0;
         if (isTelIsExist) {
             return res.status(402).json({error_msg: "this tel_number has already been used", error_code: "402"});
@@ -754,6 +707,7 @@ exports.update_phoneNumber = async (req, res) => {
         });
     }
 };
+
 exports.update_nickName = async (req, res) => {
 
     try {
@@ -795,11 +749,14 @@ exports.getBack_password_sendMassage = async (req, res) => {
 exports.getBack_password_update = async (req, res) => {
 
     try {
-
+        let result_user = await userModel.findOne({tel_number: req.body.tel_number});
+        if (!result_user) {
+            return res.status(404).json({error_msg: "this number does not exist", error_code: "404"});
+        }
         let result = await massager.check_code(req, res, `getBack_password`, req.body.tel_number);
 
         if (!result) {
-            return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
+            return res.status(403).json({error_msg: "Verification code can not be paired", error_code: "404"});
         }
 
         //限制访问频率60秒
@@ -810,7 +767,7 @@ exports.getBack_password_update = async (req, res) => {
         await userModel.update({tel_number: req.body.tel_number}, {$set: {password: hashedPassword}});
 
 
-        return res.status(200).json({error_code: 200, error_massage: 'Please re-login'});
+        return res.status(200).json({error_code: 0, error_massage: 'Please re-login'});
 
 
     } catch (err) {

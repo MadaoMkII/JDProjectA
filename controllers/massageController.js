@@ -21,13 +21,13 @@ exports.shin_smsSend = async (req, res, category, tel_number_1) => {
                 error_code: "400"
             });
         }
-        let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
-        if (!wanwan_phone_reg.test(tel_number_1)) {
-            return res.status(400).json({
-                error_msg: "Wrong cell phone number",
-                error_code: "400"
-            });
-        }
+        // let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
+        // if (!wanwan_phone_reg.test(tel_number_1)) {
+        //     return res.status(406).json({
+        //         error_msg: "Wrong cell phone number",
+        //         error_code: "406"
+        //     });
+        // }
 
         let verity_code = Math.floor(Math.random() * (999999 - 99999 + 1) + 99999);
         let key = `category:${category},tel_number:${tel_number_1}`;
@@ -47,11 +47,11 @@ exports.shin_smsSend = async (req, res, category, tel_number_1) => {
         message.set_to(tel_number_1);
         message.set_project('WnDSX2');
         message.add_var('code', verity_code);
-        message.add_var('time', '1分鐘');
-        //await message.xsend();
+        message.add_var('time', '10分鐘');
+        await message.xsend();
 
         //限制访问频率60秒
-        await redisClient.set(key, verity_code, 'EX', 45, redis.print);
+        await redisClient.set(key, verity_code, 'EX', 600, redis.print);
 
         return res.json({
             error_msg: "OK",

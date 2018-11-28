@@ -52,5 +52,11 @@
 // //     if (!error) console.log(response);
 // //     else console.log(error);
 // // })
-let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
-console.log(email_reg.test(`xing@gmail.com`))
+try {
+    let  x = new Error(`asdasdsad`);
+
+    throw x
+}catch (e) {
+    console.log(e)
+}
+

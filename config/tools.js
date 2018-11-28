@@ -1,6 +1,14 @@
 const crypto = require('crypto');
 const config = require('../config/develop');
 
+let erroe_handler_func = (error)=>{
+
+
+
+
+};
+
+
 let checkIfExistInArray = (fieldValue,array,fieldName) => {
     for(let entity of array){
         if(entity[fieldName]   ){}
