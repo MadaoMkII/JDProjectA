@@ -4,7 +4,7 @@ const logger = require('../logging/logging').logger;
 
 let erroe_handler_func = (error, req, methodName) => {
 
-    if (req.user) {
+    if (req) {
         logger.error(methodName, {
             level: req.user.role,
             response: `addProcessOrderForRcoinCharge Failed`,
@@ -18,7 +18,7 @@ let erroe_handler_func = (error, req, methodName) => {
 
     } else {
 
-        console.log(erroe_handler_func.caller.name)
+        console.log(erroe_handler_func.caller)
     }
 };
 

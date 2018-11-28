@@ -175,7 +175,7 @@ exports.msg_holder = async (req, res) => {
         //     ticket: 'gQES8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAycDR6UFFDTXJkMm0xTmY5cDFyYzUAAgTvHthbAwRg6gAA'
         // };
         let returnData = req.body.xml;
-        //console.log(returnData)
+        console.log(returnData)
         if (tool.isEmpty(returnData[`eventkey`])) {
             return res.status(400).json({
                 error_msg: "retrun value from QR code is null, please try later",
@@ -191,7 +191,9 @@ exports.msg_holder = async (req, res) => {
             });
 
         }
-        let token = config[`access_token`];
+        let [, requestResult_1] = await requestFun(null, 'GET', `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${config.wechat_appID}&secret=${config.wechat_secret}`);
+
+        let token = requestResult_1[`access_token`];
         let OPENID = returnData[`fromusername`];
         let userLink = `https://api.weixin.qq.com/cgi-bin/user/info?access_token=${token}&openid=${OPENID}&lang=zh_CN`;
         let [, requestResult] = await requestFun(null, 'GET', userLink);

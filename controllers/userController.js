@@ -363,7 +363,7 @@ exports.userSignUp = async (req, res) => {
             {"filedName": `tel_number`, "require": true, custom: true},
             {"filedName": `email_address`, "require": true, custom: true}
         );
-        // let check_result = await massager.check_code(req, res, `userSignUp`, req.body.tel_number);
+         let check_result = await massager.check_code(req, res, `userSignUp`, req.body.tel_number);
         // if (!check_result) {
         //     return res.status(406).send({error_code: 406, error_msg: `Verify code is wrong`});
         // }

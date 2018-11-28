@@ -73,10 +73,7 @@ let abc = () => {
 
     try {
         let a = new Error(`asdasdsad`);
-        var x2 = function x() {
-            console.log(arguments.callee.name);
-        }
-        x2();
+ throw a;
 
     } catch (e) {
         tool.erroe_handler_func(e, null, '')
