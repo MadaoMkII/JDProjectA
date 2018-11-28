@@ -52,11 +52,36 @@
 // //     if (!error) console.log(response);
 // //     else console.log(error);
 // // })
-try {
-    let  x = new Error(`asdasdsad`);
 
-    throw x
-}catch (e) {
-    console.log(e.stack)
+function functionName(func) {
+    // Match:
+    // - ^          the beginning of the string
+    // - function   the word 'function'
+    // - \s+        at least some white space
+    // - ([\w\$]+)  capture one or more valid JavaScript identifier characters
+    // - \s*        optionally followed by white space (in theory there won't be any here,
+    //              so if performance is an issue this can be omitted[1]
+    // - \(         followed by an opening brace
+    //
+    var result = /^function\s+([\w\$]+)\s*\(/.exec(func.toString())
+
+    return result ? result[1] : '' // for an anonymous function there won't be a match
 }
+
+const tool = require(`./config/tools`);
+let abc = () => {
+
+    try {
+        let a = new Error(`asdasdsad`);
+        var x2 = function x() {
+            console.log(arguments.callee.name);
+        }
+        x2();
+
+    } catch (e) {
+        tool.erroe_handler_func(e, null, '')
+    }
+
+}
+abc()
 

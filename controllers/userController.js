@@ -329,6 +329,10 @@ exports.findUser = async (req, res) => {
 };
 exports.userSignUp_sendMassage = async (req, res) => {
     try {
+        let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
+        if (!wanwan_phone_reg.test(req.body.tel_number)) {
+            return res.status(403).send({error_code: 403, error_msg: `wrong input tel_number`});
+        }
         await searchModel.requestCheckBox(req, 'tel_number')
         let isExist = await userModel.count({tel_number: req.body.tel_number});
         if (isExist > 0) {
@@ -369,7 +373,7 @@ exports.userSignUp = async (req, res) => {
         let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
         let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
         if (!email_reg.test(req.body.email_address)) {
-            return res.status(403).send({error_code: 403, error_msg: `wrong input email`});
+            return res.status(402).send({error_code: 402, error_msg: `wrong input email`});
         }
         if (!wanwan_phone_reg.test(req.body.tel_number)) {
             return res.status(403).send({error_code: 403, error_msg: `wrong input tel_number`});
@@ -416,15 +420,7 @@ exports.getUserInfo = async (req, res) => {
 
         return res.status(200).json({error_code: 0, error_massage: `OK`, data: userInfo});
     } catch (err) {
-        logger.error("Error: getUserInfo", {
-            status: 503,
-            level: `USER`,
-            response: `getUserInfo Failed`,
-            user: req.user.uuid,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
+        tools.erroe_handler_func(err,req,);
         return res.status(503).json({error_code: 503, error_massage: `Get User Info Failed`});
     }
 
