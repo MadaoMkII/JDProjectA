@@ -27,9 +27,9 @@ exports.zhuce = async (req, res) => {
     let userInfo = {
         uuid: uuid,
         password: result,
-        growthPoints:req.body.growthPoints,
+        growthPoints: req.body.growthPoints,
         role: 'Super_Admin',
-        Rcoins: 188,
+        Rcoins: 1808,
         tel_number: req.body.tel_number,
         email_address: req.body.email_address, referrer: new refererModel()
     };
@@ -128,7 +128,7 @@ exports.setReferer = async (req, res) => {
         if (err.toString().indexOf(`E11000`)) {
             return res.status(400).json({
                 error_code: 400, error_massage: 'referrer ID is duplicate,' +
-                'please recommend another user'
+                    'please recommend another user'
             });
         }
         return res.status(503).json({error_code: 503, error_massage: 'Set Referer Failed'});
@@ -246,7 +246,7 @@ exports.findUser = async (req, res) => {
 
         let command = {};
         command.showCondition = {
-            growthPoints:1,
+            growthPoints: 1,
             tel_number: 1,
             email_address: 1,
             realName: 1,
@@ -327,75 +327,133 @@ exports.findUser = async (req, res) => {
     }
 
 };
-
-exports.userSignUp = (req, res) => {
-    let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
-    let uuid = uuidv1();
-    let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
-    let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
-    if (email_reg.test(req.body.email)) {
-        return res.status(400).send({error_code: 400, error_msg: `wrong input email`});
-    }
-    if (wanwan_phone_reg.test(req.body.tel_number)) {
-        return res.status(400).send({error_code: 400, error_msg: `wrong input tel_number`});
-    }
-    let userInfo = {
-        uuid: uuid,
-        password: result,
-        role: 'User',
-        growthPoints: 10,
-        Rcoins: '0',
-        tel_number: req.body.tel_number,
-        email_address: req.body.email
-    };
-
-    redis.createClient().get("registerNumber:" + userInfo.tel_number, function (err, result) {
-
-        if (result === 'OK') {
-            new userModel(userInfo).save((err) => {
-                if (err) {
-
-                    logger.error("Error: userSignUp", {
-                        status: 503,
-                        level: `USER`,
-                        response: `user Sign Up Failed`,
-                        user: req.user.uuid,
-                        action: `userSignUp`,
-                        body: req.body,
-                        error: err
-                    });
-
-
-                    if (err.toString().includes('duplicate')) {
-
-
-                        return res.status(406).json({
-                            success: false,
-                            message: 'Duplication tel_number. The tel_number is : ' + userInfo.tel_number
-                        });
-                    } else {
-                        return res.status(409).json({
-                            success: false,
-                            message: 'Error happen when adding to DB',
-                            data: err
-                        });
-                    }
-                }
-                return res.status(200).json({
-                    "error_code": 0,
-                    "data": {
-                        role: userInfo.role,
-                        tel_number: req.body.tel_number
-                    }
-                });
-            });
-        } else {
-
-            return res.status(403).json({"error_code": 403, error_massage: "Not yet verified"});
+exports.userSignUp_sendMassage = async (req, res) => {
+    try {
+        let isExist = await userModel.count({tel_number: req.body.tel_number});
+        if (isExist > 0) {
+            return res.status(400).send({error_code: 400, error_msg: `this number has already been used`});
         }
-    })
+        await massager.shin_smsSend(req, res, `userSignUp`, req.body.tel_number);
+
+    } catch (err) {
+        console.log(err)
+        logger.error("Error: findUser", {
+            status: 503,
+            level: `USER`,
+            response: `userSignUp Failed`,
+            action: `userSignUp message`,
+            body: req.body,
+            error: err
+        });
+        return res.status(503).send({error_code: 503, error_msg: `send userSignUp message Failed`});
+    }
 
 };
+
+exports.userSignUp = async (req, res) => {
+
+    try {
+        await searchModel.reqSearchConditionsAssemble(req,
+            {"filedName": `code`, "require": true, custom: true},
+            {"filedName": `tel_number`, "require": true, custom: true},
+            {"filedName": `email_address`, "require": true, custom: true}
+        );
+        // let check_result = await massager.check_code(req, res, `userSignUp`, req.body.tel_number);
+        // if (!check_result) {
+        //     return res.status(406).send({error_code: 406, error_msg: `Verify code is wrong`});
+        // }
+
+        let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
+        let uuid = uuidv1();
+        let email_reg = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+        let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
+        if (!email_reg.test(req.body.email_address)) {
+            return res.status(403).send({error_code: 403, error_msg: `wrong input email`});
+        }
+        if (!wanwan_phone_reg.test(req.body.tel_number)) {
+            return res.status(403).send({error_code: 403, error_msg: `wrong input tel_number`});
+        }
+        let userInfo = {
+            uuid: uuid,
+            password: result,
+            role: 'User',
+            growthPoints: 10,
+            Rcoins: '0',
+            tel_number: req.body.tel_number,
+            email_address: req.body.email
+        };
+
+        let newUser = await userModel(userInfo).save();
+
+        return res.status(200).send({error_code: 0, error_msg: 'OK', data: newUser});
+
+    } catch (err) {
+        console.log(err)
+        if (err.message.toString().includes('can not be empty')) {
+            return res.status(404).send({error_code: 404, error_msg: err.message});
+        }
+        if (err.message.toString().includes('duplicate')) {
+            let field_needed = 'This ';
+            if (err.message.toString().includes('tel_number')) {
+                field_needed = `tel_number`;
+            }
+            if (err.message.toString().includes('email')) {
+                field_needed += `email`;
+            }
+            return res.status(405).send({error_code: 405, error_msg: `${field_needed} has already been used`});
+        } else {
+            return res.status(400).send({error_code: 400, error_msg: err.message});
+        }
+    }
+
+    // redis.createClient().get("registerNumber:" + userInfo.tel_number, function (err, result) {
+    //
+    //     if (result === 'OK') {
+    //         new userModel(userInfo).save((err) => {
+    //             if (err) {
+    //
+    //                 logger.error("Error: userSignUp", {
+    //                     status: 503,
+    //                     level: `USER`,
+    //                     response: `user Sign Up Failed`,
+    //                     user: req.user.uuid,
+    //                     action: `userSignUp`,
+    //                     body: req.body,
+    //                     error: err
+    //                 });
+    //
+    //
+    //                 if (err.toString().includes('duplicate')) {
+    //
+    //
+    //                     return res.status(406).json({
+    //                         success: false,
+    //                         message: 'Duplication tel_number. The tel_number is : ' + userInfo.tel_number
+    //                     });
+    //                 } else {
+    //                     return res.status(409).json({
+    //                         success: false,
+    //                         message: 'Error happen when adding to DB',
+    //                         data: err
+    //                     });
+    //                 }
+    //             }
+    //             return res.status(200).json({
+    //                 "error_code": 0,
+    //                 "data": {
+    //                     role: userInfo.role,
+    //                     tel_number: req.body.tel_number
+    //                 }
+    //             });
+    //         });
+    //     } else {
+    //
+    //         return res.status(403).json({"error_code": 403, error_massage: "Not yet verified"});
+    //     }
+    // })
+
+}
+;
 
 
 exports.getUserInfo = async (req, res) => {
@@ -841,7 +899,10 @@ exports.update_email = async (req, res) => {
             body: req.body
         });
         req.logOut();
-        return res.status(200).json({error_code: 0, error_massage: 'Successfully update update_email,Please re-Login'});
+        return res.status(200).json({
+            error_code: 0,
+            error_massage: 'Successfully update update_email,Please re-Login'
+        });
 
 
     } catch (err) {

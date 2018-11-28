@@ -149,7 +149,7 @@ exports.check_code = async (req, res, category, tel_number) => {
 
     const getAsync = promisify(redisClient.get).bind(redisClient);
     let result = await getAsync(key);
-console.log(result)
+
     if (verity_code === result) {
         redisClient.set(key, "CHECKED", 'EX', 45);
         return true;

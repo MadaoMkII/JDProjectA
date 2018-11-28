@@ -279,11 +279,11 @@ app.post('/mail/send_pic_mail', isAuthenticated('User'),mailController.func_send
 
 app.get('/user/getInfo', isAuthenticated('User'), userController.getUserInfo);
 
-
-app.post('/signup', userController.userSignUp);
+app.post('/msg/send_sign_massage', userController.userSignUp_sendMassage);
+app.post('/user/signup', userController.userSignUp);
 
 app.post('/user/login', loginUser.loginUser);
-app.post('/user/logout', loginUser.logoutUser);
+app.get('/user/logout', loginUser.logoutUser);
 
 app.listen(3000);
 
