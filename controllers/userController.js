@@ -329,7 +329,7 @@ exports.findUser = async (req, res) => {
 };
 exports.userSignUp_sendMassage = async (req, res) => {
     try {
-        await searchModel.requestCheckBox(req,'tel_number')
+        await searchModel.requestCheckBox(req, 'tel_number')
         let isExist = await userModel.count({tel_number: req.body.tel_number});
         if (isExist > 0) {
             return res.status(400).send({error_code: 400, error_msg: `this number has already been used`});
@@ -737,7 +737,13 @@ exports.update_nickName = async (req, res) => {
 
 
 exports.getBack_password_sendMassage = async (req, res) => {
-
+    let wanwan_phone_reg = /^((?=(09))[0-9]{10})$/;
+    if (!wanwan_phone_reg.test(req.body.tel_number)) {
+        return res.status(406).json({
+            error_msg: "Wrong cell phone number",
+            error_code: "406"
+        });
+    }
     let result = await userModel.findOne({tel_number: req.body.tel_number});
     if (!result) {
         return res.status(404).json({error_msg: "this number does not exist", error_code: "404"});
