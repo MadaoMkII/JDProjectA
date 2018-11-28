@@ -380,7 +380,7 @@ exports.userSignUp = async (req, res) => {
             growthPoints: 10,
             Rcoins: '0',
             tel_number: req.body.tel_number,
-            email_address: req.body.email
+            email_address: req.body.email_address
         };
 
         let newUser = await userModel(userInfo).save();
@@ -706,8 +706,10 @@ exports.update_phoneNumber_sendMassage = async (req, res) => {
 exports.update_phoneNumber = async (req, res) => {
 
     try {
-
-
+        let isTelIsExist = await userModel.count({tel_number: req.body.tel_number}) > 0;
+        if (isTelIsExist) {
+            return res.status(402).json({error_msg: "this tel_number has already been used", error_code: "402"});
+        }
         let result = await massager.check_code(req, res, `changeNumber`, req.body.tel_number);
 
         if (!result) {
@@ -784,7 +786,7 @@ exports.getBack_password_sendMassage = async (req, res) => {
 
     let result = await userModel.findOne({tel_number: req.body.tel_number});
     if (!result) {
-        return res.status(404).json({error_msg: "Can not send to this number", error_code: "404"});
+        return res.status(404).json({error_msg: "this number does not exist", error_code: "404"});
     }
     await massager.shin_smsSend(req, res, `getBack_password`, req.body.tel_number);
 
