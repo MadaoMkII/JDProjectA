@@ -5,6 +5,7 @@ let saveLogger = async (infoCustom, level, errorBox, callerInfo) => {
     if (errorBox) {
         let req = errorBox.req, error = errorBox.error,
             specialResponse = errorBox[`specialResponse`];
+
         if (req && req.user) {
             loggerEntity = {
                 info: infoCustom,
@@ -26,7 +27,7 @@ let saveLogger = async (infoCustom, level, errorBox, callerInfo) => {
                 functionName: callerInfo.functionName,
                 filePath: callerInfo.filePath,
                 lineNumber: callerInfo.lineNumber,
-                requestBody: req.body,
+                requestBody: req ? req.body : undefined,
                 error: error
             }
         }
