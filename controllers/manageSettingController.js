@@ -385,7 +385,6 @@ exports.dujiuxing = async (req, res) => {
 
         "error_code": 0,
         "data": {
-
             "bank": [
                 {"value": "004", "label": "004 台灣銀行"},
                 {"value": "005", "label": "005 土地銀行"},

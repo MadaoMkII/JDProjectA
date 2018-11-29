@@ -15,7 +15,7 @@ let saveLogger = async (infoCustom, level, errorBox, callerInfo) => {
                 functionName: callerInfo.functionName,
                 filePath: callerInfo.filePath,
                 lineNumber: callerInfo.lineNumber,
-                requestBody: req.body,
+                requestBody: req ? req.body : undefined,
                 error: error
             }
         } else {

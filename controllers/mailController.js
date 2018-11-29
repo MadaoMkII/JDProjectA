@@ -21,7 +21,7 @@ transporter.verify((error, success) => {
     if (error) {
         console.log(error);
     } else {
-        logger.info('Server is ready to take our messages' + success);
+        //logger.info('Server is ready to take our messages' + success);
     }
 });
 
