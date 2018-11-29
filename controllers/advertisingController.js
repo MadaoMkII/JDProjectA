@@ -176,7 +176,7 @@ exports.delAdvertising = (req, res) => {
 
     let item_id = req.body.advertisingID;
 
-    advertisingModel.remove({advertisingID: item_id}, (err) => {
+    advertisingModel.deleteOne({advertisingID: item_id}, (err) => {
         if (err) {
             logger.error(`删除广告`, {req: req, error: err});
             return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});

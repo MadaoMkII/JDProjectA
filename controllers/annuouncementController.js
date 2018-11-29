@@ -171,7 +171,7 @@ exports.removeModel = async (req, res) => {
         if (isEmpty(req.body.model_name)) {
             return res.status(406).json({error_msg: `406`, error_code: "model_name can not be empty"});
         }
-        await anModel.remove({name: req.body.model_name});
+        await anModel.deleteOne({name: req.body.model_name});
 
         return res.json({error_msg: `OK`, error_code: "0"});
     } catch (err) {
@@ -307,7 +307,7 @@ exports.delAnnouncement = (req, res) => {
 
     let item_id = req.body.announcementID;
 
-    announcementModel.remove({announcementID: item_id}, (err) => {
+    announcementModel.deleteOne({announcementID: item_id}, (err) => {
         if (err) {
             return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {

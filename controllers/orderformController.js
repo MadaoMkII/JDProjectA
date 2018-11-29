@@ -116,7 +116,7 @@ exports.getOrderform = (req, res) => {
 ;
 exports.deleteOrderForm = (req, res) => {
 
-    orderModel.remove({_id: req.query['_id']}, (err) => {
+    orderModel.deleteOne({_id: req.query['_id']}, (err) => {
             if (err) {
                 logger.info(req.body);
                 logger.error('Error location : Class: orderformController, function: updateOrderForm. ' + err);

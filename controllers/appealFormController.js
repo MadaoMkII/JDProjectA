@@ -191,7 +191,7 @@ exports.delAppealForm = async (req, res) => {
     try {
         let appealFormID = req.body.appealFormID;
         //let picResult = await appealFormModel.findOne({appealFormID: appealFormID});
-        await appealFormModel.remove({appealFormID: appealFormID});
+        await appealFormModel.deleteOne({appealFormID: appealFormID});
         // for (let entity of picResult.imagesFileArray) {
         //     let fileName = entity.replace(`http://www.yubaopay.com.tw/image/`, ``);
         //     fileName = fileName.replace(`http://localhost:3000/image/`, ``);
