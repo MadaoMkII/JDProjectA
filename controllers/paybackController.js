@@ -1,7 +1,7 @@
 let TopClient = require('../sdk-nodejs').ApiClient;
 let url = require('url');
 const tool = require('../config/tools');
-const logger = require('../logging/logging').logger;
+//const logger = require('../logging/logging').logger;
 const client = new TopClient({
     'appkey': '25260079',
     'appsecret': '70b1bcc4ff485e28a44d5c33e8b3b01c',
