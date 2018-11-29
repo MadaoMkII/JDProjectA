@@ -270,16 +270,7 @@ exports.addBillByBank = async (req, res) => {
         });
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     } catch (err) {
-
-        logger.error("addDGByALIBill", {
-            level: req.user.role,
-            response: `addDGByALIBill Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
+        logger.error(`银行转账代购代付`, {req: req, error: err});
         return res.status(500).send({error_code: 500, error_msg: err.message});
     }
 };
@@ -313,8 +304,8 @@ exports.addDGRcoinsBill = async (req, res) => {
             billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
 
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
-
-            billObject.paymentInfo.paymentDFAccount = `全进去`;
+            //我也不知道
+            billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
         } else if (req.body.typeStr === `其他網站代購`) {
             billObject.isVirtualItem = null;
             billObject.billID = 'DG' + (Math.random() * Date.now() * 10).toFixed(0);
@@ -365,16 +356,8 @@ exports.addDGRcoinsBill = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (err) {
-        logger.error("addDGRcoinsBill", {
-            level: req.user.role,
-            response: `addDGRcoinsBill Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-        return res.status(500).send({error_code: 500, error_msg: err.message});
+        logger.error(`addDGRcoinsBill`, {req: req, error: err});
+        return res.status(503).send({error_code: 503, error_msg: `Server is busing`});
     }
 };
 
@@ -414,16 +397,8 @@ exports.adminGetBills = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: result, nofdata: count});
 
     } catch (err) {
-        logger.error("adminGetBills", {
-            level: req.user.role,
-            response: `adminGetBills Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-        return res.status(503).send({error_code: 503, error_msg: err.message});
+        logger.error(`管理员查找订单`, {req: req, error: err});
+        return res.status(503).send({error_code: 503, error_msg: `Server is busing`});
     }
 
 };
@@ -442,7 +417,7 @@ exports.findMyBills = async (req, res) => {
             typeState: 1,
             created_at: 1,
             dealDate: 1,
-            replacePostage:1
+            replacePostage: 1
         };
 
         command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
@@ -464,16 +439,8 @@ exports.findMyBills = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: result, nofdata: count});
 
     } catch (err) {
-        logger.error("adminGetBills", {
-            level: req.user.role,
-            response: `adminGetBills Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-        return res.status(503).send({error_code: 503, error_msg: err.message});
+        logger.error(`获取用户自己的订单`, {req: req, error: err});
+        return res.status(503).send({error_code: 503, error_msg: `Server is busing`});
     }
 
 };
@@ -499,29 +466,12 @@ exports.addReplacePostageBill = async (req, res) => {
         if (!dgBillEntity) {
             return res.status(200).json({error_msg: `OK, but nothing has been changed`, error_code: "0"});
         }
-        logger.info("addReplacePostageBill", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
+        logger.error(`邮费标识`, {req: req});
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
     } catch (err) {
-        logger.error("addReplacePostageBill", {
-            level: req.user.role,
-            response: `addReplacePostageBill Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-        return res.status(500).json({error_msg: err.message, error_code: "500"});
-
+        logger.error(`邮费标识`, {req: req, error: err});
+        return res.status(503).json({error_msg: err.message, error_code: "503"});
     }
-
-
 };
 
 exports.findPostage = async (req, res) => {
@@ -563,17 +513,8 @@ exports.findPostage = async (req, res) => {
         let count = await dgBillModel.countDocuments(searcher);
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity, nofdata: count});
     } catch (err) {
-
-        logger.error("findReplacePostage", {
-            level: req.user.role,
-            response: `findReplacePostage Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-        return res.status(400).json({error_msg: err.message, error_code: "500"});
+        logger.error(`获取邮费列表`, {req: req, error: err});
+        return res.status(503).json({error_msg: err.message, error_code: "503"});
     }
 };
 exports.payReplacePostage = async (req, res) => {
@@ -610,25 +551,11 @@ exports.payReplacePostage = async (req, res) => {
         if (!dgBillEntity) {
             return res.status(200).json({error_msg: `OK, but nothing has been changed`, error_code: "0"});
         }
-        logger.info("payReplacePostage", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
+        logger.info(`用户付邮费`, {req: req});
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
     } catch (err) {
-        logger.error("payReplacePostage", {
-            level: req.user.role,
-            response: `payReplacePostage Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-        return res.status(500).json({error_msg: err.message, error_code: "500"});
+        logger.error(`用户付邮费`, {req: req, error: err});
+        return res.status(503).json({error_msg: `replacePostage Error`, error_code: "503"});
     }
 };
 exports.getRate = getRate;

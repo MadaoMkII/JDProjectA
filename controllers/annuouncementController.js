@@ -306,7 +306,6 @@ exports.addAnnouncement = (req, res) => {
 exports.delAnnouncement = (req, res) => {
 
     let item_id = req.body.announcementID;
-
     announcementModel.deleteOne({announcementID: item_id}, (err) => {
         if (err) {
             return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});

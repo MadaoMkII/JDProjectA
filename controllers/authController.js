@@ -33,14 +33,14 @@ exports.loginUser = (req, res, next) => {
         }
         req.login(user, (err) => {
             if (err) {
-                logger.error('Error location : Class: authController, function: loginUser. ' + err);
+                logger.error(`登录异常`, {req: req, error: err});
                 return next(err);
             }
-            let ip = (req.headers['x-forwarded-for'] || '').split(',').pop() ||
-                req.connection.remoteAddress ||
-                req.socket.remoteAddress ||
-                req.connection.socket.remoteAddress;
-            logger.info(req.user.tel_number + ' has been login in. IP is ' + ip);
+            // let ip = (req.headers['x-forwarded-for'] || '').split(',').pop() ||
+            //     req.connection.remoteAddress ||
+            //     req.socket.remoteAddress ||
+            //     req.connection.socket.remoteAddress;
+            // logger.info(req.user.tel_number + ' has been login in. IP is ' + ip);
             userModel.updateOne({tel_number: req.user.tel_number}, {$set: {last_login_time: Date.now()}}, (err) => {
                 if (err) {
 
