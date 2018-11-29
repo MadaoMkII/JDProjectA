@@ -19,7 +19,7 @@ let smtpConfig = {
 let transporter = nodemailer.createTransport(smtpConfig);
 transporter.verify((error, success) => {
     if (error) {
-        console.log(error);
+
     } else {
         //logger.info('Server is ready to take our messages' + success);
     }
@@ -40,15 +40,6 @@ let sendEmail = async (emailAddress, massage) => {
     };
 
     await transporter.sendMail(mailOptions);
-    //     , (error, info) => {
-    //     if (error) {
-    //         return console.log(error);
-    //     }
-    //     //console.log('Message sent: %s', info.messageId);
-    //     // Preview only available when sending through an Ethereal account
-    //     //console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-    //
-    // });
 };
 exports.func_send_Email = async (req, res) => {
     try {
@@ -188,7 +179,7 @@ exports.func_send_Email = async (req, res) => {
         });
         return res.json({error_msg: "OK", error_code: "0"});
     } catch (err) {
-        console.log(err)
+
         logger.error("send_Email", {
             level: req.user.role,
             response: `Internal Service Error`,

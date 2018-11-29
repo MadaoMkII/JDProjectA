@@ -286,7 +286,7 @@ exports.addChargeAliBills = async (req, res) => {
 
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
     } catch (err) {
-console.log(err)
+
         logger.error("addalipayChargeBills", {
             level: req.user.role,
             response: `addalipayChargeBills Failed`,

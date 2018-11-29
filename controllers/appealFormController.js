@@ -166,8 +166,8 @@ exports.findAppealForm = async (req, res) => {
         let [result, count] = await findAppealFormDAO(req, res, command, operator);
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
 
-    } catch (e) {
-
+    } catch (err) {
+        logger.error(`获取申诉`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
     }
 
@@ -177,9 +177,10 @@ exports.getThisUserAllAppealForm = (req, res) => {
 
     appealFormModel.find({userUUID: req.user.uuid}, (err, data) => {
             if (err) {
-                return res.json({error_msg: `400`, error_code: "advertising Error"});
+                logger.error(`获取用户一个申诉`, {req: req, error: err});
+                return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
             } else {
-                return res.json({error_msg: `OK`, error_code: "0", data: data});
+                return res.status(200).json({error_msg: `OK`, error_code: "0", data: data});
             }
         }
     )
@@ -189,18 +190,18 @@ exports.delAppealForm = async (req, res) => {
 
     try {
         let appealFormID = req.body.appealFormID;
-        let picResult = await appealFormModel.findOne({appealFormID: appealFormID});
+        //let picResult = await appealFormModel.findOne({appealFormID: appealFormID});
         await appealFormModel.remove({appealFormID: appealFormID});
-        for (let entity of picResult.imagesFileArray) {
-            let fileName = entity.replace(`http://www.yubaopay.com.tw/image/`, ``);
-            fileName = fileName.replace(`http://localhost:3000/image/`, ``);
-            req.body.filename = fileName;
-            await picController.deleteImgs(req, res, () => {
-            });
-        }
-
-        return res.json({error_msg: `OK`, error_code: "0"});
-    } catch (e) {
-        return res.json({error_msg: `400`, error_code: "advertising Error"});
+        // for (let entity of picResult.imagesFileArray) {
+        //     let fileName = entity.replace(`http://www.yubaopay.com.tw/image/`, ``);
+        //     fileName = fileName.replace(`http://localhost:3000/image/`, ``);
+        //     req.body.filename = fileName;
+        //     await picController.deleteImgs(req, res, () => {
+        //     });
+        // }
+        return res.status(200).json({error_msg: `OK`, error_code: "0"});
+    } catch (err) {
+        logger.error(`删除申诉`, {req: req, error: err});
+        return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
     }
 };

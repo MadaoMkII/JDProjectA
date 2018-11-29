@@ -365,7 +365,7 @@ exports.updatePayment = (req, res) => {
 };
 
 exports.deletePayment = (req, res) => {
-	console.log("DELETE");
+
     let paymentElement = {};
     paymentElement.paymentId = req.query['paymentId'];
     paymentElement.checkOrderId = req.query['checkOrderId'];

@@ -34,10 +34,7 @@ let getItemInfo = (urlLink) => {
     })
 };
 
-// let xRunner = (async () => {
-//     let ob = await getItemInfo('https://item.taobao.com/item.htm?spm=a219t.7900221/10.1998910419.d5d3d3cdd.685475a5ZqdaZl&id=558479490380');
-//     console.log(ob[0]);
-// })();
+
 exports.getThisUserPayback = async (req, res) => {
     let resultArray2 = [
         {

@@ -1,6 +1,6 @@
 const config = require('../config/develop');
 const userModel = require('../modules/userAccount').userAccountModel;
-//const request = require('request');
+const logger = require('../logging/logging').logger;
 const fs = require('fs');
 const AlipaySdk = require('alipay-sdk').default;
 let qr = require('qr-image');
@@ -40,6 +40,7 @@ exports.get_alipay_QR_code = async (req, res) => {
         res.writeHead(200, {'Content-Type': 'image/png'});
         img.pipe(res);
     } catch (err) {
+        logger.error(`获取支付宝二维码`, {req: req, error: err});
         return res.status(503).json({error_msg: "code can not use ", error_code: "503"});
     }
 };
@@ -65,7 +66,7 @@ exports.receiveCallback = async (req, res) => {
         const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
             auth_token: step_2_response.accessToken
         });
-console.log(step_3_response)
+        console.log(step_3_response)
         const aliPayAccount =
             {
                 alipayAccount: (req.query.state.toString()).split(`||`)[1],
@@ -88,11 +89,9 @@ console.log(step_3_response)
         res.redirect('/temp.html');
         res.end();
     } catch (err) {
-        //...
-        console.log(err);
-
+        return res.status(503).json({error_msg: `Server is busy`, error_code: "503"});
+        logger.error(`支付宝扫码CALLBACK`, {req: req, error: err});
     }
-
 
 };
 

@@ -39,28 +39,11 @@ exports.setSetting = async (req, res) => {
     managerConfigsObject.L3_Issue = !isEmpty(req.body.L3_Issue) ? req.body.L3_Issue : billResult.L3_Issue;
 
 
-    logger.info("setSetting", {
-        level: req.user.role,
-        user: req.user.uuid,
-        email: req.user.email_address,
-        location: (new Error().stack).split("at ")[1],
-        body: req.body
-    });
-
+    logger.info(`设置系统数据`, {req: req});
     managerConfigsObject.save((err) => {
 
         if (err) {
-            logger.error("setSetting", {
-                level: req.user.role,
-                response: `setSetting Failed`,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body,
-                error: err
-            });
-
-
+            logger.error(`设置系统数据`, {req: req, error: err});
             return res.status(500).send({error_code: 500, error_msg: 'NO'});
         } else {
             return res.status(200).send({error_code: 0, error_msg: 'OK'});

@@ -396,7 +396,7 @@ exports.userSignUp = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: newUser});
 
     } catch (err) {
-        console.log(err)
+
         if (err.message.toString().includes('can not be empty')) {
             return res.status(404).send({error_code: 404, error_msg: err.message});
         }
@@ -494,7 +494,7 @@ exports.addUserBank = async (req, res) => {
 
         res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
     } catch (err) {
-        console.log(err)
+
         logger.error("Error: addUserBank", {
             status: 503,
             level: `USER`,

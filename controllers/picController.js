@@ -34,7 +34,7 @@ mongoose.connection.once("open", () => {
     grid.mongo = mongoose.mongo;
     gridfs = grid(mongoose.connection.db);
     if (!gridfs) {
-        console.log("Sorry No Grid FS Object");
+        //console.log("Sorry No Grid FS Object");
     }
     gridfs.collection('images');
 });
@@ -74,7 +74,7 @@ exports.getImgs = async (req, res) => {
 
         res.status(200).render(`../views/${req.path}`, {files: result.objects});
     } catch (err) {
-        console.log(err)
+
         return res.status(400).json({error_msg: `400`, error_code: err.message});
     }
 };
