@@ -70,7 +70,7 @@ exports.getImgs = async (req, res) => {
         let result = await client.list({
             prefix: `images/`,
             delimiter: '/'
-        },null);
+        }, null);
 
         res.status(200).render(`../views/${req.path}`, {files: result.objects});
     } catch (err) {
@@ -119,14 +119,7 @@ exports.uploadImgForEndpoint = async (req, res) => {
 
     }
     catch (err) {
-        logger.error("uploadImgForEndpoint", {
-            level: req.user.role,
-            response: `uploadImgForEndpoint Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
+        logger.error(`图片上传`, {req: req, error: err});
 
         return res.status(400).json({error_msg: `400`, error_code: err.message});
     }
