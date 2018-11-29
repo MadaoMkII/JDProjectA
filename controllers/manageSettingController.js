@@ -181,7 +181,7 @@ exports.set3L = async (req, res) => {
 
         let managerConfigsEntity = new managerConfigsModel();
         billResult._id = managerConfigsEntity._id;
-        await managerConfigsModel.update({_id: billResult._id}, {$set: billResult}, {upsert: true, new: true});
+        await managerConfigsModel.updateOne({_id: billResult._id}, {$set: billResult}, {upsert: true, new: true});
         return res.status(200).send({
             error_code: 0,
             error_msg: 'NO',

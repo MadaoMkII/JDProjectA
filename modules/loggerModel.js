@@ -1,22 +1,17 @@
 const mongoose = require('../db/db').mongoose;
-const isEmpty = require('../config/tools').isEmpty;
-const loggerScheme = new mongoose.Schema(
+const loggerModelSchema = new mongoose.Schema(
     {
+        level: {type: String},
         userRole: {type: String},
-        userRole: {type: String},
-
+        API_response: {type: String, default: `N/A`},
+        userInfo: {email_address: String, tel_number: String, uuid: String},
+        issue_location: {type: String},
+        requestBody: {type: mongoose.Schema.Types.Mixed},
+        error: {type: mongoose.Schema.Types.Mixed}
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
 
-
-bankAccount.virtual('webLast6Digital').get(() => {
-    if (!isEmpty(this.accountCode)) {
-        return this.accountCode.slice(-6);
-    }
-});
-
-
-bankAccount.set('toJSON', {
+loggerModelSchema.set('toJSON', {
     virtuals: true,
     transform: (doc, ret) => {
         delete ret.__v;
@@ -26,6 +21,5 @@ bankAccount.set('toJSON', {
     }
 });
 
-let bankAccountModel = mongoose.model('bankAccount', bankAccount);
-exports.bankAccountModel = bankAccountModel;
-exports.bankAccount = bankAccount;
+let loggerModel = mongoose.model('loggerModel', loggerModelSchema);
+exports.loggerModel = loggerModel;

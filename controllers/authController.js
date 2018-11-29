@@ -41,7 +41,7 @@ exports.loginUser = (req, res, next) => {
                 req.socket.remoteAddress ||
                 req.connection.socket.remoteAddress;
             logger.info(req.user.tel_number + ' has been login in. IP is ' + ip);
-            userModel.update({tel_number: req.user.tel_number}, {$set: {last_login_time: Date.now()}}, (err) => {
+            userModel.updateOne({tel_number: req.user.tel_number}, {$set: {last_login_time: Date.now()}}, (err) => {
                 if (err) {
 
                     return res.status(404).json({error_code: 404, error_msg: 'Can not find anything'});

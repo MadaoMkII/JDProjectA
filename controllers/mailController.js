@@ -54,8 +54,8 @@ exports.func_send_Email = async (req, res) => {
     try {
         let billObject = await dgBillModel.findOne({billID: req.body.billID});
 
-        //let email_address = billObject.userInfo.email_address;
-        let email_address = "js19870219@126.com";
+        let email_address = billObject.userInfo.email_address;
+        //let email_address = "js19870219@126.com";
 
         if (tools.isEmpty(billObject.processOrder) || tools.isEmpty(billObject.processOrder.imageFilesNames)) {
             return res.status(404).json({error_msg: "can not find images", error_code: "404"});
@@ -287,7 +287,7 @@ exports.getBackFromEmail = (req, res) => {
                             require('crypto').createHash('md5').update(randomString + config.saltword).digest('hex');
                         sendEmail(email_address, `临时密码是${randomString}`);
 
-                        userAccountModel.update({email_address: email_address}, {$set: {password: hashedPassword}},
+                        userAccountModel.updateOne({email_address: email_address}, {$set: {password: hashedPassword}},
                             (err) => {
                                 if (err) {
                                     return res.status(500).json({"error_code": 500, error_massage: "Bad happened"});
@@ -338,7 +338,7 @@ exports.checkConfirmationEmail = (req, res) => {
 
         if (verity_code === result) {
 
-            userAccountModel.update({uuid: req.use.uuid}, {$set: {email_address: email_address}}, function (err) {
+            userAccountModel.updateOne({uuid: req.use.uuid}, {$set: {email_address: email_address}}, function (err) {
                 if (err) {
                     return res.status(404).json({error_msg: "Bad happened", error_code: "404"});
                 }

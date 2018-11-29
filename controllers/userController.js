@@ -108,29 +108,17 @@ exports.setReferer = async (req, res) => {
         // await userModel.findOneAndUpdate({uuid: userA.uuid}, { 清除填充内容
         //     $pull: {"referrer.referrals": {referrals_tel_number: ""}}
         // });//推荐人 userA
-        logger.info("(new Error().stack).split(\"at \")[3]", {
-            level: `USER`,
-            user: req.user.uuid,
-            action: `setReferer`,
-            body: req.body
-        });
+
         return res.status(200).json({error_massage: 'OK', error_code: 0, data: userB});
     } catch (err) {
-        logger.error("Error: setReferer", {
-            status: 503,
-            level: `USER`,
-            response: `Set Referer Failed`,
-            user: req.user.uuid,
-            action: `setReferer`,
-            body: req.body,
-            error: err
-        });
+
         if (err.toString().indexOf(`E11000`)) {
             return res.status(400).json({
                 error_code: 400, error_massage: 'referrer ID is duplicate,' +
-                'please recommend another user'
+                    'please recommend another user'
             });
         }
+        logger.error(null, {req: req, error: err});
         return res.status(503).json({error_code: 503, error_massage: 'Set Referer Failed'});
     }
 };
@@ -746,7 +734,7 @@ exports.update_phoneNumber = async (req, res) => {
 exports.update_nickName = async (req, res) => {
 
     try {
-        await userModel.update({uuid: req.user.uuid}, {$set: {nickName: req.body.nickName}});
+        await userModel.updateOne({uuid: req.user.uuid}, {$set: {nickName: req.body.nickName}});
         logger.info("update_nickName", {
             level: req.user.role,
             user: req.user.uuid,
@@ -806,7 +794,7 @@ exports.getBack_password_update = async (req, res) => {
 
         let hashedPassword =
             require('crypto').createHash('md5').update(req.body['newPassword'] + config.saltword).digest('hex');
-        await userModel.update({tel_number: req.body.tel_number}, {$set: {password: hashedPassword}});
+        await userModel.updateOne({tel_number: req.body.tel_number}, {$set: {password: hashedPassword}});
 
 
         return res.status(200).json({error_code: 0, error_massage: 'Please re-login'});
@@ -844,7 +832,7 @@ exports.update_password = async (req, res) => {
             return res.status(406).json({error_code: 406, error_massage: 'Current Password Is Not Correct!'});
         }
 
-        await userModel.update({uuid: req.user.uuid}, {$set: {password: hashedPassword}});
+        await userModel.updateOne({uuid: req.user.uuid}, {$set: {password: hashedPassword}});
 
 
         logger.info("update_password", {

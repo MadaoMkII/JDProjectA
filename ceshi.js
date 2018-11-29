@@ -68,17 +68,25 @@ function functionName(func) {
     return result ? result[1] : '' // for an anonymous function there won't be a match
 }
 
-const tool = require(`./config/tools`);
-let abc = () => {
+var callerId = require('caller-id');
 
-    try {
-        let a = new Error(`asdasdsad`);
- throw a;
-
-    } catch (e) {
-        tool.erroe_handler_func(e, null, '')
-    }
-
+// 1. Function calling another function
+function foo() {
+    bar();
 }
-abc()
-
+function bar() {
+    const logger = require('./logging/logging').logger;
+    logger.error()
+    /*
+    caller = {
+        typeName: 'Object',
+        functionName: 'foo',
+        filePath: '/path/of/this/file.js',
+        lineNumber: 5,
+        topLevelFlag: true,
+        nativeFlag: false,
+        evalFlag: false
+    }
+    */
+}
+foo()

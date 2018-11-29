@@ -126,7 +126,7 @@ app.use(function (req, res, next) {
 // Configure Express application.
 
 app.get('/payback/getFavorites', paybackController.getFavorites);
-
+app.get('/testErr', isAuthenticated('Admin'), advertisingController.errorTest);
 app.get('/test', isAuthenticated('Admin'), weChatController.jiade);
 
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);

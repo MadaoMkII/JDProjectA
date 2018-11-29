@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const config = require('../config/develop');
 const autoIncrement = require('mongoose-auto-increment');
 

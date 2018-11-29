@@ -19,17 +19,8 @@ exports.getDFpage = (req, res) => {
         advertisingID: 0
     }, (err, data) => {
         if (err) {
-
-            logger.error("getDFpage", {
-                level: req.user.role,
-                response: `advertising Error`,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body,
-                error: err
-            });
-            return res.status(400).json({error_msg: err.message, error_code: "400"});
+            logger.error(`代付页头图`, {req: req, error: err});
+            return res.status(503).json({error_msg: err.message, error_code: "503"});
         } else {
             return res.status(200).json({error_msg: `OK`, error_code: "0", data: data});
         }
@@ -51,25 +42,13 @@ exports.setDFpage = (req, res) => {
         new: true
     }, (err, data) => {
 
-        logger.info("setDFpage", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.info("设置首页图片", {
+            req: req
         });
 
         if (err) {
-            logger.error("setDFpage", {
-                level: req.user.role,
-                response: `advertising Error`,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body,
-                error: err
-            });
-            return res.json({error_code: `400`, error_msg: "advertising Error"});
+            logger.error(`设置首页图片`, {req: req, error: err});
+            return res.status(503).json({error_code: `503`, error_msg: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
         }
@@ -84,31 +63,18 @@ exports.setHomepage = (req, res) => {
     if (isEmpty(req.body.imageLink)) {
         return res.status(404).json({error_msg: `404`, error_code: "没有获取到imageLink,你的POST请求体为" + req.body});
     }
+
+
     advertisingModel.findOneAndUpdate(searchCommand, {$set: {"imageLink": req.body.imageLink}}, {
         upsert: true,
         new: true
     }, (err, data) => {
 
-        logger.info("setHomepage", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
-
         if (err) {
-            logger.error("setHomepage", {
-                level: req.user.role,
-                response: `advertising Error`,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body,
-                error: err
-            });
-            return res.json({error_code: `400`, error_msg: "advertising Error"});
+            logger.error(`设置首页头图`, {req: req, error: err});
+            return res.status(503).json({error_code: `503`, error_msg: "advertising Error"});
         } else {
+            logger.info("设置首页头图", {req: req});
             return res.json({error_msg: `OK`, error_code: "0", data: data});
         }
     })
@@ -126,17 +92,8 @@ exports.getHomepage = (req, res) => {
         "L2_category": 0
     }, (err, data) => {
         if (err) {
-            logger.error("getHomepage", {
-                level: req.user.role,
-                response: `setSetting Failed`,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body,
-                error: err
-            });
-
-            return res.json({error_msg: `400`, error_code: "advertising Error"});
+            logger.error(`首页头图`, {req: req, error: err});
+            return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
         }
@@ -159,21 +116,11 @@ exports.getHomepageItemsList = async (req, res) => {
         return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: count});
 
     } catch (err) {
-        logger.error("getHomepageItemsList", {
-            level: req.user.role,
-            response: `setSetting Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-
-        return res.status(400).json({error_msg: `400`, error_code: "advertising Error"});
+        logger.error(`HomepageItemsList`, {req: req, error: err});
+        return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
     }
-
-
 };
+
 exports.getHomepageItems = async (req, res) => {
 
     try {
@@ -186,23 +133,12 @@ exports.getHomepageItems = async (req, res) => {
             L1_category: 0
         }, operator);
 
-        return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: count});
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: result, nofdata: count});
 
     } catch (err) {
-        logger.error("getHomepageItems", {
-            level: req.user.role,
-            response: `setSetting Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-
-        return res.status(400).json({error_msg: `400`, error_code: "advertising Error"});
+        logger.error(`HomepageItemsList`, {req: req, error: err});
+        return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
     }
-
-
 };
 
 exports.addHomepageItems = (req, res) => {
@@ -223,53 +159,46 @@ exports.addHomepageItems = (req, res) => {
     advertisingObject.advertisingID = uuidv1();
     advertisingObject.save(err => {
         if (err) {
-            logger.error("addHomepageItems", {
-                level: req.user.role,
-                response: `addHomepageItems Failed`,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body,
-                error: err
-            });
+            logger.error(`设置首页商品列表`, {req: req, error: err});
 
             if (err.message.toString().includes(`duplicate`)) {
                 return res.status(400).json({error_msg: `400`, error_code: "advertisingLink can not be duplicated"});
             }
-            return res.status(500).json({error_msg: `500`, error_code: "advertising Error"});
+            return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
-            logger.info("addHomepageItems", {
-                level: req.user.role,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body
-            });
+            logger.info("设置首页商品列表", {req: req});
             return res.json({error_msg: `OK`, error_code: "0"});
         }
     })
 };
-//return res.status(403).json({"error_code": 403, error_massage: "Not yet verified"});
+
 exports.delAdvertising = (req, res) => {
 
     let item_id = req.body.advertisingID;
 
     advertisingModel.remove({advertisingID: item_id}, (err) => {
         if (err) {
-
-            logger.error("delAdvertising", {
-                level: req.user.role,
-                response: `advertising Failed`,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body,
-                error: err
-            });
-            return res.json({error_msg: `400`, error_code: "advertising Error"});
+            logger.error(`删除广告`, {req: req, error: err});
+            return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
-            return res.json({error_msg: `OK`, error_code: "0"});
+            return res.status(200).json({error_msg: `OK`, error_code: "0"});
         }
     });
 
 };
+
+exports.errorTest = (req, res) => {
+
+
+    try {
+        logger.info("设置首页图片", {
+            req: req
+        });
+        throw new Error(`wokanhaoni`)
+    } catch (err) {
+        logger.error(`API Error`, {req: req, error: err});
+        return res.json({error_msg: `400`, error_code: "advertising Error"});
+    }
+
+
+}

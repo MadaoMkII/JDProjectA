@@ -1,28 +1,5 @@
 const crypto = require('crypto');
 const config = require('../config/develop');
-const logger = require('../logging/logging').logger;
-
-let erroe_handler_func = (error, req, methodName) => {
-
-    if (req) {
-        logger.error(methodName, {
-            level: req.user.role,
-            response: `addProcessOrderForRcoinCharge Failed`,
-            methodName: erroe_handler_func.caller.name,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error_massage: error
-        });
-
-    } else {
-
-        console.log(erroe_handler_func.caller)
-    }
-};
-
-
 let checkIfExistInArray = (fieldValue, array, fieldName) => {
     for (let entity of array) {
         if (entity[fieldName]) {
@@ -125,9 +102,8 @@ let constant_time_compare = function (val1, val2) {
         sentinel |= val1.charCodeAt(i) ^ val2.charCodeAt(i);
     }
 
-    return sentinel === 0
+    return sentinel == 0
 };
 
 
 exports.isEmpty = isEmpty;
-exports.erroe_handler_func = erroe_handler_func;
