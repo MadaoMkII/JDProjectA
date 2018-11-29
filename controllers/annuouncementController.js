@@ -27,7 +27,7 @@ exports.findAnnouncement = async (req, res) => {
             __v: 0,
             _id: 0
         }, operator).populate(`model`);
-        let billCount = await announcementModel.count(searchCommand);
+        let billCount = await announcementModel.countDocuments(searchCommand);
         return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: billCount});
 
     } catch (err) {

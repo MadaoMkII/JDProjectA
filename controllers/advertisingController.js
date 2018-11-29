@@ -106,7 +106,7 @@ exports.getHomepageItemsList = async (req, res) => {
         let operator = searchModel.pageModel(req, res);
         operator = Object.assign(operator, {sort: {priority: 1}});
 
-        let count = await advertisingModel.count({L1_category: "首页", L2_category: "商品推荐"});
+        let count = await advertisingModel.countDocumentsDocuments({L1_category: "首页", L2_category: "商品推荐"});
         let result = await advertisingModel.find({L1_category: "首页", L2_category: "商品推荐"}, {
             item_name: 1,
             referer: 1,
@@ -127,7 +127,7 @@ exports.getHomepageItems = async (req, res) => {
         let operator = searchModel.pageModel(req, res);
         operator = Object.assign(operator, {sort: {priority: 1}});
 
-        let count = await advertisingModel.count({L1_category: "首页", L2_category: "商品推荐"});
+        let count = await advertisingModel.countDocumentsDocuments({L1_category: "首页", L2_category: "商品推荐"});
         let result = await advertisingModel.find({L1_category: "首页", L2_category: "商品推荐"}, {
             L2_category: 0,
             L1_category: 0

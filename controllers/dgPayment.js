@@ -86,8 +86,8 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
 
     return new Promise(async (resolve, reject) => {
         try {
-            let dgBill_count = await dgBillModel.count(searchArgs.searchCondition);
-            let chargeBil_count = await chargeBillModel.count(searchArgs.searchCondition);
+            let dgBill_count = await dgBillModel.countDocuments(searchArgs.searchCondition);
+            let chargeBil_count = await chargeBillModel.countDocuments(searchArgs.searchCondition);
 
             let A_model, A_operator;
             let B_model, B_operator;
@@ -560,7 +560,7 @@ exports.findPostage = async (req, res) => {
             "userInfo.tel_number": 1, "userInfo.email_address": 1, "replacePostage.comment": 1, billID: 1,
             "replacePostage.postageAmount": 1, "replacePostage.status": 1, "replacePostage.replaceTime": 1
         }, operator);
-        let count = await dgBillModel.count(searcher);
+        let count = await dgBillModel.countDocuments(searcher);
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity, nofdata: count});
     } catch (err) {
 

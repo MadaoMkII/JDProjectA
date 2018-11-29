@@ -17,7 +17,7 @@ exports.getAlreadySolved = async (req, res) => {
             Object.assign(searcher, {userUUid: req.user.uuid});
 
         }
-        let counts = await dgBillModel.count(searcher);
+        let counts = await dgBillModel.countDocumentsDocuments(searcher);
         let result = await dgBillModel.find(searcher, operator);
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: result, nofdata: counts});
     } catch (err) {
@@ -70,11 +70,11 @@ exports.getDataAnalyst = async (req, res) => {
 
         for (let resultEntityKey of result) {
             resultMap.set(resultEntityKey.itemWebType,
-                {"totalAmount": resultEntityKey.totalAmount, "count": resultEntityKey.count});
+                {"totalAmount": resultEntityKey.totalAmount, "count": resultEntityKey.countDocumentsDocuments});
         }
         let lastResult = [];
         resultMap.forEach((value, key) => {
-            lastResult.push({itemWebType: key, count: value.count, totalAmount: value.totalAmount});
+            lastResult.push({itemWebType: key, count: value.countDocumentsDocuments, totalAmount: value.totalAmount});
         });
         //let result = await dataAnalystModel.find(searchConditions, {}, {"group": `itemWebType`});
         return res.status(200).json({error_msg: 'ok', error_code: "0", data: lastResult});

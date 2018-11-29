@@ -75,7 +75,7 @@ let findAppealFormDAO = async (req, res, searchArgs, operator) => {
                 operator);
 
 
-            let count = await appealFormModel.count(searchArgs.searchCondition);
+            let count = await appealFormModel.countDocuments(searchArgs.searchCondition);
 
             resolve([result, count]);
         } catch (err) {

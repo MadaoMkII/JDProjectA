@@ -172,7 +172,7 @@ let findUserDAO = async (req, res, searchArgs, operator) => {
                 operator);
 
 
-            let count = await userModel.count(searchArgs.searchCondition);
+            let count = await userModel.countDocuments(searchArgs.searchCondition);
 
             resolve([result, count]);
         } catch (err) {
@@ -191,7 +191,7 @@ exports.findUserReferer = async (req, res) => {
             operator.skip = (req.body['page'] - 1) * req.body['unit'];
             operator.limit = parseInt(req.body['unit']);
         }//
-        let billCount = await userModel.find({"userStatus.isRefereed": true}).count();
+        let billCount = await userModel.find({"userStatus.isRefereed": true}).countDocuments();
         let result = await userModel.find({"userStatus.isRefereed": true}, {
             email_address: 1, tel_number: 1,
             Rcoins: 1, realName: 1, referrer: 1
@@ -323,7 +323,7 @@ exports.user_signUp_sendMassage = async (req, res) => {
             return res.status(403).send({error_code: 403, error_msg: `wrong input tel_number`});
         }
         await searchModel.requestCheckBox(req, 'tel_number');
-        let isExist = await userModel.count({tel_number: req.body.tel_number});
+        let isExist = await userModel.countDocuments({tel_number: req.body.tel_number});
         if (isExist > 0) {
             return res.status(400).send({error_code: 400, error_msg: `this number has already been used`});
         }
@@ -682,7 +682,7 @@ exports.update_phoneNumber = async (req, res) => {
 
     try {
         searchModel.requestCheckBox(req, "tel_number", `code`);
-        let isTelIsExist = await userModel.count({tel_number: req.body.tel_number}) > 0;
+        let isTelIsExist = await userModel.countDocuments({tel_number: req.body.tel_number}) > 0;
         if (isTelIsExist) {
             return res.status(402).json({error_msg: "this tel_number has already been used", error_code: "402"});
         }

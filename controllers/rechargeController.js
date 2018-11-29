@@ -90,7 +90,7 @@ exports.findMyChargeBills = async (req, res) => {
             __v: 0,
             _id: 0
         }, operator);
-        let billCount = await chargeBillModel.count({userUUid: req.user.uuid});
+        let billCount = await chargeBillModel.countDocumentsDocuments({userUUid: req.user.uuid});
 
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: billResult, nofdata: billCount});
     } catch (err) {
