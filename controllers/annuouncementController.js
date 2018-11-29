@@ -31,7 +31,8 @@ exports.findAnnouncement = async (req, res) => {
         return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: billCount});
 
     } catch (err) {
-        return res.status(500).json({error_msg: `500`, error_code: "advertising Error"});
+        logger.error(`搜索公告`, {req: req, error: err});
+        return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
     }
 
 
@@ -70,8 +71,8 @@ exports.updateHelpCenterAnnouncement = async (req, res) => {
         }
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: returnResult});
     } catch (err) {
-
-        return res.status(500).json({error_msg: `500`, error_code: "announcement Error"});
+        logger.error(`更新帮助中心公告`, {req: req, error: err});
+        return res.status(503).json({error_msg: `503`, error_code: "announcement Error"});
     }
 
 };
@@ -103,8 +104,8 @@ exports.updateAnnouncement = async (req, res) => {
 
         return res.json({error_msg: `OK`, error_code: "0", data: returnResult});
     } catch (err) {
-
-        return res.status(500).json({error_msg: `500`, error_code: "announcement Error"});
+        logger.error(`更新帮助公告`, {req: req, error: err});
+        return res.status(503).json({error_msg: `503`, error_code: "announcement Error"});
     }
 
 };
@@ -144,21 +145,22 @@ exports.updateModel = async (req, res) => {
 
             return res.status(409).json({error_msg: `409`, error_code: "model_name can not be duplicated"});
         }
-        return res.status(500).json({error_msg: `500`, error_code: "model add Error"});
+        logger.error(`更新帮助公告模块`, {req: req, error: err});
+        return res.status(503).json({error_msg: `503`, error_code: "model add Error"});
     }
 };
 
 exports.getModel = async (req, res) => {
-    try {
 
+    try {
         let result = await anModel.find();
         return res.json({error_msg: `OK`, error_code: "0", data: result});
     } catch (err) {
         if (err.message.toString().search(`duplicate key error`) !== 0) {
-
             return res.status(409).json({error_msg: `409`, error_code: "model_name can not be duplicated"});
         }
-        return res.status(500).json({error_msg: `500`, error_code: "model add Error"});
+        logger.error(`获取帮助公告模块`, {req: req, error: err});
+        return res.status(503).json({error_msg: `503`, error_code: "model add Error"});
     }
 
 };
@@ -173,6 +175,7 @@ exports.removeModel = async (req, res) => {
 
         return res.json({error_msg: `OK`, error_code: "0"});
     } catch (err) {
+        logger.error(`公删除告模块`, {req: req, error: err});
         return res.status(500).json({error_msg: `500`, error_code: "model add Error"});
     }
 
@@ -180,44 +183,43 @@ exports.removeModel = async (req, res) => {
 
 
 exports.getHelpCenterAnnouncement = async (req, res) => {
-
-    let resultCenterAnnouncement = await announcementModel.aggregate([
-        {
-            $match: {model: {$ne: null}}
-        },
-
-        {$lookup: {from: 'announcemodels', localField: 'model', foreignField: '_id', as: 'model_name'}},
-        {
-            $group: {
-                _id: '$model',
-                announcementArray: {$push: "$$ROOT"}
-            }
-        },
-        {
-            $project: {
-                _id: 1,
-                model_name: 1,
-                "announcementArray.model_name.name": 1,
-                announcementArray: {
-                    announcementID: 1,
-                    announcementTopic: 1,
-                    announcementLink: 1,
-                    content: 1,
-                    location: 1
+    try {
+        let resultCenterAnnouncement = await announcementModel.aggregate([
+            {
+                $match: {model: {$ne: null}}
+            },
+            {$lookup: {from: 'announcemodels', localField: 'model', foreignField: '_id', as: 'model_name'}},
+            {
+                $group: {
+                    _id: '$model',
+                    announcementArray: {$push: "$$ROOT"}
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    model_name: 1,
+                    "announcementArray.model_name.name": 1,
+                    announcementArray: {
+                        announcementID: 1,
+                        announcementTopic: 1,
+                        announcementLink: 1,
+                        content: 1,
+                        location: 1
+                    }
                 }
             }
+        ]);
+        let resultArray = [];
+        for (let entity of resultCenterAnnouncement) {
+            let anModelEntity = await anModel.findOne({_id: entity._id});
+            resultArray.push({model_name: anModelEntity.name, announcementArray: entity.announcementArray});
         }
-    ]);
-    let resultArray = [];
-    for (let entity of resultCenterAnnouncement) {
-        let anModelEntity = await anModel.findOne({_id: entity._id});
-        resultArray.push({model_name: anModelEntity.name, announcementArray: entity.announcementArray});
-
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: resultArray});
+    } catch (err) {
+        logger.error(`公删除告模块`, {req: req, error: err});
+        return res.status(503).json({error_msg: `NOT OK`, error_code: "503"});
     }
-
-
-    //let result = await announcementModel.find({location: '帮助中心'}).populate(`model`);
-    return res.status(200).json({error_msg: `OK`, error_code: "0", data: resultArray});
 };
 
 
@@ -260,7 +262,8 @@ exports.addHelpCenterAnnouncement = async (req, res) => {
                     error_code: "announcementID, announcementTopic ,announcementLink can not be duplicated"
                 });
             }
-            return res.status(500).json({error_msg: `500`, error_code: "announcement Error"});
+            logger.error(`addHelpCenterAnnouncement`, {req: req, error: err});
+            return res.status(503).json({error_msg: `503`, error_code: "announcement Error"});
         }
         return res.json({error_msg: `OK`, error_code: "0"});
 
@@ -293,19 +296,20 @@ exports.addAnnouncement = (req, res) => {
 
                 return res.status(409).json({error_msg: `409`, error_code: "model_name can not be duplicated"});
             }
-
+            logger.error(`addAnnouncement`, {req: req, error: err});
+            return res.status(503).json({error_msg: `503`, error_code: "model_name ERROR"});
         }
-        return res.json({error_msg: `OK`, error_code: "0"});
+        return res.status(200).json({error_msg: `OK`, error_code: "0"});
     })
 };
-//return res.status(403).json({"error_code": 403, error_massage: "Not yet verified"});
+
 exports.delAnnouncement = (req, res) => {
 
     let item_id = req.body.announcementID;
 
     announcementModel.remove({announcementID: item_id}, (err) => {
         if (err) {
-            return res.status(500).json({error_msg: `500`, error_code: "advertising Error"});
+            return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
             return res.status(200).json({error_msg: `OK`, error_code: "0"});
         }
