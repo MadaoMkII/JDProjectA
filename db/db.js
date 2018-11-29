@@ -7,8 +7,10 @@ const autoIncrement = require('mongoose-auto-increment');
 const mongodbUri = config.url;
 const options = {
     poolSize: 6,
-    useMongoClient: true,
-    keepAlive: true
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    keepAlive: true,
+    dbName :`yubaopay`
 };
 
 const connection = mongoose.connection;
