@@ -46,7 +46,7 @@ const HMAC_KEY = config.HMAC_KEY; // This key should be stored in an environment
 //加密
 exports.encrypt = (plain_text) => {
     plain_text = plain_text + ``;
-    let IV = new Buffer(crypto.randomBytes(16)); // ensure that the IV (initialization vector) is random
+    let IV = Buffer.from(crypto.randomBytes(16)); // ensure that the IV (initialization vector) is random
     let cipher_text;
     let hmac;
     let encryptor;
@@ -70,7 +70,7 @@ exports.encrypt = (plain_text) => {
 exports.decrypt = function (cipher_text) {
     let cipher_blob = cipher_text.split("$");
     let ct = cipher_blob[0];
-    let IV = new Buffer(cipher_blob[1], 'hex');
+    let IV = Buffer.from(cipher_blob[1], 'hex');
     let hmac = cipher_blob[2];
     let decryptor;
 

@@ -11,8 +11,8 @@ module.exports = {
     saltword: 'ABL',
     mailusername: "sendmail@yubaopay.com.tw",
     mailpassword: "Yubao888888",
-    KEY: new Buffer('8vApxL1k5GPAsJrM4vxpxLs543PhsJrM', 'utf8'), // This key should be stored in an environment variable
-    HMAC_KEY: new Buffer('GnJd7EgzjjWj4aY9', 'utf8'),
+    KEY: Buffer.from('8vApxL1k5GPAsJrM4vxpxLs543PhsJrM', 'utf8'), // This key should be stored in an environment variable
+    HMAC_KEY: Buffer.from('GnJd7EgzjjWj4aY9', 'utf8'),
     TOKEN: `w2e3c4h5angemoney`,
     wechat_appID: `wx61ff88bc59103229`,
     wechat_token_url: `https://api.weixin.qq.com/cgi-bin/token?`,
