@@ -359,7 +359,7 @@ exports.user_signUp_check_code = async (req, res) => {
     let result = await massager.check_code(req, res, `userSignUp`, req.body.tel_number);
 
     if (!result) {
-        return res.status(404).json({error_msg: "Verification code can not be paired", error_code: "404"});
+        return res.status(402).json({error_msg: "Verification code can not be paired", error_code: "402"});
     }
 
 

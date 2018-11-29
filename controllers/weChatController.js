@@ -175,7 +175,7 @@ exports.msg_holder = async (req, res) => {
         //     ticket: 'gQES8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAycDR6UFFDTXJkMm0xTmY5cDFyYzUAAgTvHthbAwRg6gAA'
         // };
         let returnData = req.body.xml;
-        console.log(returnData)
+
         if (tool.isEmpty(returnData[`eventkey`])) {
             return res.status(400).json({
                 error_msg: "retrun value from QR code is null, please try later",
