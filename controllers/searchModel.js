@@ -64,6 +64,7 @@ exports.requestCheckBox = (req, ...conditions) => {
                 throw new Error(`field ${entity} can not be empty`);
             }
         } else {
+
             if (tool.isEmpty(req.body[`${entity}`])) {
 
                 throw new Error(`field ${entity} can not be empty`);

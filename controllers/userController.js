@@ -22,24 +22,35 @@ exports.setEmployee = async (req, res) => {
 
 };
 exports.zhuce = async (req, res) => {
-    let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
-    let uuid = uuidv1();
-    let userInfo = {
-        uuid: uuid,
-        password: result,
-        growthPoints: req.body.growthPoints,
-        role: 'Super_Admin',
-        Rcoins: 1808,
-        tel_number: req.body.tel_number,
-        email_address: req.body.email_address, referrer: new refererModel()
-    };
+    try {
+        console.log(req.body)
+        searchModel.requestCheckBox(req,`tel_number`, `email_address`);
+        let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
+        let uuid = uuidv1();
+        let userInfo = {
+            uuid: uuid,
+            password: result,
+            growthPoints: req.body.growthPoints,
+            role: 'Super_Admin',
+            Rcoins: 1808,
+            tel_number: req.body.tel_number,
+            email_address: req.body.email_address, referrer: new refererModel()
+        };
 
-    let newUser = await new userModel(userInfo).save();
+        let newUser = await new userModel(userInfo).save();
 
-    return res.status(200).json({
-        "error_code": 0,
-        "data": newUser
-    });
+        return res.status(200).json({
+            "error_code": 0,
+            "data": newUser
+        });
+    }catch (err) {
+        console.log(err)
+        return res.status(503).json({
+            "error_code": 503,
+            "data": 503
+        });
+    }
+
 
 };
 exports.setReferer = async (req, res) => {
@@ -115,7 +126,7 @@ exports.setReferer = async (req, res) => {
         if (err.toString().indexOf(`E11000`)) {
             return res.status(400).json({
                 error_code: 400, error_massage: 'referrer ID is duplicate,' +
-                    'please recommend another user'
+                'please recommend another user'
             });
         }
         logger.error(null, {req: req, error: err});
