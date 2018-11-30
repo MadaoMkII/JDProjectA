@@ -32,7 +32,6 @@ let getRate = (req, res) => {
                 }
             }
             let rate = 0;
-
             for (let rateEntity of  rateObject.rateInfo) {
                 if (req.body.RMBAmount >= rateEntity.beginAmount) {
 
