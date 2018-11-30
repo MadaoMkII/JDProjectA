@@ -23,8 +23,8 @@ exports.setEmployee = async (req, res) => {
 };
 exports.zhuce = async (req, res) => {
     try {
-        console.log(req.body)
-        searchModel.requestCheckBox(req,`tel_number`, `email_address`);
+
+        searchModel.requestCheckBox(req, `tel_number`, `email_address`);
         let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
         let uuid = uuidv1();
         let userInfo = {
@@ -37,13 +37,20 @@ exports.zhuce = async (req, res) => {
             email_address: req.body.email_address, referrer: new refererModel()
         };
 
-        let newUser = await new userModel(userInfo).save();
+        let newUser = await userModel.findOneAndUpdate({tel_number: req.body.tel_number}, {
+                $set: {
+                    growthPoints: req.body.growthPoints,
+                    tel_number: req.body.tel_number,
+                    email_address: req.body.email_address
+                }
+            }, {upsert: true, new: true}
+        );
 
         return res.status(200).json({
             "error_code": 0,
             "data": newUser
         });
-    }catch (err) {
+    } catch (err) {
         console.log(err)
         return res.status(503).json({
             "error_code": 503,
