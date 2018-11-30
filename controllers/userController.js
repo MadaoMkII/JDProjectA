@@ -423,7 +423,7 @@ exports.getUserInfo = async (req, res) => {
 
         return res.status(200).json({error_code: 0, error_massage: `OK`, data: userInfo});
     } catch (err) {
-        tools.erroe_handler_func(err, req,);
+        logger.error(`删除广告`, {req: req, error: err});
         return res.status(503).json({error_code: 503, error_massage: `Get User Info Failed`});
     }
 
@@ -835,26 +835,13 @@ exports.update_password = async (req, res) => {
         await userModel.updateOne({uuid: req.user.uuid}, {$set: {password: hashedPassword}});
 
 
-        logger.info("update_password", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1]
-        });
+        logger.info(`update_password`, {req: req});
         req.logOut();
         return res.status(200).json({error_code: 200, error_massage: 'Please re-login'});
 
 
     } catch (err) {
-        logger.error("Error: update_password", {
-            status: 503,
-            level: `USER`,
-            response: `update password Failed`,
-            user: req.user.uuid,
-            action: `update_password`,
-            body: req.body,
-            error: err
-        });
+        logger.error(`update_password`, {req: req, error: err});
         return res.status(503).json({error_code: 503, error_massage: 'update_password Failed'});
     }
 };
@@ -878,14 +865,7 @@ exports.update_email = async (req, res) => {
         await userModel.findOneAndUpdate({tel_number: req.user.tel_number},
             {$set: {email_address: req.body.email_address}}, {new: true});
 
-
-        logger.info("update_email", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
+        logger.info(`update_email`, {req: req});
         req.logOut();
         return res.status(200).json({
             error_code: 0,
@@ -895,21 +875,13 @@ exports.update_email = async (req, res) => {
 
     } catch (err) {
 
-        logger.error("update_email", {
-            // level: req.user.role,
-            response: `Internal Service Error`,
-            // user: req.user.uuid,
-            // email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
         if (err.message.toString().indexOf(`empty`) !== -1) {
             return res.status(400).json({
                 error_code: 400,
                 error_massage: err.message
             });
         }
+        logger.error(`update_email`, {req: req, error: err});
         return res.status(503).json({
             error_code: 503,
             error_massage: 'updatePhoneNumber Failed'
