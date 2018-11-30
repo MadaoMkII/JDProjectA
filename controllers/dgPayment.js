@@ -26,14 +26,16 @@ let getRate = (req, res) => {
             }
             for (let rateInfoEntity of managerConfig[rateType]) {
 
-                if (rateInfoEntity.vipLevel === req.user[`VIPLevel`]) {
+                if (rateInfoEntity.vipLevel === req.user.VIPLevel) {
+
                     rateObject = rateInfoEntity;
                 }
             }
-            let rate;
+            let rate = 0;
 
             for (let rateEntity of  rateObject.rateInfo) {
                 if (req.body.RMBAmount >= rateEntity.beginAmount) {
+
                     rate = rateEntity.detailRate;
                 }
             }
