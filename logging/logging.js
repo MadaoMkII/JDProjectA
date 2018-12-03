@@ -71,13 +71,12 @@ exports.getLogger = async (req, res) => {
 
         command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req));
 
-        let result = await loggerModel.find(command.searchCondition, command.searchCondition, operator);
+        let result = await loggerModel.find(command.searchCondition, command.showCondition, operator);
 
         let billCount = await loggerModel.countDocuments(command.searchCondition);
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: result, nofdata: billCount});
     } catch (err) {
 
-        console.log(err)
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 

@@ -1,7 +1,7 @@
 const mongoose = require('../db/db').mongoose;
 const loggerModelSchema = new mongoose.Schema(
     {
-        info:String,
+        info: String,
         level: {type: String},
         functionName: {type: String},
         filePath: {type: String},
@@ -19,7 +19,8 @@ loggerModelSchema.set('toJSON', {
         delete ret.__v;
         delete ret._id;
         delete ret.id;
-
+        ret.created_at = doc.created_at.getTime() + 8 * 60 * 60 * 1000;
+        ret.updated_at = doc.updated_at.getTime() + 8 * 60 * 60 * 1000;
     }
 });
 

@@ -277,18 +277,15 @@ exports.addProcessOrder = async (req, res) => {
             itemWebType: dgBill.typeStr
         }, {$inc: {count: 1, amount: dgBill.NtdAmount}}, {new: true, upsert: true});
 
+
         logger.warn("addProcessOrder", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+            req: req
         });
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBill});
     }
-    catch (e) {
-
-        return res.status(500).json({error_msg: e, error_code: "500"});
+    catch (err) {
+        logger.error(`addProcessOrder`, {req: req, error: err});
+        return res.status(503).json({error_msg: `Error`, error_code: "503"});
     }
 };
 
@@ -418,27 +415,14 @@ exports.addProcessOrderForCharge = async (req, res) => {
             itemWebType: chargeBill.typeStr
         }, {$inc: {count: 1, amount: chargeBill.RMBAmount}}, {new: true, upsert: true});
 
-        logger.warn("addProcessOrderForRcoinCharge", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.warn("addProcessOrderForCharge", {
+            req: req
         });
 
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: chargeBill});
     }
     catch (err) {
-
-        logger.error("addProcessOrderForRcoinCharge", {
-            level: req.user.role,
-            response: `addProcessOrderForRcoinCharge Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error_massage: err
-        });
+        logger.error(`addProcessOrderForCharge`, {req: req, error: err});
         return res.status(500).json({error_msg: `addProcessOrderForRcoinCharge Failed`, error_code: "500"});
     }
 };
