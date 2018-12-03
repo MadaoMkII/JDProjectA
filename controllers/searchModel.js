@@ -2,8 +2,8 @@ const tool = require('../config/tools');
 const isEmpty = require('../config/tools').isEmpty;
 exports.pageModel = (req) => {
 
-    // let operator = {sort: {updated_at: -1}};
-    let operator = {};
+     let operator = {sort: {created_at: -1}};
+    //let operator = {};
     if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
         if (req.body['page'] < 1 || req.body['unit'] < 1) {
             throw new Error(`page or unit can not less than 1`);
@@ -13,25 +13,20 @@ exports.pageModel = (req) => {
     }
     return operator;
 };
-exports.combinedPageModel = (req, res) => {
-    try {
-        let new_operator = {};
+exports.combinedPageModel = (req) => {
+    let new_operator = {};
 
-        if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
-            if (req.body['page'] < 1 || req.body['unit'] < 1) {
-                throw new Error(`page or unit can not less than 1`);
+    if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
+        if (req.body['page'] < 1 || req.body['unit'] < 1) {
+            throw new Error(`page or unit can not less than 1`);
 
-            }
-
-            let skip = (parseInt(req.body['page']) - 1) * Math.round(parseInt(req.body['unit'] / 2));
-            let limit = Math.round(parseInt(req.body['unit'] / 2));
-            new_operator = {skip: skip, limit: limit};
         }
-        return new_operator;
-    } catch (err) {
-        throw new Error(err.message);
+
+        let skip = (parseInt(req.body['page']) - 1) * Math.round(parseInt(req.body['unit']) / 2);
+        let limit = Math.round(parseInt(req.body['unit']) / 2);
+        new_operator = {skip: skip, limit: limit};
     }
-    // let operator = {sort: {updated_at: -1}};
+    return new_operator;
 
 };
 exports.reqSearchConditionsAssemble = (req, ...conditions) => {

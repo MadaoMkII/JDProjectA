@@ -95,6 +95,10 @@ exports.getHomepage = (req, res) => {
             logger.error(`首页头图`, {req: req, error: err});
             return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
+
+            logger.info("设置首页图片", {
+                req: req
+            });
             return res.json({error_msg: `OK`, error_code: "0", data: data});
         }
     })
@@ -186,19 +190,3 @@ exports.delAdvertising = (req, res) => {
     });
 
 };
-
-exports.errorTest = (req, res) => {
-
-
-    try {
-        logger.info("设置首页图片", {
-            req: req
-        });
-        throw new Error(`wokanhaoni`)
-    } catch (err) {
-        logger.error(`API Error`, {req: req, error: err});
-        return res.json({error_msg: `400`, error_code: "advertising Error"});
-    }
-
-
-}

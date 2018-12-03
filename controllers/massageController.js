@@ -7,10 +7,11 @@ const message = new MessageXSend();
 const logger = require('../logging/logging').logger;
 const tools = require("../config/tools");
 /**
- * 发送短信验证
+ * 检验验证码
  * @param req
  * @param res
  * @param category
+ * @param tel_number_1
  */
 exports.shin_smsSend = async (req, res, category, tel_number_1) => {
     try {
@@ -135,6 +136,7 @@ exports.shin_smsSend = async (req, res, category, tel_number_1) => {
  * @param req
  * @param res
  * @param category
+ * @param tel_number
  */
 exports.check_code = async (req, res, category, tel_number) => {
 

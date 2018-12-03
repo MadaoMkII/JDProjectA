@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 const config = require('../config/develop');
 const autoIncrement = require('mongoose-auto-increment');
 
-
+mongoose.set('useFindAndModify', false);
 const mongodbUri = config.url;
 const options = {
     poolSize: 6,
     useNewUrlParser: true,
     useCreateIndex: true,
     keepAlive: true,
-    dbName :`yubaopay`
+    dbName :`yubaopay_test`
 };
 
 const connection = mongoose.connection;

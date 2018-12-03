@@ -1,14 +1,14 @@
 const crypto = require('crypto');
 const config = require('../config/develop');
-let checkIfExistInArray = (fieldValue, array, fieldName) => {
-    for (let entity of array) {
-        if (entity[fieldName]) {
-        }
-
-    }
-
-    return false;
-};
+// let checkIfExistInArray = (fieldValue, array, fieldName) => {
+//     for (let entity of array) {
+//         if (entity[fieldName]) {
+//         }
+//
+//     }
+//
+//     return false;
+// };
 
 let isEmpty = (obj) => {
     if (obj === "") return true;
@@ -76,7 +76,7 @@ exports.decrypt = function (cipher_text) {
 
     let chmac = crypto.createHmac(HMAC_ALGORITHM, HMAC_KEY);
     chmac.update(ct);
-    chmac.update(IV.toString('hex'));
+    chmac.update(IV.toString(`hex`));
 
     if (!constant_time_compare(chmac.digest('hex'), hmac)) {
         console.log("Encrypted Blob has been tampered with...");
@@ -102,7 +102,7 @@ let constant_time_compare = function (val1, val2) {
         sentinel |= val1.charCodeAt(i) ^ val2.charCodeAt(i);
     }
 
-    return sentinel == 0
+    return sentinel === 0
 };
 
 

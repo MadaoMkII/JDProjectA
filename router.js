@@ -6,10 +6,11 @@ const userController = require('./controllers/userController');
 const weChatController = require('./controllers/weChatController');
 const alipayController = require('./controllers/alipayController');
 //const debug = require('debug')('http');
+const logging = require('./logging/logging');
 const isAuthenticated = require('./controllers/authController').isAuthenticated;
 const loginUser = require('./controllers/authController');
 const mailController = require('./controllers/mailController');
-//const massageChecker = require('./controllers/massageController');
+const config = require('./config/develop');
 const picController = require('./controllers/picController');
 const advertisingController = require('./controllers/advertisingController');
 const rechargeController = require('./controllers/rechargeController');
@@ -41,7 +42,7 @@ app.use(bodyParserXML.xml({
 }));
 
 
-app.options(`http://www.yubaopay.com.tw`, cors());
+app.options(config.server_name, cors());
 app.use(json_body_parser);
 app.use(urlencoded_body_parser);
 app.use(session({
@@ -57,7 +58,7 @@ app.set('view engine', 'ejs');
 // Add headers
 app.use((req, res, next) => {
     //
-    let allowedOrigins = ['http://www.yubaopay.com.tw', `http://47.244.143.129:3000`, 'http://localhost:8080'];
+    let allowedOrigins = [`http://www.yubaopay.com.tw`, `http://47.244.143.129:3000`, 'http://localhost:8080'];
     let origin = req.headers.origin;
     if (allowedOrigins.indexOf(origin) > -1) {
         res.setHeader('Access-Control-Allow-Origin', origin);
@@ -126,11 +127,10 @@ app.use(function (req, res, next) {
 // Configure Express application.
 
 app.get('/payback/getFavorites', paybackController.getFavorites);
-app.get('/testErr', isAuthenticated('Admin'), advertisingController.errorTest);
+
 app.get('/test', isAuthenticated('Admin'), weChatController.jiade);
 
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
-app.get('/alipay/setAccount', isAuthenticated('Admin'), alipayController.set_AlipayAccount);
 
 app.get('/alipay/QRcode', isAuthenticated('User'), alipayController.get_alipay_QR_code);
 app.get('/wechat/getQRcodeUrl', isAuthenticated('User'), weChatController.getQR_code_link);
@@ -255,8 +255,11 @@ app.get('/checkhealth', function (req, res) {
         });
     }
 });
+
+app.post('/getLogger', isAuthenticated('Super_Admin'), logging.getLogger);
+
 app.post('/getSetting', isAuthenticated('User'), manageSettingController.getSetting);
-app.post('/setSetting', isAuthenticated('User'), manageSettingController.setSetting);
+app.post('/setSetting', isAuthenticated('Super_Admin'), manageSettingController.setSetting);
 
 app.post('/item/addProcessOrder', isAuthenticated('Admin'), processOrderController.addProcessOrder);
 app.post('/item/addBillByRcoins', isAuthenticated('User'), dgPayment.addDGRcoinsBill);
@@ -298,5 +301,5 @@ process.on('unhandledRejection', (reason, p) => {
     console.error(reason, p);
 });
 
-
+logging.info(`服务器启动`);
 console.log("Begin Server");

@@ -1,5 +1,5 @@
 const appealFormModel = require('../modules/appealForm').appealFormModel;
-const picController = require('../controllers/picController');
+//const picController = require('../controllers/picController');
 //const isEmpty = require('../config/tools').isEmpty;
 const logger = require('../logging/logging').logger;
 const searchModel = require('../controllers/searchModel');
@@ -32,6 +32,7 @@ exports.addAppealForm = (req, res) => {
                     errorResult = err.errors[errorField].message;
                 }
             }
+            logger.error(`addAppealForm`, {req: req, error: err});
             return res.status(503).json({
                 error_msg: `503`,
                 error_code: errorResult === '' ? 'error happen' : errorResult
@@ -59,6 +60,7 @@ exports.setResponseAppealForm = (req, res) => {
             if (!data) {
                 return res.status(404).json({error_msg: `404`, error_code: "Can not find this appeal！"})
             }
+        logger.error(`setResponseAppealForm`, {req: req, error: err});
             return res.status(200).json({error_msg: `200`, error_code: "OK！", data: data});
 
         }
@@ -79,6 +81,7 @@ let findAppealFormDAO = async (req, res, searchArgs, operator) => {
 
             resolve([result, count]);
         } catch (err) {
+            logger.error(`findAppealFormDAO`, {req: req, error: err});
             reject(err);
         }
 
@@ -104,8 +107,8 @@ exports.getMyAppealForm = async (req, res) => {
 
         let [result, count] = await findAppealFormDAO(req, res, command, operator);
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
-    } catch (e) {
-
+    } catch (err) {
+        logger.error(`getMyAppealForm`, {req: req, error: err});
         return res.status(500).send({error_code: 500, error_msg: "Error happen"});
     }
 
@@ -132,8 +135,8 @@ exports.getAppealFormById = async (req, res) => {
         let [result, count] = await findAppealFormDAO(req, res, command);
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
 
-    } catch (e) {
-
+    } catch (err) {
+        logger.error(`getAppealFormById`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
     }
 
@@ -167,7 +170,7 @@ exports.findAppealForm = async (req, res) => {
         return res.status(200).send({error_code: 0, data: result, nofdata: count});
 
     } catch (err) {
-        logger.error(`获取申诉`, {req: req, error: err});
+        logger.error(`findAppealForm`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: 'Error when attaching data'});
     }
 
@@ -180,6 +183,7 @@ exports.getThisUserAllAppealForm = (req, res) => {
                 logger.error(`获取用户一个申诉`, {req: req, error: err});
                 return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
             } else {
+
                 return res.status(200).json({error_msg: `OK`, error_code: "0", data: data});
             }
         }

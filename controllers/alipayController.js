@@ -55,18 +55,16 @@ exports.receiveCallback = async (req, res) => {
             code: req.query[`auth_code`],
             grant_type: `authorization_code`,
         };
-
+        logger.info(`获取支付宝二维码1`, {error: step_1_response});
         const step_2_response = await alipaySdk.exec('alipay.system.oauth.token', {
             code: step_1_response.code,
             grant_type: `authorization_code`
         });
-        console.log(step_2_response)
         // result 为 API 介绍内容中 “响应参数” 对应的结果
-
+        logger.info(`获取支付宝二维码2`, {error: step_2_response});
         const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
             auth_token: step_2_response.accessToken
         });
-        console.log(step_3_response)
         const aliPayAccount =
             {
                 alipayAccount: (req.query.state.toString()).split(`||`)[1],
@@ -81,49 +79,18 @@ exports.receiveCallback = async (req, res) => {
                 isCertified: step_3_response.isCertified,
                 gender: step_3_response.gender
             };
-
+        logger.info(`获取支付宝二维码3`, {error: step_3_response});
         let alipayUser = await userModel.findOneAndUpdate({uuid: (req.query.state.toString()).split(`||`)[0]},
             {$push: {aliPayAccounts: aliPayAccount}}, {new: true});
         console.log(alipayUser)
         // return res.status(200).json({error_msg: `OK`, error_code: "0", data: step_3_response});
+
+        logger.info(`绑定二维码`, {req: req, error: step_3_response});
         res.redirect('/temp.html');
         res.end();
     } catch (err) {
+        logger.error(`支付宝扫码失败`, {req: req, error: err});
         return res.status(503).json({error_msg: `Server is busy`, error_code: "503"});
-        logger.error(`支付宝扫码CALLBACK`, {req: req, error: err});
     }
 
-};
-
-exports.set_AlipayAccount = async (req, res) => {
-    let alipay_user_info_share_response = {
-        "user_id": "2088102104794936",
-        "avatar": "http://tfsimg.alipay.com/images/partner/T1uIxXXbpXXXXXXXX",
-        "province": "安徽省",
-        "city": "安庆",
-        "nick_name": "支付宝小二",
-        "is_student_certified": "T",
-        "user_type": "1",
-        "user_status": "T",
-        "is_certified": "T",
-        "gender": "F"
-    };
-    let alipay_user_info = {
-        "user_id": alipay_user_info_share_response.user_id,
-        "avatar": alipay_user_info_share_response.avatar,
-        "province": alipay_user_info_share_response.province,
-        "city": alipay_user_info_share_response.city,
-        "nick_name": alipay_user_info_share_response.nick_name,
-        "is_student_certified": alipay_user_info_share_response.is_student_certified,
-        "user_type": alipay_user_info_share_response.user_type,
-        "user_status": alipay_user_info_share_response.user_status,
-        "is_certified": alipay_user_info_share_response.is_certified,
-        "gender": alipay_user_info_share_response.gender
-    };
-
-
-    let nuew_user = await userModel.findOneAndUpdate({uuid: req.user.uuid}, {
-        $push: {aliPayAccounts: alipay_user_info}
-    }, {new: true});
-    return res.status(200).json({error_msg: `OK`, error_code: "0", data: nuew_user});
 };

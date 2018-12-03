@@ -74,7 +74,7 @@ exports.getImgs = async (req, res) => {
 
         res.status(200).render(`../views/${req.path}`, {files: result.objects});
     } catch (err) {
-
+        logger.error(`获取图片`, {req: req, error: err});
         return res.status(400).json({error_msg: `400`, error_code: err.message});
     }
 };
@@ -100,13 +100,7 @@ exports.uploadImgForEndpoint = async (req, res) => {
 
         const [returnReq,] = await uploadImgAsync(req, res);
 
-        logger.info("uploadImgForEndpoint", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
+        logger.info(`uploadImgForEndpoint`, {req: req});
 
         // if (tool.isEmpty(returnReq.file)) {
         //     return res.status(400).json({error_msg: `图片获取为空`, error_code: "400"});
@@ -208,7 +202,7 @@ exports.deleteImgs_new = async (req, res) => {
     filename = filename.replace(`http://yubaopay.oss-cn-hongkong.aliyuncs.com/`, ``);
 
     try {
-        let result = await client.delete(filename);
+        await client.delete(filename);
 
         return res.status(200).json({
             error_msg: "OK",

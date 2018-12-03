@@ -17,11 +17,12 @@ exports.getAlreadySolved = async (req, res) => {
             Object.assign(searcher, {userUUid: req.user.uuid});
 
         }
-        let counts = await dgBillModel.countDocumentsDocuments(searcher);
+        let counts = await dgBillModel.countDocuments(searcher);
         let result = await dgBillModel.find(searcher, operator);
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: result, nofdata: counts});
     } catch (err) {
-        return res.status(403).send({error_code: 403, error_msg: `Error when try to save`});
+        logger.error(`获取已经完成的订单`, {req: req, error: err});
+        return res.status(503).send({error_code: 503, error_msg: `Error when try to save`});
     }
 
 };
@@ -70,17 +71,16 @@ exports.getDataAnalyst = async (req, res) => {
 
         for (let resultEntityKey of result) {
             resultMap.set(resultEntityKey.itemWebType,
-                {"totalAmount": resultEntityKey.totalAmount, "count": resultEntityKey.countDocumentsDocuments});
+                {"totalAmount": resultEntityKey.totalAmount, "count": resultEntityKey.count});
         }
         let lastResult = [];
         resultMap.forEach((value, key) => {
-            lastResult.push({itemWebType: key, count: value.countDocumentsDocuments, totalAmount: value.totalAmount});
+            lastResult.push({itemWebType: key, count: value.count, totalAmount: value.totalAmount});
         });
-        //let result = await dataAnalystModel.find(searchConditions, {}, {"group": `itemWebType`});
         return res.status(200).json({error_msg: 'ok', error_code: "0", data: lastResult});
-    } catch (e) {
-
-        return res.status(500).json({error_msg: e, error_code: "500"});
+    } catch (err) {
+        logger.error(`获取数据分析`, {req: req, error: err});
+        return res.status(503).json({error_msg: err, error_code: "503"});
     }
 };
 exports.returnRcoin = async (req, res) => {
@@ -125,9 +125,13 @@ exports.returnRcoin = async (req, res) => {
             bill_return_Result =
                 await chargeBillModel.findOneAndUpdate({billID: req.body.billID}, {$set: {dealState: 4}}, {new: true});
         }
+        logger.info("返还R币", {
+            req: req
+        });
         return res.status(200).json({error_msg: 'ok', error_code: "0", data: bill_return_Result});
     } catch (err) {
-        return res.status(500).json({error_msg: 'error', error_code: "500"});
+        logger.error(`返还R币`, {req: req, error: err});
+        return res.status(503).json({error_msg: 'error', error_code: "503"});
     }
 
 

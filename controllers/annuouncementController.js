@@ -3,7 +3,7 @@ const anModel = require('../modules/announcement').announceModel;
 const uuidv1 = require('uuid/v1');
 const isEmpty = require('../config/tools').isEmpty;
 const searchModel = require('../controllers/searchModel');
-
+const logger = require('../logging/logging').logger;
 exports.findAnnouncement = async (req, res) => {
 
     try {

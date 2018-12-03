@@ -4,7 +4,7 @@ const massager = require('../controllers/massageController');
 const redis = require("redis"),
     redisClient = redis.createClient();
 const {promisify} = require('util');
-const refererModel = require('../modules/userAccount').refererModel;
+//const refererModel = require('../modules/userAccount').refererModel;
 const searchModel = require('../controllers/searchModel');
 const tools = require('../config/tools');
 const uuidv1 = require('uuid/v1');
@@ -13,12 +13,28 @@ const getAsync = promisify(redisClient.get).bind(redisClient);
 
 
 exports.setEmployee = async (req, res) => {
-    let newUser = await userModel.findOneAndUpdate({uuid: req.body.uuid},
-        {$set: {"userStatus.isEmployee": req.body.isEmployee}}, {new: true});
-    return res.status(200).json({
-        "error_code": 0,
-        "data": newUser
-    });
+
+    try {
+        let newUser = await userModel.findOneAndUpdate({uuid: req.body.uuid},
+            {$set: {"userStatus.isEmployee": req.body.isEmployee}}, {new: true});
+
+        logger.info("设置员工状态", {
+            req: req
+        });
+
+
+        return res.status(200).json({
+            "error_code": 0,
+            "data": newUser
+        });
+    } catch (err) {
+        logger.error(`设置员工状态`, {req: req, error: err});
+        return res.status(503).json({
+            "error_code": 503
+        });
+
+    }
+
 
 };
 exports.zhuce = async (req, res) => {
@@ -27,21 +43,25 @@ exports.zhuce = async (req, res) => {
         searchModel.requestCheckBox(req, `tel_number`, `email_address`);
         let result = require('crypto').createHash('md5').update(req.body.password + config.saltword).digest('hex');
         let uuid = uuidv1();
-        let userInfo = {
-            uuid: uuid,
-            password: result,
-            growthPoints: req.body.growthPoints,
-            role: 'Super_Admin',
-            Rcoins: 1808,
-            tel_number: req.body.tel_number,
-            email_address: req.body.email_address, referrer: new refererModel()
-        };
+        // let userInfo = {
+        //     uuid: uuid,
+        //     password: result,
+        //     growthPoints: req.body.growthPoints,
+        //     role: 'Super_Admin',
+        //     Rcoins: 1808,
+        //     tel_number: req.body.tel_number,
+        //     email_address: req.body.email_address, referrer: new refererModel()
+        // };
 
         let newUser = await userModel.findOneAndUpdate({tel_number: req.body.tel_number}, {
                 $set: {
                     growthPoints: req.body.growthPoints,
                     tel_number: req.body.tel_number,
-                    email_address: req.body.email_address
+                    email_address: req.body.email_address,
+                    password: result,
+                    role: 'Super_Admin',
+                    Rcoins: 1808,
+                    uuid: uuid
                 }
             }, {upsert: true, new: true}
         );
@@ -51,7 +71,7 @@ exports.zhuce = async (req, res) => {
             "data": newUser
         });
     } catch (err) {
-        console.log(err)
+        logger.error(`zhuce`, {req: req, error: err});
         return res.status(503).json({
             "error_code": 503,
             "data": 503
@@ -126,6 +146,9 @@ exports.setReferer = async (req, res) => {
         // await userModel.findOneAndUpdate({uuid: userA.uuid}, { 清除填充内容
         //     $pull: {"referrer.referrals": {referrals_tel_number: ""}}
         // });//推荐人 userA
+        logger.info("设置推荐人", {
+            req: req
+        });
 
         return res.status(200).json({error_massage: 'OK', error_code: 0, data: userB});
     } catch (err) {
@@ -136,7 +159,7 @@ exports.setReferer = async (req, res) => {
                 'please recommend another user'
             });
         }
-        logger.error(null, {req: req, error: err});
+        logger.error(`设置推荐人`, {req: req, error: err});
         return res.status(503).json({error_code: 503, error_massage: 'Set Referer Failed'});
     }
 };
@@ -144,17 +167,18 @@ exports.setReferer = async (req, res) => {
 exports.setUserRole = async (req, res) => {
 
 
-    if (req.body.uuid === req.user.uuid) {
-        return res.status(401).json({"error_code": 401, error_massage: "You can not set yourself role"});
-    }
-    let role = ``;
-    if (req.body[`roleCode`] === 1) {
-        role = `Admin`;
-    }
-    if (req.body[`roleCode`] === 0) {
-        role = `User`;
-    }
     try {
+        if (req.body.uuid === req.user.uuid) {
+            return res.status(401).json({"error_code": 401, error_massage: "You can not set yourself role"});
+        }
+        let role = ``;
+        if (req.body[`roleCode`] === 1) {
+            role = `Admin`;
+        }
+        if (req.body[`roleCode`] === 0) {
+            role = `User`;
+        }
+
         let result = await userModel.findOneAndUpdate({uuid: req.body.uuid}, {$set: {role: role}}, {new: true});
         logger.info("setUserRole", {
             level: `USER`,
@@ -162,18 +186,13 @@ exports.setUserRole = async (req, res) => {
             action: `setUserRole`,
             body: req.body
         });
-        return res.status(200).json({"error_code": 200, error_massage: "OK", data: result});
+        logger.info("setUserRole", {
+            req: req
+        });
+        return res.status(200).json({"error_code": 0, error_massage: "OK", data: result});
     } catch (err) {
 
-        logger.error("Error: setUserRole", {
-            status: 503,
-            level: `USER`,
-            response: `Set UserRole Failed`,
-            user: req.user.uuid,
-            action: `setUserRole`,
-            body: req.body,
-            error: err
-        });
+        logger.error(`setUserRole`, {req: req, error: err});
         return res.status(503).json({"error_code": 503, error_massage: "Set UserRole Failed`"});
     }
 
@@ -194,6 +213,7 @@ let findUserDAO = async (req, res, searchArgs, operator) => {
 
             resolve([result, count]);
         } catch (err) {
+            logger.error(`findUserDAO`, {req: req, error: err});
             reject(err);
         }
 
@@ -233,15 +253,7 @@ exports.findUserReferer = async (req, res) => {
             nofdata: billCount
         });
     } catch (err) {
-        logger.error(err.error_massage, {
-            status: 503,
-            level: `USER`,
-            response: `find User Referer Failed`,
-            user: req.user.uuid,
-            action: `findUserReferer`,
-            body: req.body,
-            error: err
-        });
+        logger.error(`findUserReferer`, {req: req, error: err});
         return res.status(503).json({"error_code": 503, error_massage: "findUserReferer failed"});
     }
 
@@ -320,15 +332,7 @@ exports.findUser = async (req, res) => {
         return res.status(200).send({error_code: 200, error_msg: result, nofdata: count});
 
     } catch (err) {
-        logger.error("Error: findUser", {
-            status: 503,
-            level: `USER`,
-            response: `find User Failed`,
-            user: req.user.uuid,
-            action: `findUser`,
-            body: req.body,
-            error: err
-        });
+        logger.error(`findUser`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: `Find User Failed`});
     }
 
@@ -348,14 +352,7 @@ exports.user_signUp_sendMassage = async (req, res) => {
         await massager.shin_smsSend(req, res, `userSignUp`, req.body.tel_number);
 
     } catch (err) {
-        logger.error("Error: findUser", {
-            status: 503,
-            level: `USER`,
-            response: `userSignUp Failed`,
-            action: `userSignUp message`,
-            body: req.body,
-            error: err
-        });
+        logger.error(`user_signUp_sendMassage`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: `send userSignUp message Failed`});
     }
 };
@@ -428,7 +425,8 @@ exports.userSignUp = async (req, res) => {
             }
             return res.status(405).send({error_code: 405, error_msg: `${field_needed} has already been used`});
         } else {
-            return res.status(400).send({error_code: 400, error_msg: err.message});
+            logger.error(`用户注册`, {req: req, error: err});
+            return res.status(503).send({error_code: 503, error_msg: err.message});
         }
     }
 };
@@ -441,7 +439,7 @@ exports.getUserInfo = async (req, res) => {
 
         return res.status(200).json({error_code: 0, error_massage: `OK`, data: userInfo});
     } catch (err) {
-        logger.error(`删除广告`, {req: req, error: err});
+        logger.error(`getUserInfo`, {req: req, error: err});
         return res.status(503).json({error_code: 503, error_massage: `Get User Info Failed`});
     }
 
@@ -474,14 +472,7 @@ exports.addUserBank_sendMassage = async (req, res) => {
         await massager.shin_smsSend(req, res, `addUserBank`, req.user.tel_number);
 
     } catch (err) {
-        logger.error("Error: addUserBank", {
-            status: 503,
-            level: `USER`,
-            response: `addUserBank Failed`,
-            action: `addUserBank message`,
-            body: req.body,
-            error: err
-        });
+        logger.error(`addUserBank_sendMassage`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: `send addUserBank message Failed`});
     }
 };
@@ -503,25 +494,11 @@ exports.addUserBank = async (req, res) => {
         }
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$push: {bankAccounts: bankObject}}, {password: 0, new: true});
-        logger.info("addUserBank", {
-            level: `USER`,
-            user: req.user.uuid,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
-
+        logger.info(`用户添加银行`, {req: req});
         res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
     } catch (err) {
 
-        logger.error("Error: addUserBank", {
-            status: 503,
-            level: `USER`,
-            response: `addUserBank Failed`,
-            user: req.user.uuid,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
+        logger.error(`用户添加银行`, {req: req, error: err});
         return res.status(500).json({error_code: 500, error_massage: `Add User Bank Failed`});
     }
 
@@ -533,23 +510,10 @@ exports.delUserBank = async (req, res) => {
 
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$pull: {bankAccounts: {last6digital: last6digital}}}, {password: 0, new: true});
-        logger.info("delUserBank", {
-            level: `USER`,
-            user: req.user.uuid,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
+        logger.info(`用户删除银行`, {req: req});
         res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
     } catch (err) {
-        logger.error("Error: delUserBank", {
-            status: 503,
-            level: `USER`,
-            response: `delUserBank Failed`,
-            user: req.user.uuid,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
+        logger.error(`用户删除银行`, {req: req, error: err});
         return res.status(500).json({error_code: 500, error_massage: 'Failed to del'});
     }
 
@@ -561,24 +525,13 @@ exports.delUserWechat = async (req, res) => {
 
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$pull: {wechatAccounts: {wechatID: wechatID}}}, {password: 0, new: true});
-        logger.info("delUserWechat", {
-            level: `USER`,
-            user: req.user.uuid,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.info("用户删除微信", {
+            req: req
         });
         res.status(200).json({error_code: 0, error_massage: 'OK', data: user});
     } catch (err) {
-        logger.error("Error: delUserWechat", {
-            status: 503,
-            level: `USER`,
-            response: `delUserWechat Failed`,
-            user: req.user.uuid,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-        return res.status(500).json({error_code: 500, error_massage: 'Failed to del'});
+        logger.error(`用户删除微信`, {req: req, error: err});
+        return res.status(503).json({error_code: 503, error_massage: 'Failed to del'});
     }
 };
 
@@ -589,24 +542,13 @@ exports.delUserAliPayAccounts = async (req, res) => {
 
         let user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$pull: {aliPayAccounts: {alipayAccount: alipayAccount}}}, {password: 0, new: true});
-        logger.info("delUseralipayAccount", {
-            level: `USER`,
-            user: req.user.uuid,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.info("用户删除阿里", {
+            req: req
         });
         res.status(200).json({error_code: 0, error_massage: 'OK', data: user});
     } catch (err) {
-        logger.error("Error: delUseralipayAccount", {
-            status: 503,
-            level: `USER`,
-            response: `delUseralipayAccount Failed`,
-            user: req.user.uuid,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-        return res.status(500).json({error_code: 500, error_massage: 'Failed to del'});
+        logger.error(`用户删除阿里`, {req: req, error: err});
+        return res.status(503).json({error_code: 503, error_massage: 'Failed to del'});
     }
 };
 
@@ -644,24 +586,13 @@ exports.addUserRealName = async (req, res) => {
             $inc: {growthPoints: 10}, $push: {whatHappenedToMe: myEvent}
         }, {new: true});
 
-        logger.info("addUserRealName", {
-            level: `USER`,
-            user: req.user.uuid,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.info("用户实名", {
+            req: req
         });
         res.status(200).json({error_code: 200, error_massage: 'OK'});
 
     } catch (err) {
-        logger.error("Error: addUserRealName", {
-            status: 503,
-            level: `USER`,
-            response: `addUserRealName Failed`,
-            user: req.user.uuid,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
+        logger.error(`用户实名`, {req: req, error: err});
         return res.status(400).json({error_code: 400, error_massage: 'Add User`s Real Name Failed'});
     }
 };
@@ -714,12 +645,8 @@ exports.update_phoneNumber = async (req, res) => {
             {$set: {tel_number: req.body.tel_number}}, {new: true});
 
 
-        logger.info("updatePhoneNumber", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.info("用户更改手机", {
+            req: req
         });
         req.logOut();
         return res.status(200).json({error_code: 0, error_massage: 'Successfully update number,Please re-Login'});
@@ -727,15 +654,7 @@ exports.update_phoneNumber = async (req, res) => {
 
     } catch (err) {
 
-        logger.error("updatePhoneNumber", {
-            // level: req.user.role,
-            response: `Internal Service Error`,
-            // user: req.user.uuid,
-            // email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
+        logger.error(`用户个改手机`, {req: req, error: err});
         if (err.message.toString().indexOf(`empty`) !== -1) {
             return res.status(400).json({
                 error_code: 400,
@@ -754,24 +673,12 @@ exports.update_nickName = async (req, res) => {
     try {
         await userModel.updateOne({uuid: req.user.uuid}, {$set: {nickName: req.body.nickName}});
         logger.info("update_nickName", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1]
+            req: req
         });
-
         return res.status(200).json({error_code: 200, error_massage: 'OK'});
 
     } catch (err) {
-        logger.error("Error: update_password", {
-            status: 503,
-            level: `USER`,
-            response: `update password Failed`,
-            user: req.user.uuid,
-            action: `update_password`,
-            body: req.body,
-            error: err
-        });
+        logger.error(`update_nickName`, {req: req, error: err});
         return res.status(503).json({error_code: 503, error_massage: 'update_password Failed'});
     }
 };
@@ -819,14 +726,7 @@ exports.getBack_password_update = async (req, res) => {
 
 
     } catch (err) {
-        logger.error("Error: getBack_password_update", {
-            status: 503,
-            level: `USER`,
-            response: `update password Failed`,
-            action: `update_password`,
-            body: req.body,
-            error: err
-        });
+        logger.error(`getBack_password_update`, {req: req, error: err});
         return res.status(503).json({error_code: 503, error_massage: err.message});
     }
 };
@@ -853,13 +753,13 @@ exports.update_password = async (req, res) => {
         await userModel.updateOne({uuid: req.user.uuid}, {$set: {password: hashedPassword}});
 
 
-        logger.info(`update_password`, {req: req});
+        logger.info(`用户修改密码`, {req: req});
         req.logOut();
         return res.status(200).json({error_code: 200, error_massage: 'Please re-login'});
 
 
     } catch (err) {
-        logger.error(`update_password`, {req: req, error: err});
+        logger.error(`用户修改密码`, {req: req, error: err});
         return res.status(503).json({error_code: 503, error_massage: 'update_password Failed'});
     }
 };

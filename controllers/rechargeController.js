@@ -22,14 +22,7 @@ exports.getChargeBillDetail = async (req, res) => {
         }
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: billResult});
     } catch (err) {
-        logger.error("findMyChargeBills", {
-            level: req.user.role,
-            response: `findMyChargeBills Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
+        logger.error(`获取订单详情`, {req: req, error: err});
 
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
@@ -90,18 +83,11 @@ exports.findMyChargeBills = async (req, res) => {
             __v: 0,
             _id: 0
         }, operator);
-        let billCount = await chargeBillModel.countDocumentsDocuments({userUUid: req.user.uuid});
+        let billCount = await chargeBillModel.countDocuments({userUUid: req.user.uuid});
 
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: billResult, nofdata: billCount});
     } catch (err) {
-        logger.error("findMyChargeBills", {
-            level: req.user.role,
-            response: `findMyChargeBills Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
+        logger.error(`获取用户充值订单`, {req: req, error: err});
 
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
@@ -154,31 +140,19 @@ exports.addChargeWechatBills = async (req, res) => {
         billObject.save();
 
 
-        logger.info("addChargeBills", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.info("增加微信充值订单", {
+            req: req
         });
-
 
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
     } catch (err) {
 
-        logger.error("addChargeBills", {
-            level: req.user.role,
-            response: `addChargeBills Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error_massage: err
-        });
+
         if (err.message.toString().includes(`empty`)) {
 
             return res.status(409).json({error_msg: `409`, error_code: err.message});
         }
+        logger.error(`增加微信充值订单`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
@@ -205,23 +179,12 @@ exports.addRcoinChargeBills = async (req, res) => {
         billObject.fee = feeAmount;
         billObject.comment = req.body.comment;
         billObject.save();
-        logger.info("addRcoinChargeBills", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.info("R币充值订单", {
+            req: req
         });
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: billObject});
     } catch (err) {
-        logger.error("addRcoinChargeBills", {
-            level: req.user.role,
-            response: `addRcoinChargeBills Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
+        logger.error(`R币充值订单`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
@@ -275,27 +238,14 @@ exports.addChargeAliBills = async (req, res) => {
         billObject.save();
 
 
-        logger.info("addChargeBills", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.info("支付宝充值订单", {
+            req: req
         });
-
 
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
     } catch (err) {
 
-        logger.error("addalipayChargeBills", {
-            level: req.user.role,
-            response: `addalipayChargeBills Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error_massage: err
-        });
+        logger.error(`支付宝充值订单`, {req: req, error: err});
         if (err.message.toString().includes(`empty`)) {
 
             return res.status(409).json({error_msg: `409`, error_code: err.message});
