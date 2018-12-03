@@ -18,8 +18,6 @@ exports.loginUser = (req, res, next) => {
             req.logout();
         }
         if (err) {
-            logger.error('\'Response code:401, message: Login faild\'+' +
-                '`Error location : Class: authController, function: loginUser. ' + err);
 
             return res.status(401).json({error_code: 401, error_msg: 'Login faild'});// will generate a 500 error
         }

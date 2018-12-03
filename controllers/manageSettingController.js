@@ -44,8 +44,9 @@ exports.setSetting = async (req, res) => {
 
         if (err) {
             logger.error(`设置系统数据`, {req: req, error: err});
-            return res.status(500).send({error_code: 500, error_msg: 'NO'});
+            return res.status(503).send({error_code: 503, error_msg: 'NO'});
         } else {
+            logger.warn(`checkConfirmationEmail`, {req: req});
             return res.status(200).send({error_code: 0, error_msg: 'OK'});
         }
 
@@ -61,27 +62,14 @@ exports.setModel = async (req, res) => {
     }, (err) => {
 
         if (err) {
-            logger.error("setModel", {
-                level: req.user.role,
-                response: `setModel`,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body,
-                error: err
-            });
+            logger.error(`setModel`, {req: req, error: err});
 
-            return res.status(500).send({error_code: 500, error_msg: 'NO'});
+            return res.status(503).send({error_code: 503, error_msg: 'NO'});
         }
 
-        logger.info("setSetting", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.info("setModel", {
+            req: req
         });
-
         return res.status(200).send({error_code: 0, error_msg: 'NO', data: err});
     });
 
@@ -165,6 +153,10 @@ exports.set3L = async (req, res) => {
         let managerConfigsEntity = new managerConfigsModel();
         billResult._id = managerConfigsEntity._id;
         await managerConfigsModel.updateOne({_id: billResult._id}, {$set: billResult}, {upsert: true, new: true});
+
+        logger.warn("set3L", {
+            req: req
+        });
         return res.status(200).send({
             error_code: 0,
             error_msg: 'NO',
@@ -177,17 +169,9 @@ exports.set3L = async (req, res) => {
 
     } catch (err) {
 
-        logger.error("find3L", {
-            level: req.user.role,
-            response: `find3L Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
+        logger.error(`set3L`, {req: req, error: err});
 
-        return res.status(500).send({error_code: 500, error_msg: 'NO'});
+        return res.status(503).send({error_code: 503, error_msg: 'NO'});
     }
 
 };
@@ -206,16 +190,7 @@ exports.find3L = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: 'NO', data: billResult});
 
     } catch (err) {
-        logger.error("find3L", {
-            level: req.user.role,
-            response: `find3L Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-
+        logger.error(`find3L`, {req: req, error: err});
         return res.status(500).send({error_code: 500, error_msg: 'NO'});
     }
 
@@ -233,11 +208,7 @@ const findCurrentSetting = async () => {
         return billResult;
     } catch (err) {
 
-        logger.error("findCurrentSetting", {
-            response: `find3L Failed`,
-            location: (new Error().stack).split("at ")[1],
-            error: err
-        });
+        logger.error(`findCurrentSetting`, {error: err});
 
     }
 
@@ -261,12 +232,8 @@ exports.getSetting = async (req, res) => {
     }
     catch (err) {
 
-        logger.error("getSetting", {
-            response: `getSetting`,
-            location: (new Error().stack).split("at ")[1],
-            error: err
-        });
-        return res.status(400).send({error_code: 400, error_msg: 'NO'});
+        logger.error(`getSetting`, {req: req, error: err});
+        return res.status(503).send({error_code: 503, error_msg: 'NO'});
     }
 
 };
@@ -282,12 +249,8 @@ exports.getAppealTopics = async (req, res) => {
 
         return res.status(200).send({error_code: 0, error_msg: 'NO', data: responseResult});
     } catch (err) {
-        logger.error("getAppealTopics", {
-            response: `getAppealTopics`,
-            location: (new Error().stack).split("at ")[1],
-            error: err
-        });
-        return res.status(400).send({error_code: 400, error_msg: 'Error happened'});
+        logger.error(`getAppealTopics`, {req: req, error: err});
+        return res.status(503).send({error_code: 503, error_msg: 'Error happened'});
 
     }
 
@@ -305,24 +268,12 @@ exports.addBankAccounts = async (req, res) => {
 
         bankAccount.save();
 
-        logger.info("addBankAccounts", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.warn("addBankAccounts", {
+            req: req
         });
         return res.status(200).send({error_code: 0, error_msg: 'NO', data: bankAccount});
     } catch (err) {
-        logger.error("addBankAccounts", {
-            level: req.user.role,
-            response: `addBankAccounts Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
+        logger.error(`addBankAccounts`, {req: req, error: err});
         return res.status(400).send({error_code: 400, error_msg: 'Error happened'});
 
     }
@@ -348,16 +299,8 @@ exports.getBankAccounts = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: 'NO', data: result});
     } catch (err) {
 
-        logger.error("getBankAccounts", {
-            level: req.user.role,
-            response: `getBankAccounts`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
-        return res.status(400).send({error_code: 400, error_msg: 'Error happened'});
+        logger.error(`getBankAccounts`, {req: req, error: err});
+        return res.status(503).send({error_code: 503, error_msg: 'Error happened'});
 
     }
 

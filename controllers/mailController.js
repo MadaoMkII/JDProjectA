@@ -17,9 +17,9 @@ let smtpConfig = {
 
 };
 let transporter = nodemailer.createTransport(smtpConfig);
-transporter.verify((error, success) => {
+transporter.verify((error) => {
     if (error) {
-
+        logger.error(`transporter`, {error: error});
     } else {
         //logger.info('Server is ready to take our messages' + success);
     }
@@ -170,25 +170,13 @@ exports.func_send_Email = async (req, res) => {
 </html>
 `);
 
-        logger.info("send_Email", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+        logger.info("func_send_Email", {
+            req: req
         });
-        return res.json({error_msg: "OK", error_code: "0"});
+        return res.status(200).json({error_msg: "OK", error_code: "0"});
     } catch (err) {
 
-        logger.error("send_Email", {
-            level: req.user.role,
-            response: `Internal Service Error`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
+        logger.error(`func_send_Email`, {req: req, error: err});
         return res.status(503).json({
             error_msg: "Internal Service Error",
             error_code: "503"
@@ -219,37 +207,15 @@ exports.sendConfirmationEmail = async (req, res) => {
         }
         await redisClient.set(key, verity_code, 'EX', 3600, redis.print);
         //await sendEmail(email_address, `驗證碼是${verity_code},請於一分鐘內修改`);
-
-        if (req.user) {
-            logger.info("sendConfirmationEmail", {
-                level: req.user.role,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body
-            });
-        } else {
-
-            logger.info("sendConfirmationEmail", {
-                location: (new Error().stack).split("at ")[1],
-                body: req.body
-            });
-
-        }
+        logger.info("sendConfirmationEmail", {
+            req: req
+        });
 
         return res.status(200).json({error_msg: "OK", error_code: "0", verity_code: verity_code});
 
     } catch (err) {
 
-        logger.error("sendConfirmationEmail", {
-            level: req.user.role,
-            response: `Internal Service Error`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error: err
-        });
+        logger.error(`sendConfirmationEmail`, {req: req, error: err});
         return res.status(503).json({
             error_msg: "Internal Service Error",
             error_code: "503"
@@ -288,12 +254,14 @@ exports.getBackFromEmail = (req, res) => {
                                 redisClient.multi().set('tempPassword:' + email_address, randomString, 'EX', 1800)
                                     .exec(function (err) {
                                         if (err) {
+
+                                            logger.error(`getBackFromEmail`, {req: req, error: err});
                                             return res.status(503).json({
                                                 error_msg: "Internal Service Error",
                                                 error_code: "503"
                                             });
                                         } else {
-                                            return res.json({
+                                            return res.status(200).json({
                                                 error_msg: "Success sent verification code",
                                                 error_code: "0"
                                             });
@@ -321,7 +289,10 @@ exports.checkConfirmationEmail = (req, res) => {
     let key = `category:updateEmail,email_address:${email_address}`;
     redisClient.get(key, function (err, result) {
 
-        if (err) return res.status(500).json({error_msg: "Internal Server Error", error_code: "500"});
+        if (err) {
+            logger.error(`checkConfirmationEmail`, {req: req, error: err});
+            return res.status(503).json({error_msg: "Internal Server Error", error_code: "503"});
+        }
         //服务器不存在校验码或已被删除
         if (!result) {
             return res.status(404).json({error_msg: "No verification code", error_code: "404"});
@@ -331,7 +302,8 @@ exports.checkConfirmationEmail = (req, res) => {
 
             userAccountModel.updateOne({uuid: req.use.uuid}, {$set: {email_address: email_address}}, function (err) {
                 if (err) {
-                    return res.status(404).json({error_msg: "Bad happened", error_code: "404"});
+                    logger.error(`checkConfirmationEmail`, {req: req, error: err});
+                    return res.status(503).json({error_msg: "Bad happened", error_code: "503"});
                 }
 
                 return res.status(200).json({error_msg: "Verification code confirmed", error_code: "200"});

@@ -17,15 +17,6 @@ exports.addAppealForm = (req, res) => {
     appealFormObject.tel_number = req.user.tel_number;
     appealFormObject.save((err) => {
         if (err) {
-            logger.error("setSetting", {
-                level: req.user.role,
-                response: `setSetting Failed`,
-                user: req.user.uuid,
-                email: req.user.email_address,
-                location: (new Error().stack).split("at ")[1],
-                body: req.body,
-                error: err
-            });
             let errorResult = '';
             for (let errorField in err.errors) {
                 if (err.errors[errorField].hasOwnProperty('message')) {
@@ -55,12 +46,14 @@ exports.setResponseAppealForm = (req, res) => {
             }
         }, {new: true}, (err, data) => {
             if (err) {
+                logger.error(`setResponseAppealForm`, {req: req, error: err});
                 return res.status(503).json({error_msg: `503`, error_code: "Error input"});
             }
             if (!data) {
                 return res.status(404).json({error_msg: `404`, error_code: "Can not find this appeal！"})
             }
-        logger.error(`setResponseAppealForm`, {req: req, error: err});
+
+            logger.warn(`setResponseAppealForm`, {req: req, error: err});
             return res.status(200).json({error_msg: `200`, error_code: "OK！", data: data});
 
         }
@@ -203,6 +196,7 @@ exports.delAppealForm = async (req, res) => {
         //     await picController.deleteImgs(req, res, () => {
         //     });
         // }
+        logger.warn(`delAppealForm`, {req: req});
         return res.status(200).json({error_msg: `OK`, error_code: "0"});
     } catch (err) {
         logger.error(`删除申诉`, {req: req, error: err});

@@ -125,7 +125,7 @@ exports.returnRcoin = async (req, res) => {
             bill_return_Result =
                 await chargeBillModel.findOneAndUpdate({billID: req.body.billID}, {$set: {dealState: 4}}, {new: true});
         }
-        logger.info("返还R币", {
+        logger.warn("返还R币", {
             req: req
         });
         return res.status(200).json({error_msg: 'ok', error_code: "0", data: bill_return_Result});
@@ -170,28 +170,14 @@ exports.setOrderStatus = async (req, res) => {
 
 
         logger.warn("setOrderStatus", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
+            req: req
         });
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: newOrder});
 
     } catch (err) {
-        logger.error("setOrderStatus", {
-            level: req.user.role,
-            response: `setOrderStatus Failed`,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body,
-            error_massage: err
-        });
+        logger.error(`setOrderStatus`, {req: req, error: err});
         return res.status(500).json({error_msg: `set Order Status Failed`, error_code: "500"});
     }
-
-
 };
 exports.addProcessOrder = async (req, res) => {
 

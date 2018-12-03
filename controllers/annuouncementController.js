@@ -31,7 +31,7 @@ exports.findAnnouncement = async (req, res) => {
         return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: billCount});
 
     } catch (err) {
-        logger.error(`搜索公告`, {req: req, error: err});
+        logger.error(`搜索公告失败`, {req: req, error: err});
         return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
     }
 
@@ -69,9 +69,12 @@ exports.updateHelpCenterAnnouncement = async (req, res) => {
         if (isEmpty(returnResult)) {
             return res.status(200).json({error_msg: `can not find announcement`, error_code: "404"});
         }
+        logger.warn("更新帮助中心公告", {
+            req: req
+        });
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: returnResult});
     } catch (err) {
-        logger.error(`更新帮助中心公告`, {req: req, error: err});
+        logger.error(`更新帮助中心公告失败`, {req: req, error: err});
         return res.status(503).json({error_msg: `503`, error_code: "announcement Error"});
     }
 
@@ -101,10 +104,12 @@ exports.updateAnnouncement = async (req, res) => {
         let returnResult = await announcementModel.findOneAndUpdate({announcementID: req.body.announcementID}, {
             $set: searchCommand
         }, {new: true});
-
+        logger.warn("更新帮助公告", {
+            req: req
+        });
         return res.json({error_msg: `OK`, error_code: "0", data: returnResult});
     } catch (err) {
-        logger.error(`更新帮助公告`, {req: req, error: err});
+        logger.error(`更新帮助公告失败`, {req: req, error: err});
         return res.status(503).json({error_msg: `503`, error_code: "announcement Error"});
     }
 
@@ -117,7 +122,7 @@ exports.addModel = async (req, res) => {
         let anModelEntity = new anModel();
         anModelEntity.name = req.body.model_name;
         await anModelEntity.save();
-        return res.json({error_msg: `OK`, error_code: "0"});
+        return res.status(200).json({error_msg: `OK`, error_code: "0"});
 
     } catch (err) {
 
@@ -125,7 +130,8 @@ exports.addModel = async (req, res) => {
 
             return res.status(409).json({error_msg: `409`, error_code: "model_name can not be duplicated"});
         }
-        return res.status(500).json({error_msg: `500`, error_code: "model add Error"});
+        logger.error(`addModel失败`, {req: req, error: err});
+        return res.status(503).json({error_msg: `503`, error_code: "model add Error"});
     }
 
 };
@@ -139,13 +145,16 @@ exports.updateModel = async (req, res) => {
             });
         }
         await anModel.findOneAndUpdate({name: req.body.model_name}, {$set: {name: req.body[`new_model_name`]}});
-        return res.json({error_msg: `OK`, error_code: "0"});
+
+        logger.warn(`updateModel`, {req: req});
+        return res.status(200).json({error_msg: `OK`, error_code: "0"});
+
     } catch (err) {
         if (err.message.toString().search(`duplicate key error`) !== 0) {
 
             return res.status(409).json({error_msg: `409`, error_code: "model_name can not be duplicated"});
         }
-        logger.error(`更新帮助公告模块`, {req: req, error: err});
+        logger.error(`更新公告模块失败`, {req: req, error: err});
         return res.status(503).json({error_msg: `503`, error_code: "model add Error"});
     }
 };
@@ -159,7 +168,7 @@ exports.getModel = async (req, res) => {
         if (err.message.toString().search(`duplicate key error`) !== 0) {
             return res.status(409).json({error_msg: `409`, error_code: "model_name can not be duplicated"});
         }
-        logger.error(`获取帮助公告模块`, {req: req, error: err});
+        logger.error(`获取帮助公告模块失败`, {req: req, error: err});
         return res.status(503).json({error_msg: `503`, error_code: "model add Error"});
     }
 
@@ -172,11 +181,13 @@ exports.removeModel = async (req, res) => {
             return res.status(406).json({error_msg: `406`, error_code: "model_name can not be empty"});
         }
         await anModel.deleteOne({name: req.body.model_name});
-
-        return res.json({error_msg: `OK`, error_code: "0"});
+        logger.warn("公删除告模块失败", {
+            req: req
+        });
+        return res.status(200).json({error_msg: `OK`, error_code: "0"});
     } catch (err) {
-        logger.error(`公删除告模块`, {req: req, error: err});
-        return res.status(500).json({error_msg: `500`, error_code: "model add Error"});
+        logger.error(`公删除告模块失败`, {req: req, error: err});
+        return res.status(503).json({error_msg: `503`, error_code: "model add Error"});
     }
 
 };
@@ -265,7 +276,10 @@ exports.addHelpCenterAnnouncement = async (req, res) => {
             logger.error(`addHelpCenterAnnouncement`, {req: req, error: err});
             return res.status(503).json({error_msg: `503`, error_code: "announcement Error"});
         }
-        return res.json({error_msg: `OK`, error_code: "0"});
+        logger.warn("addHelpCenterAnnouncement", {
+            req: req
+        });
+        return res.status(200).json({error_msg: `OK`, error_code: "0"});
 
     })
 };
@@ -308,6 +322,7 @@ exports.delAnnouncement = (req, res) => {
     let item_id = req.body.announcementID;
     announcementModel.deleteOne({announcementID: item_id}, (err) => {
         if (err) {
+            logger.error(`delAnnouncement`, {req: req, error: err});
             return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
             return res.status(200).json({error_msg: `OK`, error_code: "0"});

@@ -42,12 +42,12 @@ exports.setDFpage = (req, res) => {
         new: true
     }, (err, data) => {
 
-        logger.info("设置首页图片", {
+        logger.warn("设置DF图片", {
             req: req
         });
 
         if (err) {
-            logger.error(`设置首页图片`, {req: req, error: err});
+            logger.error(`设置DF图片`, {req: req, error: err});
             return res.status(503).json({error_code: `503`, error_msg: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
@@ -74,7 +74,9 @@ exports.setHomepage = (req, res) => {
             logger.error(`设置首页头图`, {req: req, error: err});
             return res.status(503).json({error_code: `503`, error_msg: "advertising Error"});
         } else {
-            logger.info("设置首页头图", {req: req});
+            logger.warn("设置首页头图", {
+                req: req
+            });
             return res.json({error_msg: `OK`, error_code: "0", data: data});
         }
     })
@@ -166,7 +168,7 @@ exports.addHomepageItems = (req, res) => {
             }
             return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
-            logger.info("设置首页商品列表", {req: req});
+            logger.warn("设置首页商品列表", {req: req});
             return res.json({error_msg: `OK`, error_code: "0"});
         }
     })
@@ -181,6 +183,7 @@ exports.delAdvertising = (req, res) => {
             logger.error(`删除广告`, {req: req, error: err});
             return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
+            logger.warn("删除广告", {req: req});
             return res.status(200).json({error_msg: `OK`, error_code: "0"});
         }
     });

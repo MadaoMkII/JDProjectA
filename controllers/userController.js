@@ -65,7 +65,7 @@ exports.zhuce = async (req, res) => {
                 }
             }, {upsert: true, new: true}
         );
-
+        logger.error(`有人偷偷用这个接口`, {req: req});
         return res.status(200).json({
             "error_code": 0,
             "data": newUser
@@ -186,13 +186,13 @@ exports.setUserRole = async (req, res) => {
             action: `setUserRole`,
             body: req.body
         });
-        logger.info("setUserRole", {
+        logger.warn("设置账号权限", {
             req: req
         });
         return res.status(200).json({"error_code": 0, error_massage: "OK", data: result});
     } catch (err) {
 
-        logger.error(`setUserRole`, {req: req, error: err});
+        logger.error(`设置账号权限`, {req: req, error: err});
         return res.status(503).json({"error_code": 503, error_massage: "Set UserRole Failed`"});
     }
 

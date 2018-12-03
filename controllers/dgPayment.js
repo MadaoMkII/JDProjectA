@@ -43,7 +43,7 @@ let getRate = (req, res) => {
             resolve([rate, managerConfig.feeRate, feeAmount, totalAmount]);
 
         } catch (err) {
-
+            logger.error(`getRate`, {req: req, error: err});
             reject(err);
         }
     });
@@ -62,7 +62,8 @@ exports.getThisUserBasicRate = async (req, res) => {
             }
         });
     } catch (err) {
-        return res.status(513).send({error_code: 513, error_msg: err.message});
+        logger.error(`getThisUserBasicRate`, {req: req, error: err});
+        return res.status(503).send({error_code: 503, error_msg: `ERROR`});
     }
 };
 
@@ -79,7 +80,8 @@ exports.getThisUserRcoinRate = async (req, res) => {
             }
         });
     } catch (err) {
-        return res.status(513).send({error_code: 513, error_msg: err.message});
+        logger.error(`getThisUserBasicRate`, {req: req, error: err});
+        return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 };
 
@@ -135,6 +137,7 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
                 resolve([resultArray, chargeBil_count + dgBill_count]);
             }
         } catch (err) {
+            logger.error(`findTradeDAO`, {req: req, error: err});
             reject(err);
         }
     });
@@ -188,7 +191,8 @@ exports.findThisUserRcoinRecord = async (req, res) => {
             error_code: 0, error_msg: "OK", data: resultArray2, nofdata: count
         });
     } catch (err) {
-        return res.status(513).send({error_code: 513, error_msg: err.message});
+        logger.error(`findThisUserRcoinRecord`, {req: req, error: err});
+        return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
 };
@@ -262,17 +266,11 @@ exports.addBillByBank = async (req, res) => {
         billObject.userInfo = userObject;
         await billObject.save();
 
-        logger.info("addDGByALIBill", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
+        logger.info(`银行转账代购代付`, {req: req});
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     } catch (err) {
         logger.error(`银行转账代购代付`, {req: req, error: err});
-        return res.status(500).send({error_code: 500, error_msg: err.message});
+        return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 };
 
@@ -347,13 +345,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.userInfo = userObject;
         await billObject.save();
 
-        logger.info("addDGRcoinsBill", {
-            level: req.user.role,
-            user: req.user.uuid,
-            email: req.user.email_address,
-            location: (new Error().stack).split("at ")[1],
-            body: req.body
-        });
+        logger.info(`addDGRcoinsBill`, {req: req});
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (err) {
@@ -467,10 +459,10 @@ exports.addReplacePostageBill = async (req, res) => {
         if (!dgBillEntity) {
             return res.status(200).json({error_msg: `OK, but nothing has been changed`, error_code: "0"});
         }
-        logger.error(`邮费标识`, {req: req});
+        logger.warn(`增加邮费标识`, {req: req});
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
     } catch (err) {
-        logger.error(`邮费标识`, {req: req, error: err});
+        logger.error(`增加邮费标识`, {req: req, error: err});
         return res.status(503).json({error_msg: err.message, error_code: "503"});
     }
 };
