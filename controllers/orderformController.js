@@ -116,14 +116,14 @@ exports.getOrderform = (req, res) => {
 ;
 exports.deleteOrderForm = (req, res) => {
 
-    orderModel.remove({_id: req.query['_id']}, (err) => {
+    orderModel.deleteOne({_id: req.query['_id']}, (err) => {
             if (err) {
                 logger.info(req.body);
                 logger.error('Error location : Class: orderformController, function: updateOrderForm. ' + err);
                 logger.error('Response code:406, message: Not Successed Saved');
-                return res.status(406).send({success: false, message: 'Not Successed Saved'});
+                return res.status(406).send({success: false, message: 'Not Succeeded Saved'});
             } else {
-                return res.status(200).send({success: true, message: 'Successed Updated'});
+                return res.status(200).send({success: true, message: 'Succeeded Updated'});
             }
         }
     );
@@ -365,7 +365,7 @@ exports.updatePayment = (req, res) => {
 };
 
 exports.deletePayment = (req, res) => {
-	console.log("DELETE");
+
     let paymentElement = {};
     paymentElement.paymentId = req.query['paymentId'];
     paymentElement.checkOrderId = req.query['checkOrderId'];
