@@ -128,8 +128,6 @@ app.use(function (req, res, next) {
 
 app.get('/payback/getFavorites', paybackController.getFavorites);
 
-app.get('/test', isAuthenticated('Admin'), weChatController.jiade);
-
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
 
 app.get('/alipay/QRcode', isAuthenticated('User'), alipayController.get_alipay_QR_code);
