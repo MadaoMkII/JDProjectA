@@ -97,7 +97,7 @@ const aliPayAccount = new mongoose.Schema(
         isStudentCertified: {type: String},
         userType: {type: String},
         userStatus: {type: String},
-        isCertified: {type: Boolean},
+        isCertified: {type: String},
         gender: {type: String}
     }, {_id: false}
 );
