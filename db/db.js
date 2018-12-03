@@ -9,9 +9,9 @@ const options = {
     useNewUrlParser: true,
     useCreateIndex: true,
     keepAlive: true,
-    dbName :`yubaopay`
+    dbName: config.dbName
 };
-
+console.log("DB name is " + config.dbName);
 const connection = mongoose.connection;
 mongoose.connect(mongodbUri, options);
 if (connection !== "undefined") {
@@ -33,7 +33,7 @@ db.on('error', (error) => {
     mongoose.disconnect();
 });
 
-db.on('close', (info) => {
+db.on('close', () => {
     console.log('Disconnected');
 
 });

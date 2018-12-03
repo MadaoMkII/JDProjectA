@@ -1,7 +1,6 @@
 const mongoose = require('../db/db').mongoose;
 const bankAccount = require('../modules/bankAccount').bankAccount;
 const tool = require('../config/tools');
-const logger = require('../logging/logging').logger;
 
 const vipCoculart = (points) => {
 
@@ -95,7 +94,7 @@ const aliPayAccount = new mongoose.Schema(
         province: {type: String},
         city: {type: String},
         nickName: {type: String},
-        isStudentCertified: {type: Boolean},
+        isStudentCertified: {type: String},
         userType: {type: String},
         userStatus: {type: String},
         isCertified: {type: Boolean},
