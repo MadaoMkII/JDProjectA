@@ -92,13 +92,9 @@ exports.getHomepage = (req, res) => {
         "L2_category": 0
     }, (err, data) => {
         if (err) {
-            logger.error(`首页头图`, {req: req, error: err});
+            logger.error(`获取头图`, {req: req, error: err});
             return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
-
-            logger.info("设置首页图片", {
-                req: req
-            });
             return res.json({error_msg: `OK`, error_code: "0", data: data});
         }
     })

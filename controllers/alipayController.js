@@ -55,13 +55,13 @@ exports.receiveCallback = async (req, res) => {
             code: req.query[`auth_code`],
             grant_type: `authorization_code`,
         };
-        logger.info(`获取支付宝二维码1`, {error: step_1_response});
+        logger.info(`获取支付宝二维码1`, {req:req,error: step_1_response});
         const step_2_response = await alipaySdk.exec('alipay.system.oauth.token', {
             code: step_1_response.code,
             grant_type: `authorization_code`
         });
         // result 为 API 介绍内容中 “响应参数” 对应的结果
-        logger.info(`获取支付宝二维码2`, {error: step_2_response});
+        logger.info(`获取支付宝二维码2`, {req:req,error: step_2_response});
         const step_3_response = await alipaySdk.exec('alipay.user.info.share', {
             auth_token: step_2_response.accessToken
         });
@@ -79,7 +79,7 @@ exports.receiveCallback = async (req, res) => {
                 isCertified: step_3_response.isCertified,
                 gender: step_3_response.gender
             };
-        logger.info(`获取支付宝二维码3`, {error: step_3_response});
+        logger.info(`获取支付宝二维码3`, {req:req,error: step_3_response});
         let alipayUser = await userModel.findOneAndUpdate({uuid: (req.query.state.toString()).split(`||`)[0]},
             {$push: {aliPayAccounts: aliPayAccount}}, {new: true});
         console.log(alipayUser)
@@ -89,6 +89,7 @@ exports.receiveCallback = async (req, res) => {
         res.redirect('/temp.html');
         res.end();
     } catch (err) {
+        console.log(err)
         logger.error(`支付宝扫码失败`, {req: req, error: err});
         return res.status(503).json({error_msg: `Server is busy`, error_code: "503"});
     }
