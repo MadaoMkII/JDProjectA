@@ -9,7 +9,7 @@ const options = {
     useNewUrlParser: true,
     useCreateIndex: true,
     keepAlive: true,
-    dbName :`yubaopay_test`
+    dbName :`yubaopay`
 };
 
 const connection = mongoose.connection;
