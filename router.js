@@ -256,7 +256,7 @@ app.get('/checkhealth', function (req, res) {
     }
 });
 
-app.post('/getLogger', isAuthenticated('Super_Admin'), logging.getLogger);
+app.post('/getLogger', logging.getLogger);
 
 app.post('/getSetting', isAuthenticated('User'), manageSettingController.getSetting);
 app.post('/setSetting', isAuthenticated('Super_Admin'), manageSettingController.setSetting);
