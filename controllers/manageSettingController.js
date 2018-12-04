@@ -266,7 +266,7 @@ exports.addBankAccounts = async (req, res) => {
             bankAccount[condition] = req.body[condition];
         }
 
-        bankAccount.save();
+        await bankAccount.save();
 
         logger.warn("addBankAccounts", {
             req: req
