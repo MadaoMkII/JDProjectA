@@ -1,38 +1,38 @@
-let TopClient = require('../sdk-nodejs').ApiClient;
-let url = require('url');
-const tool = require('../config/tools');
+//let TopClient = require('../sdk-nodejs').ApiClient;
+//let url = require('url');
+//const tool = require('../config/tools');
 //const logger = require('../logging/logging').logger;
-const client = new TopClient({
-    'appkey': '25260079',
-    'appsecret': '70b1bcc4ff485e28a44d5c33e8b3b01c',
-    'REST_URL': 'http://gw.api.taobao.com/router/rest'
-});
+// const client = new TopClient({
+//     'appkey': '25260079',
+//     'appsecret': '70b1bcc4ff485e28a44d5c33e8b3b01c',
+//     'REST_URL': 'http://gw.api.taobao.com/router/rest'
+// });
 
 
-let getItemInfo = (urlLink) => {
-
-    return new Promise((resolve, reject) => {
-
-        let itemID = url.parse(urlLink, true).query.id;
-
-        client.execute('taobao.tbk.item.info.get', {
-            'num_iids': itemID,
-            'outer_code': `GUNDAM`,
-            'platform': '1',
-            'ip': '11.22.33.43'
-        }, (err, data) => {
-
-            if (err) {
-                reject(err);
-            }
-            if (!tool.isEmpty(data.results)) {
-                resolve(data.results[`n_tbk_item`]);
-            } else {
-                resolve(null);
-            }
-        })
-    })
-};
+// let getItemInfo = (urlLink) => {
+//
+//     return new Promise((resolve, reject) => {
+//
+//         let itemID = url.parse(urlLink, true).query.id;
+//
+//         client.execute('taobao.tbk.item.info.get', {
+//             'num_iids': itemID,
+//             'outer_code': `GUNDAM`,
+//             'platform': '1',
+//             'ip': '11.22.33.43'
+//         }, (err, data) => {
+//
+//             if (err) {
+//                 reject(err);
+//             }
+//             if (!tool.isEmpty(data.results)) {
+//                 resolve(data.results[`n_tbk_item`]);
+//             } else {
+//                 resolve(null);
+//             }
+//         })
+//     })
+// };
 
 
 exports.getThisUserPayback = async (req, res) => {

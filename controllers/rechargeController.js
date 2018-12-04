@@ -212,13 +212,11 @@ exports.addChargeAliBills = async (req, res) => {
                 billObject.rechargeInfo.rechargeToAccount = {
                     userId: alipayAccount.userId,
                     avatar: alipayAccount.avatar,
-                    nickname: alipayAccount.nick_name,
+                    nickname: alipayAccount.nickName,
                     alipayAccount: alipayAccount.alipayAccount
                 }
             }
         }
-
-
         await bankAccountsPair(req, billObject);
         let [rate, feeRate, feeAmount, totalAmount] = await dgPayment.getRate(req, res);
         if (req.body.RMBAmount < managerConfig.threshold[`alipay`]) {
