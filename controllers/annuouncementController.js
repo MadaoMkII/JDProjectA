@@ -217,10 +217,12 @@ exports.getHelpCenterAnnouncement = async (req, res) => {
                         announcementTopic: 1,
                         announcementLink: 1,
                         content: 1,
-                        location: 1
+                        location: 1,
+                        created_at: 1
                     }
                 }
-            }
+            },
+            {$sort: {"announcementArray.created_at": 1}}
         ]);
         let resultArray = [];
         for (let entity of resultCenterAnnouncement) {
