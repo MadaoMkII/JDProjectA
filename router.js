@@ -126,6 +126,8 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 
+app.get('/ceshiAdv', advertisingController.ceshiaddHomepageItems);
+
 app.get('/payback/getFavorites', paybackController.getFavorites);
 
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
