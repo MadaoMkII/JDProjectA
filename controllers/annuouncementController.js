@@ -7,6 +7,7 @@ const logger = require('../logging/logging').logger;
 exports.findAnnouncement = async (req, res) => {
 
     try {
+
         let searchCommand = {};
         if (!isEmpty(req.body.location)) {
             searchCommand.location = req.body.location;
@@ -162,7 +163,7 @@ exports.updateModel = async (req, res) => {
 exports.getModel = async (req, res) => {
 
     try {
-        let result = await anModel.find();
+        let result = await anModel.find({}, {}, {sort: {created_at: -1}});
         return res.json({error_msg: `OK`, error_code: "0", data: result});
     } catch (err) {
         if (err.message.toString().search(`duplicate key error`) !== 0) {
