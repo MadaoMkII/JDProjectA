@@ -6,7 +6,7 @@ const rechargeController = require('../controllers/rechargeController');
 const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
-
+const getUserInfo = require('./rechargeController').getUserInfo;
 exports.getFriendAccount = (req, res) => {
     return res.status(200).send({error_code: 0, error_msg: `OK`, data: "yubao0001@126.com"});
 };
@@ -256,14 +256,7 @@ exports.addBillByBank = async (req, res) => {
             billObject.is_firstOrder = true;
         }
         req.user = user;
-        let userObject = {};
-        userObject.tel_number = req.user.tel_number;
-        userObject.email_address = req.user.email_address;
-        userObject.realName = req.user.realName;
-        userObject.nickName = req.user.nickName;
-        userObject.Rcoins = req.user.Rcoins;
-        userObject.VIPLevel = req.user.VIPLevel;
-        billObject.userInfo = userObject;
+        billObject.userInfo = getUserInfo(req);
         await billObject.save();
 
         logger.info(`银行转账代购代付`, {req: req});
@@ -330,19 +323,11 @@ exports.addDGRcoinsBill = async (req, res) => {
 
 
         let recentRcoins = Number.parseInt(req.user.Rcoins) - Number.parseInt(billObject.RMBAmount);
-        let newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+        req.user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$set: {Rcoins: tool.encrypt(`` + recentRcoins)}}, {new: true});
-        req.user = newUser;
 
-        let userObject = {};
-        userObject.tel_number = req.user.tel_number;
-        userObject.email_address = req.user.email_address;
-        userObject.realName = tool.isEmpty(req.user.realName) ? `尚未实名` : req.user.realName;
-        userObject.nickName = req.user.nickName;
-        userObject.Rcoins = newUser.Rcoins;
-        userObject.VIPLevel = newUser.VIPLevel;
+        billObject.userInfo = getUserInfo(req);
 
-        billObject.userInfo = userObject;
         await billObject.save();
 
         logger.info(`addDGRcoinsBill`, {req: req});

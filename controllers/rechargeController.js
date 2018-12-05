@@ -6,6 +6,19 @@ const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const searchModel = require('../controllers/searchModel');
 const dgBillModel = require('../modules/dgBill').dgBillModel;
+let getUserInfo = (req) => {
+    if (!req || !req.user) {
+        throw new Error(`not login`);
+    }
+    let userObject = {};
+    userObject.tel_number = req.user.tel_number;
+    userObject.email_address = req.user.email_address;
+    userObject.realName = tool.isEmpty(req.user.realName) ? `尚未实名` : req.user.realName;
+    userObject.nickName = req.user.nickName;
+    userObject.Rcoins = tool.decrypt(req.user.Rcoins);
+    userObject.VIPLevel = req.user.VIPLevel;
+    return userObject;
+};
 
 exports.getChargeBillDetail = async (req, res) => {
     try {
@@ -135,7 +148,9 @@ exports.addChargeWechatBills = async (req, res) => {
         billObject.fee = feeAmount;
         billObject.feeRate = feeRate;
         billObject.comment = req.body.comment;
-        billObject.save();
+
+        billObject.userInfo = getUserInfo(req);
+        await billObject.save();
 
 
         logger.info("用户增加微信充值订单", {
@@ -149,7 +164,7 @@ exports.addChargeWechatBills = async (req, res) => {
 
             return res.status(409).json({error_msg: `409`, error_code: err.message});
         }
-        logger.error(`用户增加微信充值订单`, {req: req, error: err});
+        logger.error(`用户增加微信充值订单`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
@@ -175,13 +190,17 @@ exports.addRcoinChargeBills = async (req, res) => {
         billObject.feeRate = feeRate;
         billObject.fee = feeAmount;
         billObject.comment = req.body.comment;
-        billObject.save();
+
+        billObject.userInfo = getUserInfo(req);
+
+        await billObject.save();
         logger.info("用户R币充值订单", {
             req: req
         });
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: billObject});
     } catch (err) {
-        logger.error(`用户R币充值订单`, {req: req, error: err});
+
+        logger.error(`用户R币充值订单`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
@@ -225,12 +244,13 @@ exports.addChargeAliBills = async (req, res) => {
                 error_msg: 'can not less than ' + managerConfig.threshold[`alipay`]
             });
         }
+        billObject.userInfo = getUserInfo(req);
         billObject.NtdAmount = totalAmount;
         billObject.rate = rate;
         billObject.fee = feeAmount;
         billObject.feeRate = feeRate;
         billObject.comment = req.body.comment;
-        billObject.save();
+        await billObject.save();
 
 
         logger.info("用户支付宝充值订单", {
@@ -240,7 +260,7 @@ exports.addChargeAliBills = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
     } catch (err) {
 
-        logger.error(`用户支付宝充值订单`, {req: req, error: err});
+        logger.error(`用户支付宝充值订单`, {req: req, error: err.message});
         if (err.message.toString().includes(`empty`)) {
 
             return res.status(409).json({error_msg: `409`, error_code: err.message});
@@ -249,5 +269,5 @@ exports.addChargeAliBills = async (req, res) => {
     }
 
 };
-
+exports.getUserInfo = getUserInfo;
 exports.bankAccountsPair = bankAccountsPair;
