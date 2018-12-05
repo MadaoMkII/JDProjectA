@@ -53,7 +53,7 @@ exports.info = async (info, errorBox) => {
 };
 
 exports.warn = async (info, errorBox) => {
-    await saveLogger(info, `warn`, errorBox, callerId.getData());
+    await saveLogger(info, `warning`, errorBox, callerId.getData());
 };
 
 exports.getLogger = async (req, res) => {
