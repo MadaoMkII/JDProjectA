@@ -111,8 +111,8 @@ exports.returnRcoin = async (req, res) => {
         myEvent.eventType = `Rcoin`;
         myEvent.amount = billResult.RMBAmount;
         myEvent.behavior = `bill cancel return`;
+        let amountNew = parseInt(billResult.RMBAmount) + parseInt(tools.decrypt(billUser.Rcoins));
 
-        let amountNew = parseInt(billResult.RMBAmount) + parseInt(billUser.Rcoins);
         await userModel.findOneAndUpdate({uuid: billResult.userUUid}, {
             $push: {whatHappenedToMe: myEvent},
             $set: {Rcoins: tools.encrypt(amountNew)}
@@ -354,12 +354,12 @@ exports.addProcessOrderForCharge = async (req, res) => {
             myEvent.behavior = `Rcoin recharge`;
             myEvent.pointChange = 1;
             myEvent.amount = chargeBill.RMBAmount; //也许需要加密
-            let rcoins = parseInt(req.user.Rcoins) + parseInt(chargeBill.RMBAmount);
-
+            let rcoins = parseInt(tools.decrypt(req.user.Rcoins)) + parseInt(chargeBill.RMBAmount);
+            console.log(rcoins);
             userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
                 $inc: {growthPoints: 1},
                 $push: {whatHappenedToMe: myEvent},
-                $set: {Rcoins: tools.encrypt(rcoins)}
+                $set: {Rcoins: tools.encrypt(``+rcoins)}
             }, {new: true});
 
         } else if (chargeBill.typeStr === `支付寶儲值` &&

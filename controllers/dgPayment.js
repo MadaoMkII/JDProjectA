@@ -6,7 +6,7 @@ const rechargeController = require('../controllers/rechargeController');
 const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
-const getUserInfo = require('./rechargeController').getUserInfo;
+
 exports.getFriendAccount = (req, res) => {
     return res.status(200).send({error_code: 0, error_msg: `OK`, data: "yubao0001@126.com"});
 };
@@ -251,17 +251,18 @@ exports.addBillByBank = async (req, res) => {
         billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
 
         billObject.typeStr = req.body.typeStr;
-        let user = {};
+
         if (!req.user.userStatus.isFirstTimePaid) {
             billObject.is_firstOrder = true;
         }
-        req.user = user;
-        billObject.userInfo = getUserInfo(req);
+
+        billObject.userInfo = rechargeController.getUserInfo(req);
         await billObject.save();
 
         logger.info(`银行转账代购代付`, {req: req});
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     } catch (err) {
+
         logger.error(`银行转账代购代付`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
@@ -321,12 +322,11 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.chargeInfo.chargeMethod = `Rcoin`;
         billObject.typeState = 1;
 
-
-        let recentRcoins = Number.parseInt(req.user.Rcoins) - Number.parseInt(billObject.RMBAmount);
+        let recentRcoins = parseInt(tool.decrypt(req.user.Rcoins)) - parseInt(billObject.RMBAmount);
         req.user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$set: {Rcoins: tool.encrypt(`` + recentRcoins)}}, {new: true});
 
-        billObject.userInfo = getUserInfo(req);
+        billObject.userInfo = rechargeController.getUserInfo(req);
 
         await billObject.save();
 
@@ -334,6 +334,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (err) {
+        console.log(err)
         logger.error(`addDGRcoinsBill`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: `Server is busing`});
     }
