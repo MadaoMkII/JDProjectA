@@ -45,7 +45,7 @@ exports.shin_smsSend = async (req, res, category, tel_number_1) => {
         //     });
         // }
 
-        message.set_to(tel_number_1);
+        message.set_to(`+886` + tel_number_1);
         message.set_project('WnDSX2');
         message.add_var('code', verity_code);
         message.add_var('time', '10分鐘');
@@ -168,7 +168,7 @@ exports.confirm_smsMassage = async (req, res, category) => {
 
         if (parseInt(code) === parseInt(result)) {
 
-            await  redisClient.multi().set('registerNumber:' + tel_number, "OK", 'EX', 45);
+            await redisClient.multi().set('registerNumber:' + tel_number, "OK", 'EX', 45);
 
             return res.status(200).json({error_msg: "Massage has been confirmed", error_code: "0"});
         } else {
