@@ -11,7 +11,7 @@ let getUserInfo = (req) => {
         throw new Error(`not login`);
     }
     let userObject = {};
-    console.log(req.user)
+
     userObject.tel_number = req.user.tel_number;
     userObject.email_address = req.user.email_address;
     userObject.realName = tool.isEmpty(req.user.realName) ? `尚未实名` : req.user.realName;

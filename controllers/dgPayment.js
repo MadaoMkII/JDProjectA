@@ -277,7 +277,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.itemInfo.itemName = req.body.itemInfo.itemName;
 
         if (!req.user.Rcoins || !req.body.RMBAmount ||
-            Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.RMBAmount) < 0) {
+            Number.parseInt(tool.decrypt(req.user.Rcoins)) - Number.parseInt(req.body.RMBAmount) < 0) {
             return res.status(400).send({error_code: 400, error_msg: '要不起'});
         }
 
@@ -334,7 +334,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (err) {
-        console.log(err)
+
         logger.error(`addDGRcoinsBill`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: `Server is busing`});
     }
