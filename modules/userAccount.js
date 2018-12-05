@@ -157,10 +157,6 @@ let userAccountSchema = new mongoose.Schema({
     last_login_time: Date
 }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
 
-userAccountSchema.virtual('VIPLevel').get(() => {
-
-    return vipCoculart(this.growthPoints);
-});
 
 // userAccountSchema.virtual('referer', {
 //     ref: 'userAccount',
@@ -188,13 +184,20 @@ userAccountSchema.set('toJSON', {
     }
 });
 
+userAccountSchema
+    .virtual('VIPLevel')
+    .get(function () {
+        return vipCoculart(this.growthPoints);
+    });
+userAccountSchema.set('toObject', {
+    virtuals: true
+    // transform: function (doc, ret) {
+    //     ret.Rcoins = tool.decrypt(doc.Rcoins);
+    // }
+});
 
-// userAccountSchema.set('toObject', {
-//     virtuals: true
-//     // transform: function (doc, ret) {
-//     //     ret.Rcoins = tool.decrypt(doc.Rcoins);
-//     // }
-// });
+
+
 let myEventModel = mongoose.model('myEvent', myEvent);
 let userAccountModel = mongoose.model('userAccount', userAccountSchema);
 exports.userAccountModel = userAccountModel;
