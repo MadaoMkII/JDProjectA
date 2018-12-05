@@ -49,7 +49,7 @@ exports.shin_smsSend = async (req, res, category, tel_number_1) => {
         message.set_project('WnDSX2');
         message.add_var('code', verity_code);
         message.add_var('time', '10分鐘');
-        //await message.xsend();
+        await message.xsend();
 
         //限制访问频率60秒
         await redisClient.set(key, verity_code, 'EX', 600, redis.print);
