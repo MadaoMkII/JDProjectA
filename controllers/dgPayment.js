@@ -6,7 +6,7 @@ const rechargeController = require('../controllers/rechargeController');
 const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
-const getUserInfo = require('./rechargeController').getUserInfo;
+const getUserInfo = require('../controllers/rechargeController').getUserInfo;
 exports.getFriendAccount = (req, res) => {
     return res.status(200).send({error_code: 0, error_msg: `OK`, data: "yubao0001@126.com"});
 };
