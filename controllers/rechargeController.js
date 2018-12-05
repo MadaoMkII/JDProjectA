@@ -15,7 +15,7 @@ let getUserInfo = (req) => {
     userObject.email_address = req.user.email_address;
     userObject.realName = tool.isEmpty(req.user.realName) ? `尚未实名` : req.user.realName;
     userObject.nickName = req.user.nickName;
-    userObject.Rcoins = req.user.Rcoins;
+    userObject.Rcoins = tool.decrypt(req.user.Rcoins);
     userObject.VIPLevel = req.user.VIPLevel;
     return userObject;
 };
