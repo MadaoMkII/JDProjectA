@@ -251,11 +251,9 @@ exports.addBillByBank = async (req, res) => {
         billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
 
         billObject.typeStr = req.body.typeStr;
-        let user = {};
         if (!req.user.userStatus.isFirstTimePaid) {
             billObject.is_firstOrder = true;
         }
-        req.user = user;
         let userObject = {};
         userObject.tel_number = req.user.tel_number;
         userObject.email_address = req.user.email_address;
@@ -423,7 +421,7 @@ exports.findMyBills = async (req, res) => {
 
         command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req, res));
 
-        command.userUUid = req.user.uuid;
+        command.searchCondition.userUUid = req.user.uuid;
 
         let operator = searchModel.pageModel(req, res);
 
