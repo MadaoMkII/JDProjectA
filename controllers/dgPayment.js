@@ -8,7 +8,8 @@ const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 
 exports.getFriendAccount = (req, res) => {
-    return res.status(200).send({error_code: 0, error_msg: `OK`, data: "yubao0001@126.com"});
+
+    return res.status(200).send({error_code: 0, error_msg: `OK`, data: "17783498586"});
 };
 
 let getRate = (req, res) => {
