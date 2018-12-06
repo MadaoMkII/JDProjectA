@@ -146,7 +146,7 @@ exports.addChargeWechatBills = async (req, res) => {
 
         billObject.userInfo = userObject;
 
-        billObject.save();
+        await billObject.save();
 
 
         logger.info("用户增加微信充值订单", {
@@ -194,12 +194,14 @@ exports.addRcoinChargeBills = async (req, res) => {
         userObject.nickName = req.user.nickName;
         userObject.Rcoins = req.user.Rcoins;
         userObject.VIPLevel = req.user.VIPLevel;
-        billObject.save();
+        billObject.userInfo = userObject;
+        await billObject.save();
         logger.info("用户R币充值订单", {
             req: req
         });
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: billObject});
     } catch (err) {
+        console.log(err)
         logger.error(`用户R币充值订单`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
@@ -259,7 +261,8 @@ exports.addChargeAliBills = async (req, res) => {
         userObject.Rcoins = req.user.Rcoins;
         userObject.VIPLevel = req.user.VIPLevel;
 
-        billObject.save();
+        billObject.userInfo = userObject;
+        await billObject.save();
 
 
         logger.info("用户支付宝充值订单", {
