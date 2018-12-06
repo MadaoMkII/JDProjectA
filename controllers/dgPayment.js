@@ -251,18 +251,24 @@ exports.addBillByBank = async (req, res) => {
         billObject.is_firstOrder = !req.user.userStatus.isFirstTimePaid;
 
         billObject.typeStr = req.body.typeStr;
-
+        let user = {};
         if (!req.user.userStatus.isFirstTimePaid) {
             billObject.is_firstOrder = true;
         }
-
-        billObject.userInfo = rechargeController.getUserInfo(req);
+        req.user = user;
+        let userObject = {};
+        userObject.tel_number = req.user.tel_number;
+        userObject.email_address = req.user.email_address;
+        userObject.realName = req.user.realName;
+        userObject.nickName = req.user.nickName;
+        userObject.Rcoins = req.user.Rcoins;
+        userObject.VIPLevel = req.user.VIPLevel;
+        billObject.userInfo = userObject;
         await billObject.save();
 
         logger.info(`银行转账代购代付`, {req: req});
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     } catch (err) {
-
         logger.error(`银行转账代购代付`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
@@ -277,7 +283,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.itemInfo.itemName = req.body.itemInfo.itemName;
 
         if (!req.user.Rcoins || !req.body.RMBAmount ||
-            Number.parseInt(tool.decrypt(req.user.Rcoins)) - Number.parseInt(req.body.RMBAmount) < 0) {
+            Number.parseInt(req.user.Rcoins) - Number.parseInt(req.body.RMBAmount) < 0) {
             return res.status(400).send({error_code: 400, error_msg: '要不起'});
         }
 
@@ -322,19 +328,27 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.chargeInfo.chargeMethod = `Rcoin`;
         billObject.typeState = 1;
 
-        let recentRcoins = parseInt(tool.decrypt(req.user.Rcoins)) - parseInt(billObject.RMBAmount);
-        req.user = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+
+        let recentRcoins = Number.parseInt(req.user.Rcoins) - Number.parseInt(billObject.RMBAmount);
+        let newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
             {$set: {Rcoins: tool.encrypt(`` + recentRcoins)}}, {new: true});
+        req.user = newUser;
 
-        billObject.userInfo = rechargeController.getUserInfo(req);
+        let userObject = {};
+        userObject.tel_number = req.user.tel_number;
+        userObject.email_address = req.user.email_address;
+        userObject.realName = tool.isEmpty(req.user.realName) ? `尚未实名` : req.user.realName;
+        userObject.nickName = req.user.nickName;
+        userObject.Rcoins = newUser.Rcoins;
+        userObject.VIPLevel = newUser.VIPLevel;
 
+        billObject.userInfo = userObject;
         await billObject.save();
 
         logger.info(`addDGRcoinsBill`, {req: req});
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (err) {
-
         logger.error(`addDGRcoinsBill`, {req: req, error: err});
         return res.status(503).send({error_code: 503, error_msg: `Server is busing`});
     }
