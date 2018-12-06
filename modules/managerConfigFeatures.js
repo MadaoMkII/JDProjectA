@@ -27,6 +27,7 @@ const rateModel = new mongoose.Schema({
 
 const managerConfigs = new mongoose.Schema(
     {
+        friendAccount: String,
         RcoinRate: [rateModel],
         AlipayAndWechatRate: [rateModel],
         aliPayAccounts: [String],

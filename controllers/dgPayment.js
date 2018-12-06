@@ -7,9 +7,9 @@ const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 
-exports.getFriendAccount = (req, res) => {
-
-    return res.status(200).send({error_code: 0, error_msg: `OK`, data: "17783498586"});
+exports.getFriendAccount = async (req, res) => {
+    let setting = await manageSettingController.findCurrentSetting();
+    return res.status(200).send({error_code: 0, error_msg: `OK`, data: setting.friendAccount});
 };
 
 let getRate = (req, res) => {
@@ -19,7 +19,6 @@ let getRate = (req, res) => {
         try {
             const managerConfig = await manageSettingController.findCurrentSetting();
 
-            let rateObject = {};
 
             let rateType = req.body[`rateType`];
             if (rateType !== `RcoinRate` && rateType !== `AlipayAndWechatRate`) {
@@ -232,7 +231,7 @@ exports.addBillByBank = async (req, res) => {
             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }
 
-        req.body.rateType = `AlipayAndWechatRate`;
+        req.body.rateType = `RcoinRate`;
         let [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.feeRate = feeRate;

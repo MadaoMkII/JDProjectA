@@ -37,7 +37,7 @@ exports.setSetting = async (req, res) => {
     managerConfigsObject.L1_Issue = !isEmpty(req.body.L1_Issue) ? req.body.L1_Issue : billResult.L1_Issue;
     managerConfigsObject.L2_Issue = !isEmpty(req.body.L2_Issue) ? req.body.L2_Issue : billResult.L2_Issue;
     managerConfigsObject.L3_Issue = !isEmpty(req.body.L3_Issue) ? req.body.L3_Issue : billResult.L3_Issue;
-
+    managerConfigsObject.friendAccount = !isEmpty(req.body.friendAccount) ? req.body.friendAccount : billResult.friendAccount;
 
     logger.info(`设置系统数据`, {req: req});
     managerConfigsObject.save((err) => {
