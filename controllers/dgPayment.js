@@ -314,7 +314,7 @@ exports.addDGRcoinsBill = async (req, res) => {
             return res.status(403).send({error_code: 403, error_msg: 'typeStr has wrong value'});
         }
 
-        req.body.rateType = `RcoinRate`;
+        req.body.rateType = `AlipayAndWechatRate`;
         const [rate, feeRate, feeAmount, totalAmount] = await getRate(req, res);
         billObject.feeRate = feeRate;
         billObject.RMBAmount = req.body.RMBAmount;
@@ -527,7 +527,7 @@ exports.payReplacePostage = async (req, res) => {
             return res.status(404).json({error_msg: `No need to pay`, error_code: "404"});
         }
 
-        req.body.rateType = `RcoinRate`;
+        req.body.rateType = `AlipayAndWechatRate`;
         req.body.RMBAmount = billEntity.replacePostage.postageAmount;
         replacePostageBillEntity.postageAmount = billEntity.replacePostage.postageAmount;
         await rechargeController.bankAccountsPair(req, replacePostageBillEntity);
