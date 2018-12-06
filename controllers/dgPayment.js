@@ -424,7 +424,7 @@ exports.findMyBills = async (req, res) => {
         command.searchCondition.userUUid = req.user.uuid;
 
         let operator = searchModel.pageModel(req, res);
-
+console.log(command)
         let [result, count] = await findTradeDAO(req, res, command, operator);
 
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: result, nofdata: count});
