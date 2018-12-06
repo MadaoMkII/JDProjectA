@@ -70,7 +70,7 @@ const dgBillSchema = new mongoose.Schema(
             },
         comment: String,
         is_firstOrder: {type: Boolean, default: false},
-        userInfo: {type: mongoose.Schema.Types.Object},
+        userInfo: {type: mongoose.Schema.Types.Mixed},
         processOrder: {type: processOrder},
         replacePostage: {type: replacePostageBill}
 

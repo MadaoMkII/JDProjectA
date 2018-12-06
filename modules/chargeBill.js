@@ -2,6 +2,7 @@ const mongoose = require('../db/db').mongoose;
 const processOrder = require('../modules/processOrder').processOrder;
 const chargeBillSchema = new mongoose.Schema(
     {
+        userInfo: {type: mongoose.Schema.Types.Mixed},
         typeStr: {type: String},
         typeState: {type: Number, required: true, default: 2},  //1表示代付成功，0表示代付失败，2表示进行中
         dealState: {type: Number, required: true, default: 2},  //1表示交易完成，0表示交易关闭，2表示进行中，3表示原路退回

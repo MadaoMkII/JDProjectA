@@ -135,6 +135,17 @@ exports.addChargeWechatBills = async (req, res) => {
         billObject.fee = feeAmount;
         billObject.feeRate = feeRate;
         billObject.comment = req.body.comment;
+
+        let userObject = {};
+        userObject.tel_number = req.user.tel_number;
+        userObject.email_address = req.user.email_address;
+        userObject.realName = tool.isEmpty(req.user.realName) ? `尚未实名` : req.user.realName;
+        userObject.nickName = req.user.nickName;
+        userObject.Rcoins = req.user.Rcoins;
+        userObject.VIPLevel = req.user.VIPLevel;
+
+        billObject.userInfo = userObject;
+
         billObject.save();
 
 
@@ -175,6 +186,14 @@ exports.addRcoinChargeBills = async (req, res) => {
         billObject.feeRate = feeRate;
         billObject.fee = feeAmount;
         billObject.comment = req.body.comment;
+
+        let userObject = {};
+        userObject.tel_number = req.user.tel_number;
+        userObject.email_address = req.user.email_address;
+        userObject.realName = tool.isEmpty(req.user.realName) ? `尚未实名` : req.user.realName;
+        userObject.nickName = req.user.nickName;
+        userObject.Rcoins = req.user.Rcoins;
+        userObject.VIPLevel = req.user.VIPLevel;
         billObject.save();
         logger.info("用户R币充值订单", {
             req: req
@@ -230,6 +249,16 @@ exports.addChargeAliBills = async (req, res) => {
         billObject.fee = feeAmount;
         billObject.feeRate = feeRate;
         billObject.comment = req.body.comment;
+
+
+        let userObject = {};
+        userObject.tel_number = req.user.tel_number;
+        userObject.email_address = req.user.email_address;
+        userObject.realName = tool.isEmpty(req.user.realName) ? `尚未实名` : req.user.realName;
+        userObject.nickName = req.user.nickName;
+        userObject.Rcoins = req.user.Rcoins;
+        userObject.VIPLevel = req.user.VIPLevel;
+
         billObject.save();
 
 
