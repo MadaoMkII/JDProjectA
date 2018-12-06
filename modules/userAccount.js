@@ -3,8 +3,10 @@ const bankAccount = require('../modules/bankAccount').bankAccount;
 const tool = require('../config/tools');
 
 const vipCoculart = (points) => {
+
     let vipLevel = `VIP0`;
     let vipArray = [22, 25, 40, 70, 130, 180, 260, 340, 460, 560];
+
     for (let index = 0; index < vipArray.length; index++) {
         if (points >= vipArray[index]) {
             vipLevel = `VIP${index + 1}`;
@@ -92,10 +94,10 @@ const aliPayAccount = new mongoose.Schema(
         province: {type: String},
         city: {type: String},
         nickName: {type: String},
-        isStudentCertified: {type: Boolean},
+        isStudentCertified: {type: String},
         userType: {type: String},
         userStatus: {type: String},
-        isCertified: {type: Boolean},
+        isCertified: {type: String},
         gender: {type: String}
     }, {_id: false}
 );
@@ -157,6 +159,16 @@ let userAccountSchema = new mongoose.Schema({
     last_login_time: Date
 }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
 
+// userAccountSchema.virtual('VIPLevel').get(() => {
+//     return vipCoculart(this.growthPoints);
+// });
+
+
+userAccountSchema
+    .virtual('VIPLevel')
+    .get(function () {
+        return vipCoculart(this.growthPoints);
+    });
 
 // userAccountSchema.virtual('referer', {
 //     ref: 'userAccount',
@@ -164,15 +176,14 @@ let userAccountSchema = new mongoose.Schema({
 //     foreignField: 'id',
 //     justOne: true // for many-to-1 relationships
 // });
-
-userAccountSchema.set('toJSON', {
+userAccountSchema.set('toObject', {
     virtuals: true,
     transform: (doc, ret) => {
         delete ret.__v;
         delete ret._id;
         delete ret.id;
         delete ret.password;
-        ret.Rcoins = tool.decrypt(doc.Rcoins);
+        ret.Rcoins = doc.Rcoins;
         ret.VIPLevel = vipCoculart(doc.growthPoints);
         if (doc.created_at && doc.updated_at) {
             ret.created_at = new Date(doc.created_at).getTime();
@@ -183,19 +194,24 @@ userAccountSchema.set('toJSON', {
         }
     }
 });
-
-userAccountSchema
-    .virtual('VIPLevel')
-    .get(function () {
-        return vipCoculart(this.growthPoints);
-    });
-userAccountSchema.set('toObject', {
-    virtuals: true
-    // transform: function (doc, ret) {
-    //     ret.Rcoins = tool.decrypt(doc.Rcoins);
-    // }
+userAccountSchema.set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret) => {
+        delete ret.__v;
+        delete ret._id;
+        delete ret.id;
+        delete ret.password;
+        ret.Rcoins = doc.Rcoins;
+        ret.VIPLevel = vipCoculart(doc.growthPoints);
+        if (doc.created_at && doc.updated_at) {
+            ret.created_at = new Date(doc.created_at).getTime();
+            ret.updated_at = new Date(doc.updated_at).getTime();
+        }
+        if (doc.last_login_time) {
+            ret.last_login_time = new Date(doc.last_login_time).getTime();
+        }
+    }
 });
-
 
 
 let myEventModel = mongoose.model('myEvent', myEvent);
