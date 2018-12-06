@@ -331,7 +331,7 @@ exports.addDGRcoinsBill = async (req, res) => {
 
         let recentRcoins = Number.parseInt(req.user.Rcoins) - Number.parseInt(billObject.RMBAmount);
         let newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
-            {$set: {Rcoins: tool.encrypt(`` + recentRcoins)}}, {new: true});
+            {$set: {Rcoins: recentRcoins}}, {new: true});
         req.user = newUser;
 
         let userObject = {};

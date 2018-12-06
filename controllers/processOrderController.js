@@ -115,7 +115,7 @@ exports.returnRcoin = async (req, res) => {
 
         await userModel.findOneAndUpdate({uuid: billResult.userUUid}, {
             $push: {whatHappenedToMe: myEvent},
-            $set: {Rcoins: tools.encrypt(amountNew)}
+            $set: {Rcoins: amountNew}
         }, {new: true});
         let bill_return_Result;
         if (flag) {
@@ -354,12 +354,12 @@ exports.addProcessOrderForCharge = async (req, res) => {
             myEvent.behavior = `Rcoin recharge`;
             myEvent.pointChange = 1;
             myEvent.amount = chargeBill.RMBAmount; //也许需要加密
-            let rcoins = parseInt(tools.decrypt(req.user.Rcoins)) + parseInt(chargeBill.RMBAmount);
+            let rcoins = parseInt(req.user.Rcoins) + parseInt(chargeBill.RMBAmount);
 
             userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
                 $inc: {growthPoints: 1},
                 $push: {whatHappenedToMe: myEvent},
-                $set: {Rcoins: tools.encrypt(``+rcoins)}
+                $set: {Rcoins: rcoins}
             }, {new: true});
 
         } else if (chargeBill.typeStr === `支付寶儲值` &&
@@ -422,6 +422,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: chargeBill});
     }
     catch (err) {
+
         logger.error(`addProcessOrderForCharge`, {req: req, error: err});
         return res.status(500).json({error_msg: `addProcessOrderForRcoinCharge Failed`, error_code: "500"});
     }

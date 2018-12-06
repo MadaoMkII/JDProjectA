@@ -183,7 +183,7 @@ userAccountSchema.set('toObject', {
         delete ret._id;
         delete ret.id;
         delete ret.password;
-        ret.Rcoins = tool.decrypt(doc.Rcoins);
+        ret.Rcoins = doc.Rcoins;
         ret.VIPLevel = vipCoculart(doc.growthPoints);
         if (doc.created_at && doc.updated_at) {
             ret.created_at = new Date(doc.created_at).getTime();
