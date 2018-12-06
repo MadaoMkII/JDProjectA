@@ -22,7 +22,7 @@ exports.getChargeBillDetail = async (req, res) => {
         }
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: billResult});
     } catch (err) {
-        logger.error(`获取订单详情`, {req: req, error: err});
+        logger.error(`获取订单详情`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
@@ -86,7 +86,7 @@ exports.findMyChargeBills = async (req, res) => {
 
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: billResult, nofdata: billCount});
     } catch (err) {
-        logger.error(`获取用户充值订单`, {req: req, error: err});
+        logger.error(`获取用户充值订单`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
@@ -149,7 +149,7 @@ exports.addChargeWechatBills = async (req, res) => {
 
             return res.status(409).json({error_msg: `409`, error_code: err.message});
         }
-        logger.error(`用户增加微信充值订单`, {req: req, error: err});
+        logger.error(`用户增加微信充值订单`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 
@@ -181,7 +181,7 @@ exports.addRcoinChargeBills = async (req, res) => {
         });
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: billObject});
     } catch (err) {
-        logger.error(`用户R币充值订单`, {req: req, error: err});
+        logger.error(`用户R币充值订单`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 

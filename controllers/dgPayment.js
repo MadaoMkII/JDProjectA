@@ -269,7 +269,7 @@ exports.addBillByBank = async (req, res) => {
         logger.info(`银行转账代购代付`, {req: req});
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     } catch (err) {
-        logger.error(`银行转账代购代付`, {req: req, error: err});
+        logger.error(`银行转账代购代付`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 };
@@ -349,7 +349,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: "OK", data: billObject});
     }
     catch (err) {
-        logger.error(`addDGRcoinsBill`, {req: req, error: err});
+        logger.error(`addDGRcoinsBill`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: `Server is busing`});
     }
 };
@@ -390,7 +390,7 @@ exports.adminGetBills = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: result, nofdata: count});
 
     } catch (err) {
-        logger.error(`管理员查找订单`, {req: req, error: err});
+        logger.error(`管理员查找订单`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: `Server is busing`});
     }
 
@@ -432,7 +432,7 @@ exports.findMyBills = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: result, nofdata: count});
 
     } catch (err) {
-        logger.error(`获取用户自己的订单`, {req: req, error: err});
+        logger.error(`获取用户自己的订单`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: `Server is busing`});
     }
 
@@ -462,7 +462,7 @@ exports.addReplacePostageBill = async (req, res) => {
         logger.warn(`增加邮费标识`, {req: req});
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
     } catch (err) {
-        logger.error(`增加邮费标识`, {req: req, error: err});
+        logger.error(`增加邮费标识`, {req: req, error: err.message});
         return res.status(503).json({error_msg: err.message, error_code: "503"});
     }
 };
@@ -506,7 +506,7 @@ exports.findPostage = async (req, res) => {
         let count = await dgBillModel.countDocuments(searcher);
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity, nofdata: count});
     } catch (err) {
-        logger.error(`获取邮费列表`, {req: req, error: err});
+        logger.error(`获取邮费列表`, {req: req, error: err.message});
         return res.status(503).json({error_msg: err.message, error_code: "503"});
     }
 };
@@ -547,7 +547,7 @@ exports.payReplacePostage = async (req, res) => {
         logger.info(`用户付邮费`, {req: req});
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBillEntity});
     } catch (err) {
-        logger.error(`用户付邮费`, {req: req, error: err});
+        logger.error(`用户付邮费`, {req: req, error: err.message});
         return res.status(503).json({error_msg: `replacePostage Error`, error_code: "503"});
     }
 };
