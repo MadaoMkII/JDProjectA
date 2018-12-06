@@ -58,7 +58,7 @@ app.set('view engine', 'ejs');
 // Add headers
 app.use((req, res, next) => {
     //
-    let allowedOrigins = [`http://www.yubaopay.com.tw`, `http://47.244.143.129:3000`, 'http://localhost:8080'];
+    let allowedOrigins = [`http://www.yubaopay.com.tw`, `http://47.244.143.129:3000`, 'http://localhost:8080', 'http://localhost:3000'];
     let origin = req.headers.origin;
     if (allowedOrigins.indexOf(origin) > -1) {
         res.setHeader('Access-Control-Allow-Origin', origin);
