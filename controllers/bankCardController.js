@@ -16,8 +16,41 @@ let requestFun = (JSONObject, method, url) => {
     });
 };
 
+
+exports.receiveCardRequest = async (req, res) => {
+
+    res.status(200).json({requestQuery: req.query, requestNody: req.body});
+
+};
+
+
 exports.getCardRequest = async (req, res) => {
     try {
+
+        let requestBody_1 =
+            {
+                "sender": "rest",
+                "ver": "1.0.0",
+                "mid": "999812666555013",
+                "tid": "T0000000",
+                "pay_type": 1,
+                "tx_type": 1,
+                "params":
+                    {
+                        "amt": "2000",
+                        "layout": "1",
+                        "cur": "NTD",
+                        "order_desc": "Testing",
+                        "capt_flag": "0",
+                        "order_no": "NO012345678",
+                        "result_flag": "1",
+                        "post_back_url": "http://www.yubaopay.com.tw/cardReceive",
+                        "result_url": "https://www.baidu.com"
+                    }
+            };
+        let [, result_1] = await requestFun(requestBody_1, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/auth.ashx");
+        console.log(result_1)
+
         let requestBody =
             {
                 "sender": "rest",
@@ -32,6 +65,7 @@ exports.getCardRequest = async (req, res) => {
                         "order_no": "NO012345678"
                     }
             };
+
         let [, result] = await requestFun(requestBody, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/other.ashx");
         console.log(result)
         // let [, result2] = await requestFun({}, "get", result.params[`hpp_url`]);
@@ -41,7 +75,7 @@ exports.getCardRequest = async (req, res) => {
         // res.write(result2);
         // res.end();
         //res.redirect(301, result.params[`hpp_url`]);
-        res.status(200).json({data:result.params[`hpp_url`]});
+        res.status(200).json({data: result});
     } catch (err) {
         console.log(err)
         return res.status(503).json({error_msg: `503`, error_code: err.message});
