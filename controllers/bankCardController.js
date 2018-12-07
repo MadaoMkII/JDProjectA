@@ -46,9 +46,11 @@ exports.getCardRequest = async (req, res) => {
         let [, result2] = await requestFun({}, "get", result.params[`hpp_url`]);
         console.log(`__________________________________________________________`);
         console.log(result2);
-        res.status(200).render(`../views/viewPage1`, {pageBody: result2});
+        res.writeHead(200, {"Content-Type": "text/html"});//注意这里
+        res.write(result2);
+        res.end();
     } catch (err) {
-        logger.error(`获取图片`, {req: req, error: err});
+       console.log(err)
         return res.status(503).json({error_msg: `503`, error_code: err.message});
     }
 };
