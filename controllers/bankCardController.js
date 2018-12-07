@@ -48,7 +48,7 @@ exports.getCardRequest = async (req, res) => {
                         "result_url": "https://www.baidu.com",
                         "pan":"4162050100018705",
                         "exp_date":"3509",
-                        "cvv2":"871",
+                        "cvv2":"CVV2",
 
                     }
             };
