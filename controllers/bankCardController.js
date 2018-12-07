@@ -48,7 +48,7 @@ exports.sendMoney = async (req, res) => {
         "mid":"999812666555013",
         "tid":"T0000000",
         "pay_type":1,
-        "tx_type":parseInt(req.query.type),
+        "tx_type":7,
         "params":
     {
         "order_no":req.query.orderID
