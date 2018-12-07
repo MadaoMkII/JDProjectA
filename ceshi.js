@@ -41,5 +41,7 @@ let requestBody =
 let getResult = async () => {
     let [, result] = await requestFun(requestBody, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/auth.ashx");
     console.log(result)
+    console.log(result.params.hpp_url)
+    requestFun({},"get",result.params.hpp_url);
 };
 getResult();
