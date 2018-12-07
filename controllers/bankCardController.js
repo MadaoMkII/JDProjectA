@@ -60,9 +60,9 @@ exports.getCardRequest = async (req, res) => {
                         "result_flag": "0",
                         "post_back_url": "http://www.yubaopay.com.tw/cardReceive",
                         "result_url": "https://www.baidu.com",
-                        // "pan":"4162050100018705",
-                        // "exp_date":"3509",
-                        // "cvv2":"CVV2",
+                        "pan":"5408360100001705",
+                        "exp_date":"3112",
+                        "cvv2":"CVV2",
 
                     }
             };
