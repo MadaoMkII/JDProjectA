@@ -69,7 +69,7 @@ exports.getCardRequest = async (req, res) => {
                         "cur": "NTD",
                         "order_desc": "Testing",
                         "capt_flag": "1",
-                        "order_no": "NO0123905678",
+                        "order_no": req.query.orderID,
                         "result_flag": "0",
                         "post_back_url": "http://www.yubaopay.com.tw/cardReceive",
                         "result_url": "https://www.baidu.com",
