@@ -128,10 +128,9 @@ app.use(function (req, res, next) {
 // Configure Express application.
 
 app.get('/testing1', bankCardController.getCardRequest);
-app.get('/cardReceive', bankCardController.receiveCardRequest);
+app.post('/cardReceive', bankCardController.receiveCardRequest);
 
 app.get('/payback/getFavorites', paybackController.getFavorites);
-
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
 
 app.get('/alipay/QRcode', isAuthenticated('User'), alipayController.get_alipay_QR_code);
