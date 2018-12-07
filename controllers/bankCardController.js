@@ -43,14 +43,15 @@ exports.getCardRequest = async (req, res) => {
             };
         let [, result] = await requestFun(requestBody, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/auth.ashx");
         console.log(result)
-        let [, result2] = await requestFun({}, "get", result.params[`hpp_url`]);
+        // let [, result2] = await requestFun({}, "get", result.params[`hpp_url`]);
         console.log(`__________________________________________________________`);
-        console.log(result2);
-        res.writeHead(200, {"Content-Type": "text/html"});//注意这里
-        res.write(result2);
-        res.end();
+
+        // res.writeHead(200, {"Content-Type": "text/html"});//注意这里
+        // res.write(result2);
+        // res.end();
+        res.redirect(301, result.params[`hpp_url`]);
     } catch (err) {
-       console.log(err)
+        console.log(err)
         return res.status(503).json({error_msg: `503`, error_code: err.message});
     }
 };
