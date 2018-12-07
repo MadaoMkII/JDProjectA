@@ -29,7 +29,7 @@ exports.returnMoney = async (req, res) => {
         "mid":"999812666555013",
         "tid":"T0000000",
         "pay_type":1,
-        "tx_type":5,
+        "tx_type":req.query.type,
         "params":
             {
                 "amt":req.query.amt,
