@@ -49,7 +49,8 @@ exports.getCardRequest = async (req, res) => {
         // res.writeHead(200, {"Content-Type": "text/html"});//注意这里
         // res.write(result2);
         // res.end();
-        res.redirect(301, result.params[`hpp_url`]);
+        //res.redirect(301, result.params[`hpp_url`]);
+        res.status(200).json({data:result.params[`hpp_url`]});
     } catch (err) {
         console.log(err)
         return res.status(503).json({error_msg: `503`, error_code: err.message});
