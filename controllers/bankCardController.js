@@ -23,33 +23,20 @@ exports.receiveCardRequest = async (req, res) => {
 
 };
 exports.sendMoney = async (req, res) => {
-    let requestBody_1 =
-        {
-            "sender": "rest",
-            "ver": "1.0.0",
-            "mid": "999812666555013",
-            "tid": "T0000000",
-            "pay_type": 1,
-            "tx_type": 1,
-            "params":
-                {
-                    "amt": "2000",
-                    "layout": "1",
-                    "cur": "NTD",
-                    "order_desc": "Testing",
-                    "capt_flag": "0",
-                    "order_no": "NO012345678",
-                    "result_flag": "1",
-                    "post_back_url": "http://www.yubaopay.com.tw/cardReceive",
-                    "result_url": "https://www.baidu.com",
-                    "pan":"4162050100018705",
-                    "exp_date":"3509",
-                    "cvv2":"CVV2",
-
-                }
-        };
+    let requestBody_1 ={
+        "sender":"rest",
+        "ver":"1.0.0",
+        "mid":"999812666555013",
+        "tid":"T0000000",
+        "pay_type":1,
+        "tx_type":7,
+        "params":
+    {
+        "order_no":"req.query.orderID"
+    }
+}
     let [, result_1] = await requestFun(requestBody_1, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/auth.ashx");
-
+    res.status(200).json({data: result_1});
 }
 
 exports.getCardRequest = async (req, res) => {
@@ -68,7 +55,7 @@ exports.getCardRequest = async (req, res) => {
                         "layout": "1",
                         "cur": "NTD",
                         "order_desc": "Testing",
-                        "capt_flag": "1",
+                        "capt_flag": "0",
                         "order_no": req.query.orderID,
                         "result_flag": "0",
                         "post_back_url": "http://www.yubaopay.com.tw/cardReceive",

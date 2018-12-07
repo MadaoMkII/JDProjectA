@@ -424,7 +424,7 @@ exports.findMyBills = async (req, res) => {
         command.searchCondition.userUUid = req.user.uuid;
 
         let operator = searchModel.pageModel(req, res);
-console.log(command)
+        console.log(command)
         let [result, count] = await findTradeDAO(req, res, command, operator);
 
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: result, nofdata: count});
@@ -447,10 +447,9 @@ exports.addReplacePostageBill = async (req, res) => {
             {"filedName": `comment`, "require": false},
             {"filedName": `postageAmount`, "require": true},
             {"filedName": `replaceTime`, "require": false},
-            {"filedName": `billID`, "require": true},
-            {"filedName": `status`, "require": true}
+            {"filedName": `billID`, "require": true}
         );
-        replacePostageBillEntity.status = req.body.status;
+        replacePostageBillEntity.status = req.body.status ? 0 : req.body.status;
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
             {$set: {replacePostage: replacePostageBillEntity, payFreight: 1}}, {new: true}).populate(`processOrder`);
 
