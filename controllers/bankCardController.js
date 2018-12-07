@@ -32,7 +32,7 @@ exports.getCardRequest = async (req, res) => {
                         "order_no": "NO012345678"
                     }
             };
-        let [, result] = await requestFun(requestBody, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/auth.ashx");
+        let [, result] = await requestFun(requestBody, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/other.ashx");
         console.log(result)
         // let [, result2] = await requestFun({}, "get", result.params[`hpp_url`]);
         console.log(`__________________________________________________________`);
