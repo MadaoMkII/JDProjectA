@@ -32,10 +32,10 @@ exports.sendMoney = async (req, res) => {
         "tx_type":7,
         "params":
     {
-        "order_no":"req.query.orderID"
+        "order_no":req.query.orderID
     }
 }
-    let [, result_1] = await requestFun(requestBody_1, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/auth.ashx");
+    let [, result_1] = await requestFun(requestBody_1, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/other.ashx");
     res.status(200).json({data: result_1});
 }
 
