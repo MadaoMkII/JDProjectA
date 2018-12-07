@@ -41,7 +41,7 @@ exports.returnMoney = async (req, res) => {
 }
 
 
-exports.sendMoney = async (req, res) => {
+exports.check = async (req, res) => {
     let requestBody_1 ={
         "sender":"rest",
         "ver":"1.0.0",
