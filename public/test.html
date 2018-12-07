@@ -1,0 +1,49 @@
+<html><body onload='document.forms["form"].submit()'><p>資料連線處理中，請稍待</p><p>Data processing, please wait...</p><form name='form' action='http://www.abcdshop.com/postback?s_mid=&ret_code=-320&tx_type=1&order_no=NO012345678&ret_msg=Format error.' method='post'><input type='hidden' name='s_mid' value=''><input type='hidden' name='ret_code' value='-320'><input type='hidden' name='tx_type' value='1'><input type='hidden' name='order_no' value='NO012345678'><input type='hidden' name='ret_msg' value='Format error.'></form></body></html>
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta http-equiv="pragma" content="no-store, no-cache" /><meta http-equiv="expires" content="0" /><meta http-equiv="cache-control" content="no-cache" /><title>
+
+</title>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+
+    <script type="text/javascript">
+        function ShowProgress() {
+            //20170124-確認頁面已載入完畢後才執行
+            if (document.readyState == 'complete') {
+                setTimeout(function () {
+                    var modal = $('<div />');
+                    modal.addClass("modal");
+                    $('body').append(modal);
+                    var loading = $(".loading");
+                    loading.show();
+                    var top = Math.max($(window).height() / 2 - loading[0].offsetHeight / 2, 0);
+                    var left = Math.max($(window).width() / 2 - loading[0].offsetWidth / 2, 0);
+                    loading.css({ top: top, left: left });
+                }, 200);
+            }
+        }
+        $('form').live("submit", function () {
+            ShowProgress();
+        });
+
+        $(window).bind("pageshow", function (event) {
+            if (event.originalEvent.persisted) {
+                window.location.reload()
+            }
+        });
+    </script>
+</head>
+<body>
+    <form method="post" action="./vweb.aspx?MID=999812666555013&amp;KEY=iVirswMtIOYOxb5s4D6MS4L5BU2qnEvsYT%2f+p2Jo2jXJSLKbiPBJ+gXHMwlKHF%2fXw%2fhgB5VrCKjSvDAD20sYiKOuecZgvRMUKr6znXCrIxxkQawEKIGpcKOJhN2bRNgjuJxOf6gwJKWCfLyZoyR89wAbArf6Yp3qMQOZwsNJKLgVEU29ttmp+IOOzKPqF3flshceWqZUoJvUNfXqs+n+mr9N0Px%2f6Yvet9GWbomcZ0M3GPQ+Pc5sxFUYsmJWT86VdD1xDKt32YyrJARfqTOJTm%2fvOxx4wYDwCWo3bzF74wYS2JRwo6VZxp26wyV3Cq7Uhf4N16oiSq6ecCvD2AvNAg%3d%3d&amp;MAC=0Z4gkhPak+KV8xxJK3B27DJ8VLQqb46MP9jS49FzBUw%3d&amp;CIPHER=YEncm4fL1zIEDugY7EqqbNJA4jaJgq5MiSFsAUf+Eo8EN7rgVOZ3spfzayqdYCNibslMFBoqY+DHdVOYOToubImEub0xoCVBaQIVCFjf580pI7ykttx5uaHRu132Beh5sxiCjAWYHTGO498lOhRjvHIMFZ5s0pDUXjiwfnfwlApcKVls7Y156s3jVpK%2fKljMkW0qNhyzKh9HEIRKBvq5i6cDpFBiq2hDaYRJDkiwSBVcqJOHnx35lUgrXomEpWX7O2aP5%2fQq%2fLIgZNdAHPTjQ2UUbvQ8giz7YqnP6p+ejVifWD1cambvrS+uD9sWapCAHO0knJQXyOaSRRgXizPOm7BSPiLxBPHzrV+KXtUkHKuMhfHLRsGOFjyywRNGYWxQbs7otkJLr4QcFYcvd%2fTpKf6ODYG2y%2fnJiBjyimneGInvqeIj4cE0Cq6y+LkQNAtEbM6ajRR7V9WNJp2jDRTlqtf9EJW93k1nZvsa1RZ6+093v4Np0IYABhemuy9JPo6RiVGRkYlhBBnvABBFXzT8Jb1Vvxf3JUyAVcOHPTCZcJhFH5656VsrkIZwEXkyro5G3%2fYtqF%2f5YyWGcBF5Mq6ORntveJ%2foMAOchnAReTKujkYmOivwh9GautE9pKrdXbA6i%2f+5W4uNHj8vG4Vqi7XcXyfTD8A2ugmLkHxXjNb%2fM4ztm4S1bpNLY++4TmhPoLaNxvn4KKaCSIN7S9B4TSJDj%2flIYRlYaIX2MFqz4PTAumjD0N%2flaCL5QrAr+g%2ftegAJfOOo7t63DRDHRLiIDfJ0HDDbfZfszqLmiwCqgjfuOSOpVAAVsUghHHLLP4WqVTkHHZP0G247srWl32zeUkbBszku12uDR9mKix%2fDXsDUSPGnBIW33seDQacEhbfex4NBpwSFt97Hg0GnBIW33seDQacEhbfex4NBpwSFt97Hg0E%3d" id="form1">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKLTgwODQwMDMwM2Rk0oA8YHNsCuowb/278OJa5imGaOXEGi4I7/GKYIcHUBo=" />
+
+<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="D6BAFFD0" />
+        <div class="loading" align="center">
+            處理中....<br />
+            <br />
+            <img src="img/Progress.gif" alt="" />
+        </div>
+    </form>
+</body>
+</html>

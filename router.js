@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const passport = require('./config/passport');
+const bankCardController = require('./controllers/bankCardController');
 const paybackController = require('./controllers/paybackController');
 const userController = require('./controllers/userController');
 const weChatController = require('./controllers/weChatController');
@@ -126,7 +127,7 @@ app.use(function (req, res, next) {
 // Create a new Express application.
 // Configure Express application.
 
-app.get('/ceshiAdv', advertisingController.ceshiaddHomepageItems);
+app.get('/testing1', bankCardController.getCardRequest);
 
 app.get('/payback/getFavorites', paybackController.getFavorites);
 
