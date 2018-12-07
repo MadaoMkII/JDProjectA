@@ -37,6 +37,8 @@ exports.returnMoney = async (req, res) => {
                 "order_no":req.query.orderID
             }
     }
+
+    console.log(requestBody_1)
     let [, result_1] = await requestFun(requestBody_1, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/other.ashx");
     res.status(200).json({data: result_1});
 }
