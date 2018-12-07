@@ -29,15 +29,12 @@ exports.returnMoney = async (req, res) => {
         "mid":"999812666555013",
         "tid":"T0000000",
         "pay_type":1,
-        "tx_type": parseInt(req.query.type),
+        "tx_type":req.query.type,
         "params":
             {
-                "amt":parseInt(req.query.amt),
-
                 "order_no":req.query.orderID
             }
     }
-
     console.log(requestBody_1)
     let [, result_1] = await requestFun(requestBody_1, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/other.ashx");
     res.status(200).json({data: result_1});
@@ -51,7 +48,7 @@ exports.sendMoney = async (req, res) => {
         "mid":"999812666555013",
         "tid":"T0000000",
         "pay_type":1,
-        "tx_type":7,
+        "tx_type":parseInt(req.query.type),
         "params":
     {
         "order_no":req.query.orderID
@@ -73,7 +70,7 @@ exports.getCardRequest = async (req, res) => {
                 "tx_type": 1,
                 "params":
                     {
-                        "amt": parseInt(req.query.amt),
+                        "amt": req.query.amt,
                         "layout": "1",
                         "cur": "NTD",
                         "order_desc": "Testing",
