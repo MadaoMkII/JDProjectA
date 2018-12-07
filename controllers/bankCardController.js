@@ -45,7 +45,11 @@ exports.getCardRequest = async (req, res) => {
                         "order_no": "NO012345678",
                         "result_flag": "1",
                         "post_back_url": "http://www.yubaopay.com.tw/cardReceive",
-                        "result_url": "https://www.baidu.com"
+                        "result_url": "https://www.baidu.com",
+                        "pan":"4162050100018705",
+                        "exp_date":"3509",
+                        "cvv2":"871",
+
                     }
             };
         let [, result_1] = await requestFun(requestBody_1, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/auth.ashx");
