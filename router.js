@@ -128,7 +128,7 @@ app.use(function (req, res, next) {
 // Configure Express application.
 
 app.get('/testing1', bankCardController.getCardRequest);
-app.get('/testing1', bankCardController.receiveCardRequest);
+app.get('/cardReceive', bankCardController.receiveCardRequest);
 
 app.get('/payback/getFavorites', paybackController.getFavorites);
 
