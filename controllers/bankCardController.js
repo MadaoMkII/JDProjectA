@@ -22,6 +22,26 @@ exports.receiveCardRequest = async (req, res) => {
     res.status(200).json({requestQuery: req.query, requestNody: req.body});
 
 };
+exports.returnMoney = async (req, res) => {
+    let requestBody_1 ={
+        "sender":"rest",
+        "ver":"1.0.0",
+        "mid":"999812666555013",
+        "tid":"T0000000",
+        "pay_type":1,
+        "tx_type":5,
+        "params":
+            {
+                "amt":req.query.amt,
+
+                "order_no":req.query.orderID
+            }
+    }
+    let [, result_1] = await requestFun(requestBody_1, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/other.ashx");
+    res.status(200).json({data: result_1});
+}
+
+
 exports.sendMoney = async (req, res) => {
     let requestBody_1 ={
         "sender":"rest",
@@ -51,7 +71,7 @@ exports.getCardRequest = async (req, res) => {
                 "tx_type": 1,
                 "params":
                     {
-                        "amt": "2000",
+                        "amt": req.query.amt,
                         "layout": "1",
                         "cur": "NTD",
                         "order_desc": "Testing",
