@@ -126,6 +126,7 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
+app.get('/returnMoney', bankCardController.returnMoney);
 app.get('/sendMoney', bankCardController.sendMoney);
 app.get('/testing1', bankCardController.getCardRequest);
 app.post('/cardReceive', bankCardController.receiveCardRequest);
