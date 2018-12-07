@@ -25,20 +25,11 @@ exports.getCardRequest = async (req, res) => {
                 "mid": "999812666555013",
                 "tid": "T0000000",
                 "pay_type": 1,
-                "tx_type": 1,
+                "tx_type": 3,
                 "params":
                     {
-                        "layout": "1",
-                        "order_no": "NO012345678",
-                        "amt": "120000",
-                        "cur": "NTD",
-                        "order_desc": "測試 3C 網站購物",
-                        "capt_flag": "0",
-                        "result_flag": "1",
-                        "post_back_url": "http://www.baidu.com/postback",
-                        "result_url": "https://www.baidu.com/result"
-
-
+                        "amt": "18900",
+                        "order_no": "NO012345678"
                     }
             };
         let [, result] = await requestFun(requestBody, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/auth.ashx");
