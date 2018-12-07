@@ -29,10 +29,10 @@ exports.returnMoney = async (req, res) => {
         "mid":"999812666555013",
         "tid":"T0000000",
         "pay_type":1,
-        "tx_type":req.query.type,
+        "tx_type": parseInt(req.query.type),
         "params":
             {
-                "amt":req.query.amt,
+                "amt":parseInt(req.query.amt),
 
                 "order_no":req.query.orderID
             }
@@ -73,7 +73,7 @@ exports.getCardRequest = async (req, res) => {
                 "tx_type": 1,
                 "params":
                     {
-                        "amt": req.query.amt,
+                        "amt": parseInt(req.query.amt),
                         "layout": "1",
                         "cur": "NTD",
                         "order_desc": "Testing",
