@@ -35,8 +35,8 @@ exports.getCardRequest = async (req, res) => {
                         "order_desc": "測試 3C 網站購物",
                         "capt_flag": "0",
                         "result_flag": "1",
-                        "post_back_url": "http://www.abcdshop.com/postback",
-                        "result_url": "https://www.abcdshop.com/result"
+                        "post_back_url": "http://www.baidu.com/postback",
+                        "result_url": "https://www.baidu.com/result"
 
 
                     }
