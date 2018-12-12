@@ -47,4 +47,4 @@ let getResult = async () => {
     console.log(`__________________________________________________________`);
     console.log(result2);
 };
-getResult();
+getResult();7

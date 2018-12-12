@@ -142,27 +142,7 @@ exports.getHomepageItems = async (req, res) => {
         return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
     }
 };
-exports.ceshiaddHomepageItems = async (req, res) => {
-    try {
-        for (let x = 0; x <= 42; x++) {
-            let advertisingObject = new advertisingModel();
-            advertisingObject.referer = "矮达";
-            advertisingObject.L1_category = "首页";
-            advertisingObject.L2_category = "商品推荐";
-            advertisingObject.advertisingLink = "https://detail.tmall.com/item.htm?spm=a230r.1.14.13.64221affsrdObY&id=525424925705&cm_id=140105335569ed55e27b&abbucket=12";
-            advertisingObject.imageLink = "http://yubaopay.oss-cn-hongkong.aliyuncs.com/images/12457135341416.jpg";
-            advertisingObject.item_name = "万代Q版SDEX SD EX高达模型红异端命运00飞翼独角兽强袭自由敢达";
-            advertisingObject.price = 189;
-            advertisingObject.priority = 1;
-            advertisingObject.advertisingID = uuidv1();
-            await advertisingObject.save();
-        }
-        return res.json({error_msg: `OK`, error_code: "0"});
-    } catch (err) {
-        return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
-    }
 
-};
 exports.addHomepageItems = (req, res) => {
 
     let advertisingObject = new advertisingModel();
