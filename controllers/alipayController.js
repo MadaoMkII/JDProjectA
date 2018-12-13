@@ -40,7 +40,7 @@ exports.get_alipay_QR_code = async (req, res) => {
         res.writeHead(200, {'Content-Type': 'image/png'});
         img.pipe(res);
     } catch (err) {
-        logger.error(`获取支付宝二维码失败`, {req: req, error: err});
+        logger.error(`获取支付宝二维码失败`, {req: req, error: err.message});
         return res.status(503).json({error_msg: "code can not use ", error_code: "503"});
     }
 };
@@ -90,7 +90,7 @@ exports.receiveCallback = async (req, res) => {
         res.end();
     } catch (err) {
 
-        logger.error(`用户绑定二维码失败`, {req: req, error: err});
+        logger.error(`用户绑定二维码失败`, {req: req, error: err.message});
         return res.status(503).json({error_msg: `Server is busy`, error_code: "503"});
     }
 
