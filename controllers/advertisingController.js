@@ -122,7 +122,24 @@ exports.getHomepageItemsList = async (req, res) => {
         return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
     }
 };
+exports.getAdvDetail = async (req, res) => {
+    try {
+        let searchCondition = searchModel.reqSearchConditionsAssemble(req, {
+            "filedName": `advertisingID`,
+            "require": true
+        });
+        let result = await advertisingModel.findOne({advertisingID: searchCondition.advertisingID}, {
+            _v: 0,
+            _id: 0,
+            __v: 0
+        });
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: result});
+    } catch (err) {
+        logger.error(`getAdvDetail`, {req: req, error: err.message});
+        return res.status(503).json({error_msg: `503`, error_code: "getAdvDetail Error"});
+    }
 
+};
 exports.getHomepageItems = async (req, res) => {
 
     try {
