@@ -29,7 +29,7 @@ exports.returnMoney = async (req, res) => {
         "mid":"999812666555013",
         "tid":"T0000000",
         "pay_type":1,
-        "tx_type":8,
+        "tx_type":8,//必须不能是String,
         "params":
             {
                 "order_no":req.query.orderID

@@ -142,7 +142,28 @@ exports.getHomepageItems = async (req, res) => {
         return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
     }
 };
-
+exports.updateHomepageItems = async (req, res) => {
+    try {
+        if (isNaN(req.body.price) || req.body.price < 0) {
+            return res.status(400).json({error_msg: `400`, error_code: "price must be a Number and bigger than 0"});
+        }
+        let updateCondition = searchModel.reqSearchConditionsAssemble(req,
+            {"filedName": `referer`, "require": true},
+            {"filedName": `advertisingLink`, "require": true},
+            {"filedName": `imageLink`, "require": true},
+            {"filedName": `item_name`, "require": true},
+            {"filedName": `price`, "require": true},
+            {"filedName": `priority`, "require": true},
+            {"filedName": `advertisingID`, "require": true}
+        );
+        let newAdvertising = await advertisingModel.findOneAndUpdate({advertisingID: updateCondition.advertisingID},
+            {$set: updateCondition}, {new: true});
+        return res.status(200).json({error_msg: `OK`, error_code: "0", data: newAdvertising});
+    } catch (err) {
+        logger.error(`updateHomepageItems`, {req: req, error: err.message});
+        return res.status(503).json({error_msg: `503`, error_code: "updateHomepageItems Error"});
+    }
+};
 exports.addHomepageItems = (req, res) => {
 
     let advertisingObject = new advertisingModel();
@@ -169,7 +190,7 @@ exports.addHomepageItems = (req, res) => {
             return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
             logger.warn("设置首页商品列表", {req: req});
-            return res.json({error_msg: `OK`, error_code: "0"});
+            return res.status(200).json({error_msg: `OK`, error_code: "0"});
         }
     })
 };
