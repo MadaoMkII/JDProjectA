@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const passport = require('./config/passport');
-const bankCardController = require('./controllers/bankCardController');
+//const bankCardController = require('./controllers/bankCardController');
 const paybackController = require('./controllers/paybackController');
 const userController = require('./controllers/userController');
 const weChatController = require('./controllers/weChatController');
@@ -126,10 +126,10 @@ app.use(function (req, res, next) {
 // authentication.
 // Create a new Express application.
 // Configure Express application.
-app.get('/returnMoney', bankCardController.returnMoney);
-app.get('/check', bankCardController.check);
-app.get('/testing1', bankCardController.getCardRequest);
-app.post('/cardReceive', bankCardController.receiveCardRequest);
+// app.get('/returnMoney', bankCardController.returnMoney);
+// app.get('/check', bankCardController.check);
+// app.get('/testing1', bankCardController.getCardRequest);
+// app.post('/cardReceive', bankCardController.receiveCardRequest);
 
 app.get('/payback/getFavorites', paybackController.getFavorites);
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
@@ -163,6 +163,8 @@ app.post('/user/setNickname', isAuthenticated('User'), userController.old_Number
 app.post('/user/updatePhoneNumber', isAuthenticated('User'), userController.update_phoneNumber);
 app.post('/msg/updatePhoneNumberSendMassage', isAuthenticated('User'), userController.update_phoneNumber_sendMassage);
 
+app.post('/adv/getItemDetail', advertisingController.getAdvDetail);
+app.post('/adv/updateHomepageItem', isAuthenticated('Admin'), advertisingController.updateHomepageItems);
 app.post('/adv/addHomepageItems', isAuthenticated('Admin'), advertisingController.addHomepageItems);
 app.post('/adv/getHomepageItems', advertisingController.getHomepageItems);
 app.post('/adv/getHomepageItemsList', advertisingController.getHomepageItemsList);
