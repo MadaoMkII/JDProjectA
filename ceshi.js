@@ -49,4 +49,5 @@ let requestBody =
 // };
 // getResult();7
 
-console.log(new Date(1545031092323).toString())
+let r =Math.floor(Math.random() * 4) + 1 ;
+console.log(r)
