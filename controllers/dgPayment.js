@@ -19,7 +19,7 @@ let getRate = (req, res) => {
         try {
             const managerConfig = await manageSettingController.findCurrentSetting();
 
-
+            let rateObject = {};
             let rateType = req.body[`rateType`];
             if (rateType !== `RcoinRate` && rateType !== `AlipayAndWechatRate`) {
                 return res.status(403).send({error_code: 403, error_msg: `rateType wrong input`});
@@ -106,7 +106,7 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
                 A_operator = {
                     skip: Math.round(operator.skip / 2),
                     limit: Math.round(parseInt(operator.limit) / 2),
-                    sort: {dealDate: -1}
+                    sort: {updated_at: -1}
                 };
 
                 let A_Result = await A_model.find(
@@ -118,13 +118,13 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
                     B_operator = {
                         skip: operator.skip - (dgBill_count < chargeBil_count ? dgBill_count : chargeBil_count),
                         limit: operator.limit,
-                        sort: {dealDate: -1}
+                        sort: {updated_at: -1}
                     }
                 } else {
                     B_operator = {
                         skip: Math.round(operator.skip / 2),
                         limit: Math.round(parseInt(operator.limit) - A_Result.length),
-                        sort: {dealDate: -1}
+                        sort: {updated_at: -1}
                     };
                 }
 
@@ -236,7 +236,7 @@ exports.addBillByBank = async (req, res) => {
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.feeRate = feeRate;
         billObject.userUUid = req.user.uuid;
-        billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
+        billObject.dealDate = new Date();
         billObject.comment = req.body.comment;
         billObject.NtdAmount = totalAmount;
         billObject.rate = rate;
@@ -317,7 +317,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.feeRate = feeRate;
         billObject.RMBAmount = req.body.RMBAmount;
         billObject.userUUid = req.user.uuid;
-        billObject.dealDate = new Date((new Date().getTime() + 1000 * 60 * 30)).getTime();
+        billObject.dealDate = new Date();
         billObject.comment = req.body.comment;
         billObject.NtdAmount = totalAmount;
         billObject.rate = rate;
@@ -424,7 +424,7 @@ exports.findMyBills = async (req, res) => {
         command.searchCondition.userUUid = req.user.uuid;
 
         let operator = searchModel.pageModel(req, res);
-        console.log(command)
+
         let [result, count] = await findTradeDAO(req, res, command, operator);
 
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: result, nofdata: count});
