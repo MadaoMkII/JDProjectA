@@ -103,7 +103,7 @@ let constant_time_compare = function (val1, val2) {
     }
 
     return sentinel === 0
-};
-
+};//- 4 * 60 * 60 * 1000
+exports.ChineseTime = new Date(new Date().getTime() );
 
 exports.isEmpty = isEmpty;

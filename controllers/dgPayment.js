@@ -9,7 +9,11 @@ const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 
 exports.getFriendAccount = async (req, res) => {
     let setting = await manageSettingController.findCurrentSetting();
-    return res.status(200).send({error_code: 0, error_msg: `OK`, data: setting.friendAccount});
+    let friendArray = setting.friendAccount.split(',');
+
+    let index = Math.floor(Math.random() * friendArray.length);
+
+    return res.status(200).send({error_code: 0, error_msg: `OK`, data: friendArray[index]});
 };
 
 let getRate = (req, res) => {
