@@ -130,7 +130,7 @@ exports.msg_holder = async (req, res) => {
             wechatID: 'WE' + (Math.random() * Date.now() * 10).toFixed(0),
             wechat_user_info: requestResult,
             qr_info: returnData,
-            openID: userUUidFromQr,
+            openID: requestResult[`openid`],
             profileImgUrl: requestResult[`headimgurl`],
             hasRealNameAuthed: true,
             activeStatus: true,

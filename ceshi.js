@@ -1,53 +1,31 @@
-const request = require('request');
-let requestFun = (JSONObject, method, url) => {
-    return new Promise((resolve, reject) => {
-        request({
-            url: url,
-            method: method,
-            json: true,   // <--Very important!!!
-            body: JSONObject
-        }, (error, response, body) => {
-            if (error) {
-                reject(error)
-            } else {
-                resolve([response, body]);
-            }
-        });
-    });
+const tenpay = require('tenpay');
+const config = {
+    appid: 'wx61ff88bc59103229',
+    mchid: '1515806061',
+    mch_id:'1515806061',
+    partnerKey: 'wa5c1a8e6t4ybx65t3N13w2B15jf6A48',
+    pfx: require('fs').readFileSync('./keys/apiclient_cert.p12'),
+    notify_url: 'http://www.yubaopay.com.tw/receive'
+    //spbill_create_ip: 'IP地址'
 };
-let requestBody =
-    {
-        "sender": "rest",
-        "ver": "1.0.0",
-        "mid": "999812666555013",
-        "tid": "T0000000",
-        "pay_type": 1,
-        "tx_type": 1,
-        "params":
-            {
-                "layout": "1",
-                "order_no": "NO012345678",
-                "amt": "120000",
-                "cur": "NTD",
-                "order_desc": "測試 3C 網站購物",
-                "capt_flag": "0",
-                "result_flag": "1",
-                "post_back_url": "http://www.baidu.com/postback",
-                "result_url": "https://www.baidu.com/result"
 
+// 调试模式(传入第二个参数为true, 可在控制台输出数据)
+const api = new tenpay(config,true);
+(async()=>{
+try {
+    const sandboxAPI = await tenpay.sandbox(config,true);
+    let result = await sandboxAPI.transfers({
+        partner_trade_no: 'xync112',
+        openid: 'ocNtC1m_8d2YZ36KWbilvqf0K5LQ',
+        //re_user_name: '李经',
+        check_name:"NO_CHECK",
+        amount: 100,
+        desc: '企业付款描述信息'
+    });
 
-            }
-    }
-// let getResult = async () => {
-//     let [, result] = await requestFun(requestBody, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/auth.ashx");
-//     console.log(result)
-//     console.log(result.params.hpp_url)
-//     let [, result2] = await requestFun({},"get",result.params.hpp_url);
-//
-//     console.log(`__________________________________________________________`);
-//     console.log(result2);
-// };
-// getResult();7
+    console.log(result)
+}catch (e) {
+    console.log(e)
+}
 
-let r =Math.floor(Math.random() * 4) + 1 ;
-console.log(r)
+})();
