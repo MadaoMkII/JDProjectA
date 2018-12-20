@@ -158,7 +158,7 @@ exports.msg_holder = async (req, res) => {
 
             real_name_flag = false;
         }
-console.log(real_name_result)
+        console.log(real_name_result)
         let wechatUserInfo = {
             wechatID: 'WE' + (Math.random() * Date.now() * 10).toFixed(0),
             wechat_user_info: requestResult,
@@ -176,7 +176,7 @@ console.log(real_name_result)
 
         return res.status(200).json({error_msg: "OK", error_code: "0", data: newUser});
     } catch (err) {
-        logger.error(`微信回调`, {req: req, error: err});
+        logger.error(`微信回调`, {req: req, error: err.message});
         return res.status(503).json({error_msg: "Verification code confirmed", error_code: "503"});
     }
 };
