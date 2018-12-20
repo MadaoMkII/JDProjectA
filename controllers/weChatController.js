@@ -7,6 +7,33 @@ const userModel = require('../modules/userAccount').userAccountModel;
 const tool = require('../config/tools');
 const queryString = require("querystring");
 const logger = require('../logging/logging').logger;
+const tenpay = require('tenpay');
+
+const api_config = {
+    appid: 'wx61ff88bc59103229',
+    mchid: '1515806061',
+    mch_id: '1515806061',
+    partnerKey: 'wa5c1a8e6t4ybx65t3N13w2B15jf6A48',
+    pfx: require('fs').readFileSync('./keys/apiclient_cert.p12'),
+    notify_url: 'http://www.yubaopay.com.tw/receive'
+    //spbill_create_ip: 'IP地址'
+};
+const api = new tenpay(api_config);
+
+
+const transfers_func = async (openid, amount) => {
+
+    return await api.transfers({
+        partner_trade_no: 'ZGMFX42S',
+        openid: openid,//ocNtC1llqNtJG7aVGaV0uZ0yuhRI
+        re_user_name: '假的名字',
+        check_name: "FORCE_CHECK",//FORCE_CHECK NO_CHECK
+        amount: amount,
+        desc: '企业付款描述信息'
+    });
+
+};
+
 
 let sha1 = (str) => {
     let md5sum = crypto.createHash("sha1");
@@ -125,17 +152,24 @@ exports.msg_holder = async (req, res) => {
         if (requestResult.subscribe === 0) {
             return res.status(404).json({error_msg: "this user's subscribe status is false", error_code: "404"});
         }
+        let real_name_flag = true;
+        let real_name_result = await transfers_func(requestResult[`openid`], 1);
+        if (real_name_result.result_code === `FAIL` && real_name_result.err_code_des === `非实名用户账号不可发放`) {
 
+            real_name_flag = false;
+        }
+console.log(real_name_result)
         let wechatUserInfo = {
             wechatID: 'WE' + (Math.random() * Date.now() * 10).toFixed(0),
             wechat_user_info: requestResult,
             qr_info: returnData,
             openID: requestResult[`openid`],
             profileImgUrl: requestResult[`headimgurl`],
-            hasRealNameAuthed: true,
+            hasRealNameAuthed: real_name_flag,
             activeStatus: true,
             nickname: requestResult[`nickname`]
         };
+
 
         let newUser = await userModel.findOneAndUpdate({uuid: userUUidFromQr},
             {$push: {wechatAccounts: wechatUserInfo}}, {new: true});
