@@ -8,6 +8,7 @@ const tool = require('../config/tools');
 const queryString = require("querystring");
 const logger = require('../logging/logging').logger;
 const tenpay = require('tenpay');
+const searchModel = require('../controllers/searchModel');
 
 const api_config = {
     appid: 'wx61ff88bc59103229',
@@ -21,20 +22,35 @@ const api_config = {
 const api = new tenpay(api_config);
 
 
-const transfers_func = async (openid, amount) => {
+const transfers_func = async (openid, amount, order_ID, desc = `Yubao money transfer`) => {
 
     return await api.transfers({
-        partner_trade_no: 'ZGMFX42S',
+        partner_trade_no: order_ID,
         openid: openid,//ocNtC1llqNtJG7aVGaV0uZ0yuhRI
         re_user_name: '假的名字',
         check_name: "FORCE_CHECK",//FORCE_CHECK NO_CHECK
         amount: amount,
-        desc: '企业付款描述信息'
+        desc: desc
     });
 
 };
 
+exports.transfers_money = async (req, res) => {
 
+    try {
+        let requestEntity = searchModel.reqSearchConditionsAssemble(req,
+            {"filedName": `openid`, "require": true},
+            {"filedName": `amount`, "require": true}
+        );
+        let randomString = `YBWETF${Math.random().toString(36).substr(2).toUpperCase()}`;
+
+        let result = await transfers_func(requestEntity[`openid`], requestEntity[`amount`], randomString);
+
+    } catch (err) {
+        logger.error(`微信转账`, {req: req, error: err.message});
+        return res.status(500).json({error_msg: "code can not use ", error_code: "500"});
+    }
+};
 let sha1 = (str) => {
     let md5sum = crypto.createHash("sha1");
     md5sum.update(str);
@@ -110,7 +126,7 @@ exports.getQR_code_link = async (req, res) => {
         return res.status(200).json({error_msg: "OK", error_code: "0", data: {QRUrl: finalTicketUrl}});
 
     } catch (err) {
-        logger.error(`微信生成QR码`, {req: req, error: err});
+        logger.error(`微信生成QR码`, {req: req, error: err.message});
         return res.status(503).json({error_msg: "code can not use ", error_code: "503"});
     }
 };
@@ -129,7 +145,7 @@ exports.msg_holder = async (req, res) => {
 
         if (tool.isEmpty(returnData[`eventkey`])) {
             return res.status(400).json({
-                error_msg: "retrun value from QR code is null, please try later",
+                error_msg: "return value from QR code is null, please try later",
                 error_code: "400"
             });
         }
@@ -158,7 +174,7 @@ exports.msg_holder = async (req, res) => {
 
             real_name_flag = false;
         }
-        console.log(real_name_result)
+
         let wechatUserInfo = {
             wechatID: 'WE' + (Math.random() * Date.now() * 10).toFixed(0),
             wechat_user_info: requestResult,

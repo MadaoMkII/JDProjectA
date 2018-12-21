@@ -1,4 +1,5 @@
 const express = require('express');
+let app = express();
 const cors = require('cors');
 const passport = require('./config/passport');
 //const bankCardController = require('./controllers/bankCardController');
@@ -24,12 +25,12 @@ const bodyParser = require('body-parser');
 const bodyParserXML = require('body-parser');
 require('body-parser-xml')(bodyParserXML);
 const session = require('express-session');
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
 
 
 const json_body_parser = bodyParser.json();
 const urlencoded_body_parser = bodyParser.urlencoded({extended: true});
-
-let app = express();
 
 
 //解析xml
@@ -294,7 +295,15 @@ app.post('/user/signup', userController.userSignUp);
 app.post('/user/login', loginUser.loginUser);
 app.get('/user/logout', loginUser.logoutUser);
 
-app.listen(3000);
+
+io.on('connection', () => {
+    console.log(1235)
+});
+
+
+server.listen(3000, () => {
+    console.log("Begin Server");
+});
 
 
 process.on('uncaughtException', (err) => {
@@ -306,4 +315,4 @@ process.on('unhandledRejection', (reason, p) => {
 });
 
 logging.info(`服务器启动`);
-console.log("Begin Server");
+
