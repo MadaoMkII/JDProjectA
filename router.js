@@ -137,6 +137,7 @@ app.get('/alipay/receiveCallback', alipayController.receiveCallback);
 
 app.get('/alipay/QRcode', isAuthenticated('User'), alipayController.get_alipay_QR_code);
 app.get('/wechat/getQRcodeUrl', isAuthenticated('User'), weChatController.getQR_code_link);
+app.post('/wechat/transfersMoney', weChatController.transfers_money);
 
 app.post('/receive', weChatController.msg_holder);
 

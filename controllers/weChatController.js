@@ -22,13 +22,14 @@ const api_config = {
 const api = new tenpay(api_config);
 
 
-const transfers_func = async (openid, amount, order_ID, desc = `Yubao money transfer`) => {
+const transfers_func = async (openid, amount, order_ID, desc = `Yubao money transfer`,
+                              realNameBox = {check_name: "NO_CHECK", re_user_name: '未指定'}) => {
 
     return await api.transfers({
         partner_trade_no: order_ID,
         openid: openid,//ocNtC1llqNtJG7aVGaV0uZ0yuhRI
-        re_user_name: '假的名字',
-        check_name: "FORCE_CHECK",//FORCE_CHECK NO_CHECK
+        re_user_name: realNameBox.check_name,
+        check_name: realNameBox.check_name,//FORCE_CHECK NO_CHECK
         amount: amount,
         desc: desc
     });
@@ -45,10 +46,11 @@ exports.transfers_money = async (req, res) => {
         let randomString = `YBWETF${Math.random().toString(36).substr(2).toUpperCase()}`;
 
         let result = await transfers_func(requestEntity[`openid`], requestEntity[`amount`], randomString);
-
+        return res.status(200).json({error_msg: "OK", error_code: "0", data: result});
     } catch (err) {
+        console.log(err)
         logger.error(`微信转账`, {req: req, error: err.message});
-        return res.status(500).json({error_msg: "code can not use ", error_code: "500"});
+        return res.status(500).json({error_msg: "信转账F ", error_code: "500"});
     }
 };
 let sha1 = (str) => {
@@ -169,7 +171,8 @@ exports.msg_holder = async (req, res) => {
             return res.status(404).json({error_msg: "this user's subscribe status is false", error_code: "404"});
         }
         let real_name_flag = true;
-        let real_name_result = await transfers_func(requestResult[`openid`], 1);
+        let randomString = `ZGNF${Math.random().toString(36).substr(2).toUpperCase()}`;
+        let real_name_result = await transfers_func(requestResult[`openid`], 1, randomString);
         if (real_name_result.result_code === `FAIL` && real_name_result.err_code_des === `非实名用户账号不可发放`) {
 
             real_name_flag = false;
