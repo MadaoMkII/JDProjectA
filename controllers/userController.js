@@ -722,7 +722,7 @@ exports.getBack_password_update = async (req, res) => {
         await userModel.updateOne({tel_number: req.body.tel_number}, {$set: {password: hashedPassword}});
 
 
-        return res.status(200).json({error_code: 0, error_massage: 'Please re-login'});
+        return res.status(200).json({error_code: 200, error_massage: 'Please re-login'});
 
 
     } catch (err) {
