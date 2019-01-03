@@ -31,7 +31,7 @@ exports.loginUser = (req, res, next) => {
         }
         req.login(user, (err) => {
             if (err) {
-                logger.error(`登录异常`, {req: req, error: err});
+                logger.error(`登录异常`, {req: req, error: err.message});
                 return next(err);
             }
             // let ip = (req.headers['x-forwarded-for'] || '').split(',').pop() ||

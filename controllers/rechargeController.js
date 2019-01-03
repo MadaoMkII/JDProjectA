@@ -201,7 +201,7 @@ exports.addRcoinChargeBills = async (req, res) => {
         });
         return res.status(200).send({error_code: 0, error_msg: `OK`, data: billObject});
     } catch (err) {
-        console.log(err)
+
         logger.error(`用户R币充值订单`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
@@ -272,7 +272,7 @@ exports.addChargeAliBills = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: 'OK', data: billObject});
     } catch (err) {
 
-        logger.error(`用户支付宝充值订单`, {req: req, error: err});
+        logger.error(`用户支付宝充值订单`, {req: req, error: err.message});
         if (err.message.toString().includes(`empty`)) {
 
             return res.status(409).json({error_msg: `409`, error_code: err.message});

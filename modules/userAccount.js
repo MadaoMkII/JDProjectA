@@ -72,7 +72,7 @@ myEvent.set('toJSON', {
         delete ret.id;
         delete ret.password;
         if (!tool.isEmpty(doc.amount)) {
-            ret.amount = parseInt(tool.decrypt(doc.amount));
+            ret.amount = parseInt(doc.amount);
         }
 
         if (doc.created_at && doc.updated_at) {

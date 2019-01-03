@@ -61,7 +61,7 @@ exports.shin_smsSend = async (req, res, category, tel_number_1) => {
         });
 
     } catch (err) {
-        logger.error(`shin_smsSend`, {req: req, error: err});
+        logger.error(`shin_smsSend`, {req: req, error: err.message});
         return res.status(503).json({
             error_msg: "Internal Service Error",
             error_code: "503"
@@ -175,7 +175,7 @@ exports.confirm_smsMassage = async (req, res, category) => {
             return res.status(404).json({error_msg: "Verification code Wrong", error_code: "404"});
         }
     } catch (err) {
-        logger.error(`confirm_smsMassage`, {req: req, error: err});
+        logger.error(`confirm_smsMassage`, {req: req, error: err.message});
         return res.status(503).json({
             error_msg: "Internal Service Error",
             error_code: "503"

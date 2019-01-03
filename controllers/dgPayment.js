@@ -47,7 +47,7 @@ let getRate = (req, res) => {
             resolve([rate, managerConfig.feeRate, feeAmount, totalAmount]);
 
         } catch (err) {
-            logger.error(`getRate`, {req: req, error: err});
+            logger.error(`getRate`, {req: req, error: err.message});
             reject(err);
         }
     });
@@ -66,7 +66,7 @@ exports.getThisUserBasicRate = async (req, res) => {
             }
         });
     } catch (err) {
-        logger.error(`getThisUserBasicRate`, {req: req, error: err});
+        logger.error(`getThisUserBasicRate`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: `ERROR`});
     }
 };
@@ -84,7 +84,7 @@ exports.getThisUserRcoinRate = async (req, res) => {
             }
         });
     } catch (err) {
-        logger.error(`getThisUserBasicRate`, {req: req, error: err});
+        logger.error(`getThisUserBasicRate`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 };
@@ -141,7 +141,7 @@ let findTradeDAO = async (req, res, searchArgs, operator) => {
                 resolve([resultArray, chargeBil_count + dgBill_count]);
             }
         } catch (err) {
-            logger.error(`findTradeDAO`, {req: req, error: err});
+            logger.error(`findTradeDAO`, {req: req, error: err.message});
             reject(err);
         }
     });
@@ -195,7 +195,7 @@ exports.findThisUserRcoinRecord = async (req, res) => {
             error_code: 0, error_msg: "OK", data: resultArray2, nofdata: count
         });
     } catch (err) {
-        logger.error(`findThisUserRcoinRecord`, {req: req, error: err});
+        logger.error(`findThisUserRcoinRecord`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 

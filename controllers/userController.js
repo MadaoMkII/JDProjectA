@@ -28,7 +28,7 @@ exports.setEmployee = async (req, res) => {
             "data": newUser
         });
     } catch (err) {
-        logger.error(`设置员工状态`, {req: req, error: err});
+        logger.error(`设置员工状态`, {req: req, error: err.message});
         return res.status(503).json({
             "error_code": 503
         });
@@ -71,7 +71,7 @@ exports.zhuce = async (req, res) => {
             "data": newUser
         });
     } catch (err) {
-        logger.error(`zhuce`, {req: req, error: err});
+        logger.error(`zhuce`, {req: req, error: err.message});
         return res.status(503).json({
             "error_code": 503,
             "data": 503
@@ -159,7 +159,7 @@ exports.setReferer = async (req, res) => {
                 'please recommend another user'
             });
         }
-        logger.error(`设置推荐人`, {req: req, error: err});
+        logger.error(`设置推荐人`, {req: req, error: err.message});
         return res.status(503).json({error_code: 503, error_massage: 'Set Referer Failed'});
     }
 };
@@ -192,7 +192,7 @@ exports.setUserRole = async (req, res) => {
         return res.status(200).json({"error_code": 0, error_massage: "OK", data: result});
     } catch (err) {
 
-        logger.error(`设置账号权限`, {req: req, error: err});
+        logger.error(`设置账号权限`, {req: req, error: err.message});
         return res.status(503).json({"error_code": 503, error_massage: "Set UserRole Failed`"});
     }
 
@@ -213,7 +213,7 @@ let findUserDAO = async (req, res, searchArgs, operator) => {
 
             resolve([result, count]);
         } catch (err) {
-            logger.error(`findUserDAO`, {req: req, error: err});
+            logger.error(`findUserDAO`, {req: req, error: err.message});
             reject(err);
         }
 
@@ -253,7 +253,7 @@ exports.findUserReferer = async (req, res) => {
             nofdata: billCount
         });
     } catch (err) {
-        logger.error(`findUserReferer`, {req: req, error: err});
+        logger.error(`findUserReferer`, {req: req, error: err.message});
         return res.status(503).json({"error_code": 503, error_massage: "findUserReferer failed"});
     }
 
@@ -332,7 +332,7 @@ exports.findUser = async (req, res) => {
         return res.status(200).send({error_code: 200, error_msg: result, nofdata: count});
 
     } catch (err) {
-        logger.error(`findUser`, {req: req, error: err});
+        logger.error(`findUser`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: `Find User Failed`});
     }
 
@@ -352,7 +352,7 @@ exports.user_signUp_sendMassage = async (req, res) => {
         await massager.shin_smsSend(req, res, `userSignUp`, req.body.tel_number);
 
     } catch (err) {
-        logger.error(`user_signUp_sendMassage`, {req: req, error: err});
+        logger.error(`user_signUp_sendMassage`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: `send userSignUp message Failed`});
     }
 };
@@ -425,7 +425,7 @@ exports.userSignUp = async (req, res) => {
             }
             return res.status(405).send({error_code: 405, error_msg: `${field_needed} has already been used`});
         } else {
-            logger.error(`用户注册`, {req: req, error: err});
+            logger.error(`用户注册`, {req: req, error: err.message});
             return res.status(503).send({error_code: 503, error_msg: err.message});
         }
     }
@@ -439,7 +439,8 @@ exports.getUserInfo = async (req, res) => {
 
         return res.status(200).json({error_code: 0, error_massage: `OK`, data: userInfo});
     } catch (err) {
-        logger.error(`getUserInfo`, {req: req, error: err});
+    
+        logger.error(`getUserInfo`, {req: req, error: err.message});
         return res.status(503).json({error_code: 503, error_massage: `Get User Info Failed`});
     }
 
@@ -472,7 +473,7 @@ exports.addUserBank_sendMassage = async (req, res) => {
         await massager.shin_smsSend(req, res, `addUserBank`, req.user.tel_number);
 
     } catch (err) {
-        logger.error(`addUserBank_sendMassage`, {req: req, error: err});
+        logger.error(`addUserBank_sendMassage`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: `send addUserBank message Failed`});
     }
 };
@@ -498,7 +499,7 @@ exports.addUserBank = async (req, res) => {
         res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
     } catch (err) {
 
-        logger.error(`用户添加银行`, {req: req, error: err});
+        logger.error(`用户添加银行`, {req: req, error: err.message});
         return res.status(500).json({error_code: 500, error_massage: `Add User Bank Failed`});
     }
 
@@ -513,7 +514,7 @@ exports.delUserBank = async (req, res) => {
         logger.info(`用户删除银行`, {req: req});
         res.status(200).json({error_code: 200, error_massage: 'OK', data: user});
     } catch (err) {
-        logger.error(`用户删除银行`, {req: req, error: err});
+        logger.error(`用户删除银行`, {req: req, error: err.message});
         return res.status(500).json({error_code: 500, error_massage: 'Failed to del'});
     }
 
@@ -530,7 +531,7 @@ exports.delUserWechat = async (req, res) => {
         });
         res.status(200).json({error_code: 0, error_massage: 'OK', data: user});
     } catch (err) {
-        logger.error(`用户删除微信`, {req: req, error: err});
+        logger.error(`用户删除微信`, {req: req, error: err.message});
         return res.status(503).json({error_code: 503, error_massage: 'Failed to del'});
     }
 };
@@ -547,7 +548,7 @@ exports.delUserAliPayAccounts = async (req, res) => {
         });
         res.status(200).json({error_code: 0, error_massage: 'OK', data: user});
     } catch (err) {
-        logger.error(`用户删除阿里`, {req: req, error: err});
+        logger.error(`用户删除阿里`, {req: req, error: err.message});
         return res.status(503).json({error_code: 503, error_massage: 'Failed to del'});
     }
 };
@@ -592,7 +593,7 @@ exports.addUserRealName = async (req, res) => {
         res.status(200).json({error_code: 200, error_massage: 'OK'});
 
     } catch (err) {
-        logger.error(`用户实名`, {req: req, error: err});
+        logger.error(`用户实名`, {req: req, error: err.message});
         return res.status(400).json({error_code: 400, error_massage: 'Add User`s Real Name Failed'});
     }
 };
@@ -654,7 +655,7 @@ exports.update_phoneNumber = async (req, res) => {
 
     } catch (err) {
 
-        logger.error(`用户个改手机`, {req: req, error: err});
+        logger.error(`用户个改手机`, {req: req, error: err.message});
         if (err.message.toString().indexOf(`empty`) !== -1) {
             return res.status(400).json({
                 error_code: 400,
@@ -678,7 +679,7 @@ exports.update_nickName = async (req, res) => {
         return res.status(200).json({error_code: 200, error_massage: 'OK'});
 
     } catch (err) {
-        logger.error(`update_nickName`, {req: req, error: err});
+        logger.error(`update_nickName`, {req: req, error: err.message});
         return res.status(503).json({error_code: 503, error_massage: 'update_password Failed'});
     }
 };
@@ -726,7 +727,7 @@ exports.getBack_password_update = async (req, res) => {
 
 
     } catch (err) {
-        logger.error(`getBack_password_update`, {req: req, error: err});
+        logger.error(`getBack_password_update`, {req: req, error: err.message});
         return res.status(503).json({error_code: 503, error_massage: err.message});
     }
 };
@@ -759,7 +760,7 @@ exports.update_password = async (req, res) => {
 
 
     } catch (err) {
-        logger.error(`用户修改密码`, {req: req, error: err});
+        logger.error(`用户修改密码`, {req: req, error: err.message});
         return res.status(503).json({error_code: 503, error_massage: 'update_password Failed'});
     }
 };
@@ -799,7 +800,7 @@ exports.update_email = async (req, res) => {
                 error_massage: err.message
             });
         }
-        logger.error(`update_email`, {req: req, error: err});
+        logger.error(`update_email`, {req: req, error: err.message});
         return res.status(503).json({
             error_code: 503,
             error_massage: 'updatePhoneNumber Failed'

@@ -19,7 +19,7 @@ let smtpConfig = {
 let transporter = nodemailer.createTransport(smtpConfig);
 transporter.verify((error) => {
     if (error) {
-        logger.error(`transporter`, {error: error});
+        logger.error(`transporter`, {error: error.message});
     } else {
         //logger.info('Server is ready to take our messages' + success);
     }
@@ -176,7 +176,7 @@ exports.func_send_Email = async (req, res) => {
         return res.status(200).json({error_msg: "OK", error_code: "0"});
     } catch (err) {
 
-        logger.error(`func_send_Email`, {req: req, error: err});
+        logger.error(`func_send_Email`, {req: req, error: err.message});
         return res.status(503).json({
             error_msg: "Internal Service Error",
             error_code: "503"
@@ -215,7 +215,7 @@ exports.sendConfirmationEmail = async (req, res) => {
 
     } catch (err) {
 
-        logger.error(`sendConfirmationEmail`, {req: req, error: err});
+        logger.error(`sendConfirmationEmail`, {req: req, error: err.message});
         return res.status(503).json({
             error_msg: "Internal Service Error",
             error_code: "503"
@@ -255,7 +255,7 @@ exports.getBackFromEmail = (req, res) => {
                                     .exec(function (err) {
                                         if (err) {
 
-                                            logger.error(`getBackFromEmail`, {req: req, error: err});
+                                            logger.error(`getBackFromEmail`, {req: req, error: err.message});
                                             return res.status(503).json({
                                                 error_msg: "Internal Service Error",
                                                 error_code: "503"
@@ -290,7 +290,7 @@ exports.checkConfirmationEmail = (req, res) => {
     redisClient.get(key, function (err, result) {
 
         if (err) {
-            logger.error(`checkConfirmationEmail`, {req: req, error: err});
+            logger.error(`checkConfirmationEmail`, {req: req, error: err.message});
             return res.status(503).json({error_msg: "Internal Server Error", error_code: "503"});
         }
         //服务器不存在校验码或已被删除
@@ -302,7 +302,7 @@ exports.checkConfirmationEmail = (req, res) => {
 
             userAccountModel.updateOne({uuid: req.use.uuid}, {$set: {email_address: email_address}}, function (err) {
                 if (err) {
-                    logger.error(`checkConfirmationEmail`, {req: req, error: err});
+                    logger.error(`checkConfirmationEmail`, {req: req, error: err.message});
                     return res.status(503).json({error_msg: "Bad happened", error_code: "503"});
                 }
 

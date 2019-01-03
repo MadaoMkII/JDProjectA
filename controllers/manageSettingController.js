@@ -43,7 +43,7 @@ exports.setSetting = async (req, res) => {
     managerConfigsObject.save((err) => {
 
         if (err) {
-            logger.error(`设置系统数据`, {req: req, error: err});
+            logger.error(`设置系统数据`, {req: req, error: err.message});
             return res.status(503).send({error_code: 503, error_msg: 'NO'});
         } else {
             logger.warn(`checkConfirmationEmail`, {req: req});
@@ -62,7 +62,7 @@ exports.setModel = async (req, res) => {
     }, (err) => {
 
         if (err) {
-            logger.error(`setModel`, {req: req, error: err});
+            logger.error(`setModel`, {req: req, error: err.message});
 
             return res.status(503).send({error_code: 503, error_msg: 'NO'});
         }
@@ -169,7 +169,7 @@ exports.set3L = async (req, res) => {
 
     } catch (err) {
 
-        logger.error(`set3L`, {req: req, error: err});
+        logger.error(`set3L`, {req: req, error: err.message});
 
         return res.status(503).send({error_code: 503, error_msg: 'NO'});
     }
@@ -190,7 +190,7 @@ exports.find3L = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: 'NO', data: billResult});
 
     } catch (err) {
-        logger.error(`find3L`, {req: req, error: err});
+        logger.error(`find3L`, {req: req, error: err.message});
         return res.status(500).send({error_code: 500, error_msg: 'NO'});
     }
 
@@ -208,7 +208,7 @@ const findCurrentSetting = async () => {
         return billResult;
     } catch (err) {
 
-        logger.error(`findCurrentSetting`, {error: err});
+        logger.error(`findCurrentSetting`, {error: err.message});
 
     }
 
@@ -232,7 +232,7 @@ exports.getSetting = async (req, res) => {
     }
     catch (err) {
 
-        logger.error(`getSetting`, {req: req, error: err});
+        logger.error(`getSetting`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: 'NO'});
     }
 
@@ -249,7 +249,7 @@ exports.getAppealTopics = async (req, res) => {
 
         return res.status(200).send({error_code: 0, error_msg: 'NO', data: responseResult});
     } catch (err) {
-        logger.error(`getAppealTopics`, {req: req, error: err});
+        logger.error(`getAppealTopics`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: 'Error happened'});
 
     }
@@ -273,7 +273,7 @@ exports.addBankAccounts = async (req, res) => {
         });
         return res.status(200).send({error_code: 0, error_msg: 'NO', data: bankAccount});
     } catch (err) {
-        logger.error(`addBankAccounts`, {req: req, error: err});
+        logger.error(`addBankAccounts`, {req: req, error: err.message});
         return res.status(400).send({error_code: 400, error_msg: 'Error happened'});
 
     }
@@ -299,7 +299,7 @@ exports.getBankAccounts = async (req, res) => {
         return res.status(200).send({error_code: 0, error_msg: 'NO', data: result});
     } catch (err) {
 
-        logger.error(`getBankAccounts`, {req: req, error: err});
+        logger.error(`getBankAccounts`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: 'Error happened'});
 
     }

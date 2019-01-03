@@ -21,7 +21,7 @@ exports.getAlreadySolved = async (req, res) => {
         let result = await dgBillModel.find(searcher, operator);
         return res.status(200).send({error_code: 200, error_msg: `OK`, data: result, nofdata: counts});
     } catch (err) {
-        logger.error(`获取已经完成的订单`, {req: req, error: err});
+        logger.error(`获取已经完成的订单`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: `Error when try to save`});
     }
 
@@ -79,7 +79,7 @@ exports.getDataAnalyst = async (req, res) => {
         });
         return res.status(200).json({error_msg: 'ok', error_code: "0", data: lastResult});
     } catch (err) {
-        logger.error(`获取数据分析`, {req: req, error: err});
+        logger.error(`获取数据分析`, {req: req, error: err.message});
         return res.status(503).json({error_msg: err, error_code: "503"});
     }
 };
@@ -130,7 +130,7 @@ exports.returnRcoin = async (req, res) => {
         });
         return res.status(200).json({error_msg: 'ok', error_code: "0", data: bill_return_Result});
     } catch (err) {
-        logger.error(`返还R币`, {req: req, error: err});
+        logger.error(`返还R币`, {req: req, error: err.message});
         return res.status(503).json({error_msg: 'error', error_code: "503"});
     }
 
@@ -175,7 +175,7 @@ exports.setOrderStatus = async (req, res) => {
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: newOrder});
 
     } catch (err) {
-        logger.error(`setOrderStatus`, {req: req, error: err});
+        logger.error(`setOrderStatus`, {req: req, error: err.message});
         return res.status(500).json({error_msg: `set Order Status Failed`, error_code: "500"});
     }
 };
@@ -284,7 +284,7 @@ exports.addProcessOrder = async (req, res) => {
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: dgBill});
     }
     catch (err) {
-        logger.error(`addProcessOrder`, {req: req, error: err});
+        logger.error(`addProcessOrder`, {req: req, error: err.message});
         return res.status(503).json({error_msg: `Error`, error_code: "503"});
     }
 };
@@ -423,7 +423,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
     }
     catch (err) {
 
-        logger.error(`addProcessOrderForCharge`, {req: req, error: err});
+        logger.error(`addProcessOrderForCharge`, {req: req, error: err.message});
         return res.status(500).json({error_msg: `addProcessOrderForRcoinCharge Failed`, error_code: "500"});
     }
 };

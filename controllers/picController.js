@@ -74,7 +74,7 @@ exports.getImgs = async (req, res) => {
 
         res.status(200).render(`../views/${req.path}`, {files: result.objects});
     } catch (err) {
-        logger.error(`获取图片`, {req: req, error: err});
+        logger.error(`获取图片`, {req: req, error: err.message});
         return res.status(503).json({error_msg: `503`, error_code: err.message});
     }
 };
@@ -113,7 +113,7 @@ exports.uploadImgForEndpoint = async (req, res) => {
 
     }
     catch (err) {
-        logger.error(`图片上传`, {req: req, error: err});
+        logger.error(`图片上传`, {req: req, error: err.message});
 
         return res.status(400).json({error_msg: `400`, error_code: err.message});
     }
