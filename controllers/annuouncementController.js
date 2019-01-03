@@ -228,7 +228,6 @@ exports.getHelpCenterAnnouncement = async (req, res) => {
         let undefinedArray = [];
         for (let entity of resultCenterAnnouncement) {
             let anModelEntity = await anModel.findOne({_id: entity._id});
-            console.log(entity)
 
             if (!isEmpty(anModelEntity)) {
                 resultArray.push({model_name: anModelEntity.name, announcementArray: entity.announcementArray});
@@ -236,9 +235,9 @@ exports.getHelpCenterAnnouncement = async (req, res) => {
                 undefinedArray.push(entity.announcementArray);
             }
         }
-        if (!isEmpty(undefinedArray)) {
-            resultArray.push({model_name: `undefined`, announcementArray: undefinedArray});
-        }
+        // if (!isEmpty(undefinedArray)) {
+        //     resultArray.push({model_name: `undefined`, announcementArray: undefinedArray});
+        // }
 
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: resultArray});
     } catch (err) {
