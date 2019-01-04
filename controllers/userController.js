@@ -268,6 +268,7 @@ exports.findUser = async (req, res) => {
             tel_number: 1,
             email_address: 1,
             realName: 1,
+            nickName:1,
             bankAccounts: 1,
             aliPayAccounts: 1,
             wechatAccounts: 1,
