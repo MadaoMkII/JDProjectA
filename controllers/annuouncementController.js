@@ -181,8 +181,11 @@ exports.removeModel = async (req, res) => {
         if (isEmpty(req.body.model_name)) {
             return res.status(406).json({error_msg: `406`, error_code: "model_name can not be empty"});
         }
-        await anModel.deleteOne({name: req.body.model_name});
-        logger.warn("公删除告模块失败", {
+        let modelIsGone = await anModel.findOneAndDelete({name: req.body.model_name});
+
+        announcementModel.deleteMany({model: modelIsGone._id});
+
+        logger.warn("删除公告模块", {
             req: req
         });
         return res.status(200).json({error_msg: `OK`, error_code: "0"});
