@@ -1,6 +1,6 @@
 var util = require('../topUtil.js');
-var RestClient = require('./network.js')
-var Stream = require('stream')
+var RestClient = require('./network.js');
+var Stream = require('stream');
 
 /**
  * TOP API Client.

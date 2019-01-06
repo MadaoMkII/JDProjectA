@@ -2,7 +2,7 @@ var Common = require('./common.js').Common;
 
 var TmcCodec = function(){
 
-}
+};
 
 TmcCodec.prototype.writeMessage = function(message) {
     var buffer = new Buffer(256);
@@ -87,7 +87,7 @@ TmcCodec.prototype.writeMessage = function(message) {
     }
     buffer.writeUInt16LE(Common.enum.HeaderType.EndOfHeaders,index);
     return buffer.slice(0,index+2);
-}
+};
 
 TmcCodec.prototype.readMessage = function(buffer) {
     var message = {};
@@ -158,7 +158,7 @@ TmcCodec.prototype.readMessage = function(buffer) {
         return null;
     }
     return message;
-}
+};
 
 exports.TmcCodec = TmcCodec;
 

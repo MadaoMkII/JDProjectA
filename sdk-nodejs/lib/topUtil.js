@@ -92,7 +92,7 @@ exports.getApiResponseName = function(apiName){
     if(apiName.match("^taobao"))
         apiName = apiName.substr(7);
     return apiName.replace(reg,'_')+"_response";
-}
+};
 
 exports.getLocalIPAdress = function (){
     var interfaces = require('os').networkInterfaces();
@@ -105,7 +105,7 @@ exports.getLocalIPAdress = function (){
             }
         }
     }
-}
+};
 
 /**
  * Simple Utility Methods for checking information about a value.
@@ -117,9 +117,9 @@ exports.getLocalIPAdress = function (){
 exports.is = function(value) {
     return {
         a: function (check) {
-            if (check.prototype) check = check.prototype.constructor.name
-            var type = Object.prototype.toString.call(value).slice(8, -1).toLowerCase()
+            if (check.prototype) check = check.prototype.constructor.name;
+            var type = Object.prototype.toString.call(value).slice(8, -1).toLowerCase();
             return value != null && type === check.toLowerCase()
         }
     }
-}
+};

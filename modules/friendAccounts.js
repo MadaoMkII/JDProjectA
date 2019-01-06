@@ -7,3 +7,7 @@ const friendAccounts = new mongoose.Schema(
         accounts: [{accountName: String, amount: Number}]
     }, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}}
 );
+
+
+let friendAccountsModel = mongoose.model('friendAccounts', friendAccounts);
+exports.friendAccountsModel = friendAccountsModel;

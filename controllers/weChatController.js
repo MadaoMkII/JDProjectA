@@ -48,7 +48,7 @@ exports.transfers_money = async (req, res) => {
         let result = await transfers_func(requestEntity[`openid`], requestEntity[`amount`], randomString);
         return res.status(200).json({error_msg: "OK", error_code: "0", data: result});
     } catch (err) {
-        console.log(err)
+        console.log(err);
         logger.error(`微信转账`, {req: req, error: err.message});
         return res.status(500).json({error_msg: "信转账F ", error_code: "500"});
     }

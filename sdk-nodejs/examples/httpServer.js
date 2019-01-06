@@ -1,4 +1,4 @@
-var http = require('http')
+var http = require('http');
 var spiUtil = require('../lib/spiUtil');
 
 http.createServer(function (request, response) {

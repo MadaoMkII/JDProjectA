@@ -1,5 +1,5 @@
 var Common = function(){
-}
+};
 
 Common.enum = {
     MessageType:{
@@ -33,6 +33,6 @@ Common.enum = {
         Confirm : 2,
         Data : 3
     }
-}
+};
 
 exports.Common = Common;

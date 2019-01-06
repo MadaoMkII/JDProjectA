@@ -7,7 +7,7 @@ var ipFileds = ["X-Real-IP", "X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Cli
 
 String.prototype.contains = function(target){
 	return this.indexOf(target) > -1;
-}
+};
 
 /**
  * 校验SPI请求签名，不支持带上传文件的HTTP请求。
@@ -31,7 +31,7 @@ exports.checkSignForSpi = function checkSignForSpi(url,body,httpHeaders,secret) 
 	var urlParams = URL.parse(url).query.split("&");
 	var bizParams = buildBizParams(urlParams);
 	return checkSignInternal(bizParams,body,httpHeaders,secret,charset);
-}
+};
 
 function buildBizParams(urlParams){
 	var bizParams = {};
@@ -68,7 +68,7 @@ exports.checkRemoteIp = function checkRemoteIp(httpHeaders,topIpList){
 		}
 	}
 	return false;
-}
+};
 
 /**
  * 检查SPI请求到达服务器端是否已经超过指定的分钟数，如果超过则拒绝请求。
@@ -83,7 +83,7 @@ exports.checkTimestamp = function checkTimestamp(bizParams,minutes){
 		return (local - remove) <= minutes * 60 * 1000;
 	}
 	return false;
-}
+};
 
 function arrayConcat(bizParams,signHttpParams){
 	if(signHttpParams){
@@ -152,4 +152,4 @@ exports.getResponseCharset = function getResponseCharset(ctype){
 		charset = "GBK";
 	}
 	return charset;
-}
+};

@@ -20,13 +20,15 @@ const appealFormController = require('./controllers/appealFormController');
 const manageSettingController = require('./controllers/manageSettingController');
 const announcementController = require('./controllers/annuouncementController');
 const processOrderController = require('./controllers/processOrderController');
+const friendAccountsController = require('./controllers/friendAccountsController');
+
 const dgPayment = require('./controllers/dgPayment');
 const bodyParser = require('body-parser');
 const bodyParserXML = require('body-parser');
 require('body-parser-xml')(bodyParserXML);
 const session = require('express-session');
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+//const io = require('socket.io')(server);
 
 
 const json_body_parser = bodyParser.json();
@@ -132,6 +134,8 @@ app.use(function (req, res, next) {
 // app.get('/testing1', bankCardController.getCardRequest);
 // app.post('/cardReceive', bankCardController.receiveCardRequest);
 
+app.get('/bills/getFriendAccount', friendAccountsController.getFriendAccount);
+
 app.get('/payback/getFavorites', paybackController.getFavorites);
 app.get('/alipay/receiveCallback', alipayController.receiveCallback);
 
@@ -204,7 +208,6 @@ app.post('/bills/findMyBills', isAuthenticated('User'), dgPayment.findMyBills);
 app.post('/bills/getBillDetail', isAuthenticated('User'), rechargeController.getChargeBillDetail);
 app.post('/bills/setBillStatus', isAuthenticated('Admin'), processOrderController.setOrderStatus);
 
-app.get('/bills/getFriendAccount', dgPayment.getFriendAccount);
 
 app.post('/bills/findPostage', isAuthenticated('User'), dgPayment.findPostage);
 
@@ -295,11 +298,6 @@ app.post('/user/signup', userController.userSignUp);
 
 app.post('/user/login', loginUser.loginUser);
 app.get('/user/logout', loginUser.logoutUser);
-
-
-io.on('connection', () => {
-    console.log(1235)
-});
 
 
 server.listen(3000, () => {

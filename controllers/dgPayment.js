@@ -6,6 +6,8 @@ const rechargeController = require('../controllers/rechargeController');
 const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
+const friendAccountsController = require('../controllers/friendAccountsController');
+
 
 exports.getFriendAccount = async (req, res) => {
     let setting = await manageSettingController.findCurrentSetting();
@@ -226,7 +228,7 @@ exports.addBillByBank = async (req, res) => {
 
                 billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
                 billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;
-
+                friendAccountsController.reduceBalance(req.body.RMBAmount, req.body.paymentInfo.friendAlipayAccount);
             }
         } else if (req.body.typeStr === `其他網站代購`) {
             billObject.itemInfo.itemWebType = "others";
@@ -303,7 +305,7 @@ exports.addDGRcoinsBill = async (req, res) => {
             billObject.typeStr = req.body.typeStr;
             billObject.paymentInfo.paymentMethod = 'Alipay';
             billObject.paymentInfo.friendAlipayAccount = req.body.paymentInfo.friendAlipayAccount;
-
+            friendAccountsController.reduceBalance(req.body.RMBAmount, req.body.paymentInfo.friendAlipayAccount);
             billObject.billID = 'DF' + (Math.random() * Date.now() * 10).toFixed(0);
             //我也不知道
             billObject.paymentInfo.paymentDFAccount = req.body.paymentInfo.paymentDFAccount;

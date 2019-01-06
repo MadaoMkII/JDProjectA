@@ -8,7 +8,7 @@ const config = {
     notify_url: 'http://www.yubaopay.com.tw/receive'
     //spbill_create_ip: 'IP地址'
 };
-const friendAccountsController = require('./controllers/friendAccountsController');
+const friendAccountsController = require('./controllers/friendAccountsController').AccountsController;
 // 调试模式(传入第二个参数为true, 可在控制台输出数据)
 // const api = new tenpay(config);
 // (async () => {
@@ -35,8 +35,8 @@ const friendAccountsController = require('./controllers/friendAccountsController
 
 
 let x = new friendAccountsController();
-x.init();
-x.print();
+//x.init();
+// x.getFriendAccount();
 
 
 //console.log(`YBWETF${Math.random().toString(36).substr(2).toUpperCase()}`)

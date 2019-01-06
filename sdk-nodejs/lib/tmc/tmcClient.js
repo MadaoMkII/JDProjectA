@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 var WebSocket = require('ws');
 var Common = require('./common.js').Common;
@@ -15,7 +15,7 @@ var TmcClient = function TmcClient(appkey,appsecret,groupName) {
     this.isReconing = false;
     this._callback = null;
     this._interval = null;
-}
+};
 
 
 TmcClient.prototype.createSign = function(timestamp){
@@ -25,7 +25,7 @@ TmcClient.prototype.createSign = function(timestamp){
     basestring += 'timestamp' + timestamp;
     basestring += this._appsecret;
     return util.md5(basestring).toUpperCase();
-}
+};
 
 TmcClient.prototype.createConnectMessage = function() {
     var msg = {};
@@ -42,7 +42,7 @@ TmcClient.prototype.createConnectMessage = function() {
     msg.content = content;
     var buffer = codec.writeMessage(msg);
     return buffer;
-}
+};
 
 TmcClient.prototype.createPullMessage = function() {
     var msg = {};
@@ -55,7 +55,7 @@ TmcClient.prototype.createPullMessage = function() {
     msg.content = content;
     var buffer = codec.writeMessage(msg);
     return buffer;
-}
+};
 
 TmcClient.prototype.createConfirmMessage = function(id) {
     var msg = {};
@@ -69,13 +69,13 @@ TmcClient.prototype.createConfirmMessage = function(id) {
     msg.content = content;
     var buffer = codec.writeMessage(msg);
     return buffer;
-}
+};
 
 TmcClient.prototype.autoPull = function () {
     if(this._ws){
         this._ws.send(this.createPullMessage(), { binary: true, mask: true });
     }
-}
+};
 
 TmcClient.prototype.reconnect = function (duration) {
     if(this.isReconing)
@@ -86,7 +86,7 @@ TmcClient.prototype.reconnect = function (duration) {
     setTimeout(function timeout() {
         _this.connect(_this._uri,_this._callback);
     }, duration);
-}
+};
 
 TmcClient.prototype.connect = function(uri,callback) {
     let _this=this;
@@ -150,6 +150,6 @@ TmcClient.prototype.connect = function(uri,callback) {
         _this.reconnect(3000);
     });
     this.isReconing = false;
-}
+};
 
 exports.TmcClient = TmcClient;

@@ -34,11 +34,11 @@ exports.returnMoney = async (req, res) => {
             {
                 "order_no":req.query.orderID
             }
-    }
-    console.log(requestBody_1)
+    };
+    console.log(requestBody_1);
     let [, result_1] = await requestFun(requestBody_1, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/other.ashx");
     res.status(200).json({data: result_1});
-}
+};
 
 
 exports.check = async (req, res) => {
@@ -53,10 +53,10 @@ exports.check = async (req, res) => {
     {
         "order_no":req.query.orderID
     }
-}
+};
     let [, result_1] = await requestFun(requestBody_1, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/other.ashx");
     res.status(200).json({data: result_1});
-}
+};
 
 exports.getCardRequest = async (req, res) => {
     try {
@@ -86,7 +86,7 @@ exports.getCardRequest = async (req, res) => {
                     }
             };
         let [, result_1] = await requestFun(requestBody_1, "POST", "https://tspg-t.taishinbank.com.tw/tspgapi/restapi/auth.ashx");
-        console.log(result_1)
+        console.log(result_1);
 
         // let requestBody =
         //     {
@@ -114,7 +114,7 @@ exports.getCardRequest = async (req, res) => {
         //res.redirect(301, result.params[`hpp_url`]);
         res.status(200).json({data: result_1});
     } catch (err) {
-        console.log(err)
+        console.log(err);
         return res.status(503).json({error_msg: `503`, error_code: err.message});
     }
 };

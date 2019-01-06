@@ -1,6 +1,6 @@
 var util = require('../../../../Desktop/sdk-nodejs-24570894/lib/topUtil.js');
-var RestClient = require('./../../../../Desktop/sdk-nodejs-24570894/lib/api/network.js')
-var Stream = require('stream')
+var RestClient = require('./../../../../Desktop/sdk-nodejs-24570894/lib/api/network.js');
+var Stream = require('stream');
 
 /**
  * Dingtalk API Client.
