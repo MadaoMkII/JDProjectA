@@ -85,7 +85,6 @@ exports.getFriendAccount = async (req, res) => {
         return res.status(200).json({
             error_msg: `OK`,
             error_code: "0",
-            accountsInfo: filteredArray,
             data: filteredArray[0].accountName
         });
     } catch (err) {
