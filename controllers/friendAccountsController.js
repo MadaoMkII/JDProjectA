@@ -59,7 +59,7 @@ class AccountsController {
 
 exports.reduceBalance = async (amount, friendAccount) => {
     await friendAccountsModel.findOneAndUpdate({"accounts.accountName": friendAccount},
-        {$inc: {"accounts.$.amount": amount}}, {new: true});
+        {$inc: {"accounts.$.amount": -amount}}, {new: true});
 };
 
 
@@ -80,7 +80,12 @@ exports.getFriendAccount = async (req, res) => {
             return value.amount > 0;
         });
 
-        return res.status(200).json({error_msg: `OK`, error_code: "0", data: filteredArray[0]});
+        return res.status(200).json({
+            error_msg: `OK`,
+            error_code: "0",
+            accountsInfo: filteredArray,
+            data: filteredArray[0].accountName
+        });
     } catch (err) {
         logger.error(`getFriendAccount`, {req: req, error: err.message});
         return res.status(503).json({error_msg: `503`, error_code: "getFriendAccount Error"});

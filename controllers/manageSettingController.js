@@ -10,6 +10,7 @@ exports.setSetting = async (req, res) => {
 
     let billResult = await findCurrentSetting();
     let managerConfigsObject = new managerConfigsModel();
+
     managerConfigsObject.RcoinRate = !isEmpty(req.body.RcoinRate) ? req.body.RcoinRate : billResult.RcoinRate;
     managerConfigsObject.RcoinRate.sort(compare('beginAmount'));
 
