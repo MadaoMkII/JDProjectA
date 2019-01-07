@@ -13,7 +13,7 @@ class AccountsController {
     constructor() {
         this.todayDate = {};
         let myDate = new Date();
-        this.todayDate = new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()+1}`);
+        this.todayDate = new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate() + 1}`);
     };
 
     async init() {
@@ -58,7 +58,9 @@ class AccountsController {
 }
 
 exports.reduceBalance = async (amount, friendAccount) => {
-    await friendAccountsModel.findOneAndUpdate({"accounts.accountName": friendAccount},
+    let date = new AccountsController().getTodayDate();
+
+    await friendAccountsModel.findOneAndUpdate({"accounts.accountName": friendAccount, dateClock: date},
         {$inc: {"accounts.$.amount": -amount}}, {new: true});
 };
 
