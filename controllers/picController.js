@@ -5,7 +5,9 @@ const GridFsStorage = require('multer-gridfs-storage');
 const mongoose = require('../db/db').mongoose;
 const logger = require('../logging/logging').logger;
 const grid = require('gridfs-stream');
+const isEmpty = require('../config/tools').isEmpty;
 const aliOssStorage = require('multer-ali-oss');
+
 let OSS = require('ali-oss');
 let client = new OSS({
     accessKeyId: 'LTAI98iZQpjrZpDz',
@@ -94,30 +96,31 @@ exports.getImgs = async (req, res) => {
 //         }
 //     });
 // };
+
+
 exports.uploadImgForEndpoint = async (req, res) => {
 
     try {
-
         const [returnReq,] = await uploadImgAsync(req, res);
 
         logger.info(`uploadImgForEndpoint`, {req: req});
-
-        // if (tool.isEmpty(returnReq.file)) {
-        //     return res.status(400).json({error_msg: `图片获取为空`, error_code: "400"});
-        // }
-        return res.json({
-            error_msg: `OK`,
-            error_code: "0",
-            data: returnReq.file.url
-        });
-
+        if (isEmpty(returnReq.file) || isEmpty(returnReq.file.url)) {
+            return res.json({
+                error_msg: `UPLOAD FILE IS NULL`,
+                error_code: "404"
+            });
+        } else {
+            return res.json({
+                error_msg: `OK`,
+                error_code: "0",
+                data: returnReq.file.url
+            });
+        }
     }
     catch (err) {
         logger.error(`图片上传`, {req: req, error: err.message});
-
         return res.status(400).json({error_msg: `400`, error_code: err.message});
     }
-
 };
 
 exports.uploadImgArray = async (req, res, callback) => {
