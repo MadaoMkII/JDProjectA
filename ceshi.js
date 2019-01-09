@@ -34,7 +34,7 @@ const friendAccountsController = require('./controllers/friendAccountsController
 // })();
 
 
-let x = new friendAccountsController();
+
 //x.init();
 // x.getFriendAccount();
 

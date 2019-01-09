@@ -114,7 +114,7 @@ exports.getCardRequest = async (req, res) => {
         //res.redirect(301, result.params[`hpp_url`]);
         res.status(200).json({data: result_1});
     } catch (err) {
-        console.log(err);
+
         return res.status(503).json({error_msg: `503`, error_code: err.message});
     }
 };
