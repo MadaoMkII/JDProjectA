@@ -307,6 +307,9 @@ server.listen(3000, () => {
 
 process.on('uncaughtException', (err) => {
     console.error(err);
+    let req = {};
+    req.body = {location: "Main"};
+    logging.error("Main", {req: req, error: err.message})
 });
 
 process.on('unhandledRejection', (reason, p) => {

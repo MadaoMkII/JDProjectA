@@ -1,5 +1,5 @@
 module.exports = {
-    dbName: `yubaopay`,
+    dbName: `yubaopay_test`,
     //url: 'mongodb://localhost:27017/yubaopay',
     url: `mongodb://root:!Hothothot2@dds-3ns4adb9c4a4e0641235-pub.mongodb.rds.aliyuncs.com:3717,dds-3ns4adb9c4a4e0642179-pub.mongodb.rds.aliyuncs.com:3717/admin?replicaSet=mgset-9624007`,
     session: {

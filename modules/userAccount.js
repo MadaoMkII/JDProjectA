@@ -216,6 +216,7 @@ userAccountSchema.set('toJSON', {
 
 let myEventModel = mongoose.model('myEvent', myEvent);
 let userAccountModel = mongoose.model('userAccount', userAccountSchema);
+let userAccountModel = mongoose.model('userAccount_backup', userAccountSchema);
 exports.userAccountModel = userAccountModel;
 exports.refererModel = refererModel;
 exports.myEventModel = myEventModel;
