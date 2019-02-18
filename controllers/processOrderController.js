@@ -196,6 +196,15 @@ exports.addProcessOrder = async (req, res) => {
                 error_code: "201"
             });
         }
+
+        let myDate = new Date();
+        if (tools.isEmpty(chargeBill.processOrder)) {
+            await dataAnalystModel.findOneAndUpdate({
+                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
+                itemWebType: chargeBill.typeStr
+            }, {$inc: {count: 1, amount: chargeBill.NtdAmount}}, {new: true, upsert: true});
+        }
+
         if (parseInt(chargeBill.RMBAmount) !== parseInt(req.body.chargeAmount)) {
 
             return res.status(400).json({error_msg: `RMBAmount input wrong`, error_code: "400"});
@@ -270,12 +279,6 @@ exports.addProcessOrder = async (req, res) => {
             }, {new: true});//日子
 
         }
-        let myDate = new Date();
-
-        await dataAnalystModel.findOneAndUpdate({
-            dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
-            itemWebType: dgBill.typeStr
-        }, {$inc: {count: 1, amount: dgBill.NtdAmount}}, {new: true, upsert: true});
 
 
         logger.warn("addProcessOrder", {
@@ -308,6 +311,15 @@ exports.addProcessOrderForCharge = async (req, res) => {
                 error_code: "201"
             });
         }
+
+        let myDate = new Date();
+        if (tools.isEmpty(chargeBill.processOrder)) {
+            await dataAnalystModel.findOneAndUpdate({
+                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
+                itemWebType: chargeBill.typeStr
+            }, {$inc: {count: 1, amount: chargeBill.RMBAmount}}, {new: true, upsert: true});
+        }
+
         let processOrderObject = new processOrderModel();
 
         if (tools.isEmpty(req.body[`billID`])) {
@@ -344,8 +356,6 @@ exports.addProcessOrderForCharge = async (req, res) => {
             return res.status(400).json({error_msg: `RMBAmount input wrong`, error_code: "400"});
         }
 
-
-        let myDate = new Date();
         let userResult;
         let myEvent = new myEventModel();
 
@@ -410,10 +420,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
 
         }
 
-        await dataAnalystModel.findOneAndUpdate({
-            dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
-            itemWebType: chargeBill.typeStr
-        }, {$inc: {count: 1, amount: chargeBill.RMBAmount}}, {new: true, upsert: true});
+
 
         logger.warn("addProcessOrderForCharge", {
             req: req
