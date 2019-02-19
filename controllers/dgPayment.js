@@ -30,19 +30,26 @@ let getRate = (req, res) => {
             if (rateType !== `RcoinRate` && rateType !== `AlipayAndWechatRate`) {
                 return res.status(403).send({error_code: 403, error_msg: `rateType wrong input`});
             }
-            for (let rateInfoEntity of managerConfig[rateType]) {
 
+            console.log(req.user.VIPLevel);
+            for (let rateInfoEntity of managerConfig[rateType]) {
+                console.log(rateInfoEntity.vipLevel );
                 if (rateInfoEntity.vipLevel === req.user.VIPLevel) {
 
                     rateObject = rateInfoEntity;
                 }
             }
             let rate = 0;
-            for (let rateEntity of  rateObject.rateInfo) {
-                if (req.body.RMBAmount >= rateEntity.beginAmount) {
 
+            for (let rateEntity of  rateObject.rateInfo) {
+
+                if (req.body.RMBAmount >= rateEntity.beginAmount) {
                     rate = rateEntity.detailRate;
+
                 }
+            }
+            if(rate===0){
+                rate = rateObject.rateInfo[0].detailRate;
             }
             let feeAmount = (managerConfig.feeRate / 100 * parseInt(req.body.RMBAmount) * rate).toFixed(2);
             let totalAmount = ((1 + managerConfig.feeRate / 100) * req.body.RMBAmount * rate).toFixed(2);
@@ -90,7 +97,14 @@ exports.getThisUserRcoinRate = async (req, res) => {
         return res.status(503).send({error_code: 503, error_msg: err.message});
     }
 };
-
+// db.Order.aggregate([
+//     { '$match'    : { "company_id" : ObjectId("54c0...") } },
+//     { '$sort'     : { 'order_number' : -1 } },
+//     { '$facet'    : {
+//             metadata: [ { $count: "total" }, { $addFields: { page: NumberInt(3) } } ],
+//             data: [ { $skip: 20 }, { $limit: 10 } ] // add projection here wish you re-shape the docs
+//         } }
+// ] )
 let findTradeDAO = async (req, res, searchArgs, operator) => {
 
     return new Promise(async (resolve, reject) => {
@@ -399,6 +413,44 @@ exports.adminGetBills = async (req, res) => {
     }
 
 };
+
+exports.findMyBills_2 = async (req, res) => {
+    let command = {};
+    command.showCondition = {
+        typeStr: 1,
+        billID: 1,
+        RMBAmount: 1,
+        rate: 1,
+        NtdAmount: 1,
+        dealState: 1,
+        typeState: 1,
+        created_at: 1,
+        dealDate: 1,
+        replacePostage: 1
+    };
+
+    command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
+        {"filedName": `typeStr`, "require": false},
+        {"filedName": `dealState`, "require": false},
+    );
+    if (!tool.isEmpty(req.body.billID)) {
+        command.searchCondition = Object.assign(command.searchCondition, {billID: {$regex: `.*${req.body.billID}.*`}});
+    }
+
+    command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req, res));
+
+    //command.searchCondition.userUUid = req.user.uuid;
+    let searchResult = (await dgBillModel.find(command.searchCondition, command.showCondition)).concat(await chargeBillModel.find(command.searchCondition, command.showCondition));
+
+    searchResult.sort((a, b) => {
+        return b.created_at - a.created_at;
+    });
+
+    let operator = searchModel.pageModel(req, res);
+    return res.status(200).send({error_code: 0, error_msg: `OK`, data: searchResult, nofdata: 110});
+};
+
+
 exports.findMyBills = async (req, res) => {
 
     try {
