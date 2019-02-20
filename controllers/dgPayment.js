@@ -33,7 +33,7 @@ let getRate = (req, res) => {
 
             console.log(req.user.VIPLevel);
             for (let rateInfoEntity of managerConfig[rateType]) {
-                console.log(rateInfoEntity.vipLevel );
+                console.log(rateInfoEntity.vipLevel);
                 if (rateInfoEntity.vipLevel === req.user.VIPLevel) {
 
                     rateObject = rateInfoEntity;
@@ -48,7 +48,7 @@ let getRate = (req, res) => {
 
                 }
             }
-            if(rate===0){
+            if (rate === 0) {
                 rate = rateObject.rateInfo[0].detailRate;
             }
             let feeAmount = (managerConfig.feeRate / 100 * parseInt(req.body.RMBAmount) * rate).toFixed(2);
@@ -398,57 +398,77 @@ exports.adminGetBills = async (req, res) => {
         }
 
         command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req, res));
-        if (req.user.role === `User`) {
-            command.userUUid = req.user.uuid;
+
+        //command.searchCondition.userUUid = req.user.uuid;
+        let searchResult = (await dgBillModel.find(command.searchCondition, command.showCondition)).concat(await chargeBillModel.find(command.searchCondition, command.showCondition));
+
+        searchResult.sort((a, b) => {
+            return b.created_at - a.created_at;
+        });
+
+        if (!tool.isEmpty(req.body['page']) && !tool.isEmpty(req.body['unit'])) {
+            if (req.body['page'] < 1 || req.body['unit'] < 1) {
+
+                return res.status(400).send({error_code: 400, error_msg: `page or unit can not less than 1`});
+            }
         }
-        let operator = searchModel.pageModel(req, res);
+        let finalResult = searchResult.slice((req.body['page'] - 1) * req.body['unit'], (req.body['page'] * req.body['unit']));
 
-        let [result, count] = await findTradeDAO(req, res, command, operator);
 
-        return res.status(200).send({error_code: 0, error_msg: `OK`, data: result, nofdata: count});
+        //let [result, count] = await findTradeDAO(req, res, command, operator);
 
-    } catch (err) {
+        return res.status(200).send({
+            error_code: 0,
+            error_msg: `OK`,
+            data: finalResult,
+            nofdata: searchResult.length
+        });
+
+    }
+    catch
+        (err) {
         logger.error(`管理员查找订单`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: `Server is busing`});
     }
 
 };
 
-exports.findMyBills_2 = async (req, res) => {
-    let command = {};
-    command.showCondition = {
-        typeStr: 1,
-        billID: 1,
-        RMBAmount: 1,
-        rate: 1,
-        NtdAmount: 1,
-        dealState: 1,
-        typeState: 1,
-        created_at: 1,
-        dealDate: 1,
-        replacePostage: 1
-    };
 
-    command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
-        {"filedName": `typeStr`, "require": false},
-        {"filedName": `dealState`, "require": false},
-    );
-    if (!tool.isEmpty(req.body.billID)) {
-        command.searchCondition = Object.assign(command.searchCondition, {billID: {$regex: `.*${req.body.billID}.*`}});
-    }
-
-    command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req, res));
-
-    //command.searchCondition.userUUid = req.user.uuid;
-    let searchResult = (await dgBillModel.find(command.searchCondition, command.showCondition)).concat(await chargeBillModel.find(command.searchCondition, command.showCondition));
-
-    searchResult.sort((a, b) => {
-        return b.created_at - a.created_at;
-    });
-
-    let operator = searchModel.pageModel(req, res);
-    return res.status(200).send({error_code: 0, error_msg: `OK`, data: searchResult, nofdata: 110});
-};
+// exports.findMyBills_2 = async (req, res) => {
+//     let command = {};
+//     command.showCondition = {
+//         typeStr: 1,
+//         billID: 1,
+//         RMBAmount: 1,
+//         rate: 1,
+//         NtdAmount: 1,
+//         dealState: 1,
+//         typeState: 1,
+//         created_at: 1,
+//         dealDate: 1,
+//         replacePostage: 1
+//     };
+//
+//     command.searchCondition = searchModel.reqSearchConditionsAssemble(req,
+//         {"filedName": `typeStr`, "require": false},
+//         {"filedName": `dealState`, "require": false},
+//     );
+//     if (!tool.isEmpty(req.body.billID)) {
+//         command.searchCondition = Object.assign(command.searchCondition, {billID: {$regex: `.*${req.body.billID}.*`}});
+//     }
+//
+//     command.searchCondition = Object.assign(command.searchCondition, searchModel.createAndUpdateTimeSearchModel(req, res));
+//
+//     //command.searchCondition.userUUid = req.user.uuid;
+//     let searchResult = (await dgBillModel.find(command.searchCondition, command.showCondition)).concat(await chargeBillModel.find(command.searchCondition, command.showCondition));
+//
+//     searchResult.sort((a, b) => {
+//         return b.created_at - a.created_at;
+//     });
+//
+//     let operator = searchModel.pageModel(req, res);
+//     return res.status(200).send({error_code: 0, error_msg: `OK`, data: searchResult, nofdata: 110});
+// };
 
 
 exports.findMyBills = async (req, res) => {
@@ -509,7 +529,12 @@ exports.addReplacePostageBill = async (req, res) => {
         );
         replacePostageBillEntity.status = req.body.status ? 0 : req.body.status;
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
-            {$set: {replacePostage: replacePostageBillEntity, payFreight: 1}}, {new: true}).populate(`processOrder`);
+            {
+                $set: {
+                    replacePostage: replacePostageBillEntity,
+                    payFreight: 1
+                }
+            }, {new: true}).populate(`processOrder`);
 
         if (!dgBillEntity) {
             return res.status(200).json({error_msg: `OK, but nothing has been changed`, error_code: "0"});
