@@ -182,7 +182,7 @@ exports.setOrderStatus = async (req, res) => {
 exports.addProcessOrder = async (req, res) => {
 
     try {
-
+        let user_old = await userModel.findOne({uuid: chargeBill.userUUid});
         let processOrderObject = new processOrderModel();
 
         if (tools.isEmpty(req.body.billID)) {
@@ -239,7 +239,7 @@ exports.addProcessOrder = async (req, res) => {
         let userResult;
 
         if (dgBill.typeStr === `淘寶/天貓/阿里巴巴代付` &&
-            dgBill.is_firstOrder === true &&
+            user_old.userStatus.isFirstTimePaid === false &&
             dgBill.paymentInfo.paymentMethod === "Alipay") {
 
             let tempEvent = new myEventModel();
@@ -319,7 +319,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
                 itemWebType: chargeBill.typeStr
             }, {$inc: {count: 1, amount: chargeBill.RMBAmount}}, {new: true, upsert: true});
         }
-
+        let user_old = await userModel.findOne({uuid: chargeBill.userUUid});
         let processOrderObject = new processOrderModel();
 
         if (tools.isEmpty(req.body[`billID`])) {
@@ -373,8 +373,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
             }, {new: true});
 
         } else if (chargeBill.typeStr === `支付寶儲值` &&
-            chargeBill.is_firstOrder === true &&
-            chargeBill.rechargeInfo.rechargeAccountType === "Alipay") {
+            user_old.userStatus.isFirstWechatCharge === false) {
             myEvent.eventType = `Alipay`;
             myEvent.pointChange = 10;
             myEvent.amount = chargeBill.RMBAmount;
@@ -386,8 +385,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
             }, {new: true});
 
         } else if (chargeBill.typeStr === `微信錢包儲值` &&
-            chargeBill.is_firstOrder === true &&
-            chargeBill.rechargeInfo.rechargeAccountType === "Wechat") {
+            user_old.userStatus.isFirstWechatCharge === false) {//chargeBill.rechargeInfo.rechargeAccountType === "Wechat"
             myEvent.eventType = `Wechat`;
             myEvent.pointChange = 10;
             myEvent.amount = chargeBill.RMBAmount;
@@ -419,7 +417,6 @@ exports.addProcessOrderForCharge = async (req, res) => {
             }, {new: true});//日子
 
         }
-
 
 
         logger.warn("addProcessOrderForCharge", {

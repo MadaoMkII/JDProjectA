@@ -32,9 +32,38 @@ const friendAccountsController = require('./controllers/friendAccountsController
 //     }
 //
 // })();
+const userModel = require('./modules/userAccount').userAccountModel;
+const processOrderModel = require('./modules/processOrder').processOrderModel;
+const chargeBillModel = require('./modules/chargeBill').chargeBillModel;
+const dgBillModel = require('./modules/dgBill').dgBillModel;
+let x = async () => {
 
 
+    let setX = new Set();let set2 = new Set();
+    let chargeBill= await dgBillModel.find({processOrder:{$exists:true}});
 
+    for(let orderId of chargeBill){
+        setX.add(orderId.userUUid)
+    }
+
+    let referrerShareEvent = {
+        eventType: `fix growthPoint alipay`,
+        //content: `xxx`,
+        pointChange: 10,
+        amount: 10,
+        behavior: `fixing`
+    };
+
+
+    for(let orderId of setX){
+        //let userINfo = await userModel.findOne({uuid:orderId});
+
+
+        set2.add(userINfo.tel_number);
+    }
+    console.log(set2)
+};
+x();
 //x.init();
 // x.getFriendAccount();
 
