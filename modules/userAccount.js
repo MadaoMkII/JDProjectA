@@ -64,6 +64,28 @@ const myEvent = new mongoose.Schema(
         'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}
     }
 );
+
+myEvent.set('toObject', {
+    virtuals: true,
+    transform: (doc, ret) => {
+        delete ret.__v;
+        delete ret._id;
+        delete ret.id;
+        delete ret.password;
+        if (!tool.isEmpty(doc.amount)) {
+            ret.amount = parseInt(doc.amount);
+        }
+
+        if (doc.created_at && doc.updated_at) {
+            ret.created_at = new Date(doc.created_at).getTime();
+            ret.updated_at = new Date(doc.updated_at).getTime();
+        }
+        if (doc.last_login_time) {
+            ret.last_login_time = new Date(doc.last_login_time).getTime();
+        }
+    }
+});
+
 myEvent.set('toJSON', {
     virtuals: true,
     transform: (doc, ret) => {

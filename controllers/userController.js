@@ -60,7 +60,7 @@ exports.zhuce = async (req, res) => {
                     email_address: req.body.email_address,
                     password: result,
                     role: 'Super_Admin',
-                    Rcoins: 1808,
+                    Rcoins: `0`,
                     uuid: uuid
                 }
             }, {upsert: true, new: true}
