@@ -317,7 +317,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
             await dataAnalystModel.findOneAndUpdate({
                 dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
                 itemWebType: chargeBill.typeStr
-            }, {$inc: {count: 1, amount: chargeBill.RMBAmount}}, {new: true, upsert: true});
+            }, {$inc: {count: 1, amount: chargeBill.NtdAmount}}, {new: true, upsert: true});
         }
         let user_old = await userModel.findOne({uuid: chargeBill.userUUid});
         let processOrderObject = new processOrderModel();
