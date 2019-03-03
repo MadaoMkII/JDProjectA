@@ -182,7 +182,7 @@ exports.setOrderStatus = async (req, res) => {
 exports.addProcessOrder = async (req, res) => {
 
     try {
-        let user_old = await userModel.findOne({uuid: chargeBill.userUUid});
+
         let processOrderObject = new processOrderModel();
 
         if (tools.isEmpty(req.body.billID)) {
@@ -196,7 +196,7 @@ exports.addProcessOrder = async (req, res) => {
                 error_code: "201"
             });
         }
-
+        let user_old = await userModel.findOne({uuid: chargeBill.userUUid});
         let myDate = new Date();
         if (tools.isEmpty(chargeBill.processOrder)) {
             await dataAnalystModel.findOneAndUpdate({
