@@ -200,7 +200,7 @@ exports.addProcessOrder = async (req, res) => {
         let myDate = new Date();
         if (tools.isEmpty(chargeBill.processOrder)) {
             await dataAnalystModel.findOneAndUpdate({
-                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
+                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()+1}`),
                 itemWebType: chargeBill.typeStr
             }, {$inc: {count: 1, amount: chargeBill.NtdAmount}}, {new: true, upsert: true});
         }
@@ -315,7 +315,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
         let myDate = new Date();
         if (tools.isEmpty(chargeBill.processOrder)) {
             await dataAnalystModel.findOneAndUpdate({
-                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`),
+                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()+1}`),
                 itemWebType: chargeBill.typeStr
             }, {$inc: {count: 1, amount: chargeBill.NtdAmount}}, {new: true, upsert: true});
         }

@@ -1,5 +1,18 @@
 const tool = require('./config/tools');
 
+const chargeBillModel = require('./modules/chargeBill').chargeBillModel;
 
-console.log(tool.encrypt(`0`))
-console.log(tool.decrypt(`6c22b731172fe317fac6e169f7f525cb60a15d5857915ef73b9eb66074869bef9a04dc988c1711d17380932c47076b8980d3d08dccec5ebd041a8976fb9a208e64fec73250d2a3b77b853121fc2095c38ac963d3e6e7113e397a3358710e7debf032346f4b658311775ede511d89326ee17e971f77927e7b5714d759b8671aef5fd46db2fb62883d8caf54b370b3a559$64557132bc5fa732bccf48016ee7667c$6dac7d34515b18160146e3b27d77d6d6bf54cec439fddb2308b92cca4bcc5b6a`))
+
+let addAll = async () => {
+
+
+    let res = await chargeBillModel.find({processOrder: {$exists: true}, typeStr: "微信錢包儲值"});
+let y =0;
+    for (let x of res) {
+
+            y+=x.NtdAmount;
+    }
+
+    console.log(y)
+};
+addAll();
