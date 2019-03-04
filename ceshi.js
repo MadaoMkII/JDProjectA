@@ -1,18 +1,17 @@
 const tool = require('./config/tools');
 
 const chargeBillModel = require('./modules/chargeBill').chargeBillModel;
-
+const dataAnalystModel = require('./modules/dataAnalyst').dataAnalystModel;
 
 let addAll = async () => {
 
 
-    let res = await chargeBillModel.find({processOrder: {$exists: true}, typeStr: "微信錢包儲值"});
-let y =0;
-    for (let x of res) {
+    let res = await dataAnalystModel.find({'dateClock' : {
 
-            y+=x.NtdAmount;
-    }
+            $gt: new Date("2019-03-04")
+        }});
 
-    console.log(y)
+
+    console.log(res)
 };
 addAll();

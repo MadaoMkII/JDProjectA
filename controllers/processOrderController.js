@@ -32,10 +32,18 @@ exports.getDataAnalyst = async (req, res) => {
         let searchConditions = {};
 
         if (req.body['beforeDate'] && req.body['afterDate']) {
-            searchConditions['dateClock'] = {
-                $lte: new Date(req.body['beforeDate']),
-                $gte: new Date(req.body['afterDate'])
-            };
+            if (req.body['beforeDate'] === req.body['afterDate']) {
+                searchConditions['dateClock'] = {
+
+                    $gte: new Date(req.body['afterDate'])
+                };
+            } else {
+                searchConditions['dateClock'] = {
+                    $lte: new Date(req.body['beforeDate']),
+                    $gte: new Date(req.body['afterDate'])
+                };
+            }
+
         }
 
         let result = await dataAnalystModel.aggregate([
@@ -200,7 +208,7 @@ exports.addProcessOrder = async (req, res) => {
         let myDate = new Date();
         if (tools.isEmpty(chargeBill.processOrder)) {
             await dataAnalystModel.findOneAndUpdate({
-                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()+1}`),
+                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate() + 1}`),
                 itemWebType: chargeBill.typeStr
             }, {$inc: {count: 1, amount: chargeBill.NtdAmount}}, {new: true, upsert: true});
         }
@@ -315,7 +323,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
         let myDate = new Date();
         if (tools.isEmpty(chargeBill.processOrder)) {
             await dataAnalystModel.findOneAndUpdate({
-                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()+1}`),
+                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate() + 1}`),
                 itemWebType: chargeBill.typeStr
             }, {$inc: {count: 1, amount: chargeBill.NtdAmount}}, {new: true, upsert: true});
         }
