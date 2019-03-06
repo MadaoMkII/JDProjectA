@@ -30,7 +30,7 @@ exports.getAlreadySolved = async (req, res) => {
 exports.getDataAnalyst = async (req, res) => {
     try {
         let thisDate = new Date();
-        let option = tools.isEmpty(req.query.range) === true ? `day` : req.query.range;
+        let option = tools.isEmpty(req.body.range) === true ? `day` : req.query.range;
         let matchObject = {}, group = {};
 
         switch (option) {
@@ -150,8 +150,8 @@ exports.getDataAnalyst = async (req, res) => {
 
         return res.status(200).json({error_msg: 'OK', error_code: "0", data: finalArray});
     } catch (err) {
-        console.log(err)
-        //logger.error(`获取数据分析`, {req: req, error: err.message});
+
+        logger.error(`获取数据分析`, {req: req, error: err.message});
         return res.status(503).json({error_msg: err, error_code: "503"});
     }
 };
