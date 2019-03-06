@@ -30,7 +30,10 @@ exports.getAlreadySolved = async (req, res) => {
 exports.getDataAnalyst = async (req, res) => {
     try {
         let thisDate = new Date();
-        let option = tools.isEmpty(req.body.range) === true ? `day` : req.query.range;
+        let option = req.body.range;
+        if (tools.isEmpty(option)) {
+            return res.status(404).json({error_msg: 'range can not be empty', error_code: "404"});
+        }
         let matchObject = {}, group = {};
 
         switch (option) {
@@ -79,6 +82,20 @@ exports.getDataAnalyst = async (req, res) => {
                     typeStr: "$typeStr"
                 };
                 break;
+
+            case `special`:
+                matchObject = {
+                    $match: {
+                        processOrder: {$exists: true, "$ne": null},
+                        originDate: {$lte: new Date(req.body.beforeDate), $gte: new Date(req.body.afterDate)}
+                    }
+                };
+
+                group = {
+                    typeStr: "$typeStr"
+                };
+
+                break;
         }
 
 
@@ -90,7 +107,8 @@ exports.getDataAnalyst = async (req, res) => {
                     typeStr: "$typeStr",
                     thisDay: {$dayOfMonth: '$created_at'},
                     thisMonth: {$month: '$created_at'},
-                    thisYear: {$year: '$created_at'}
+                    thisYear: {$year: '$created_at'},
+                    originDate: "$created_at"
                 }
             },
             matchObject,
