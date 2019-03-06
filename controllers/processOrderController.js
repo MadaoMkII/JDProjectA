@@ -29,68 +29,197 @@ exports.getAlreadySolved = async (req, res) => {
 
 exports.getDataAnalyst = async (req, res) => {
     try {
-        let searchConditions = {};
+        let thisDate = new Date();
+        let option = tools.isEmpty(req.query.range) === true ? `day` : req.query.range;
+        let matchObject = {}, group = {};
 
-        if (req.body['beforeDate'] && req.body['afterDate']) {
-            if (req.body['beforeDate'] === req.body['afterDate']) {
-                searchConditions['dateClock'] = {
-
-                    $gte: new Date(req.body['afterDate'])
+        switch (option) {
+            case `day`:
+                matchObject = {
+                    $match: {
+                        thisDay: thisDate.getDate(),
+                        thisMonth: thisDate.getMonth() + 1,
+                        thisYear: thisDate.getFullYear(),
+                        processOrder: {$exists: true, "$ne": null}
+                    }
                 };
-            } else {
-                searchConditions['dateClock'] = {
-                    $lte: new Date(req.body['beforeDate']),
-                    $gte: new Date(req.body['afterDate'])
+                group = {
+                    day: "$thisDay",
+                    month: "$thisMonth",
+                    year: "$thisYear",
+                    typeStr: "$typeStr"
                 };
-            }
+                break;
+            case `month`:
+                matchObject = {
+                    $match: {
+                        thisMonth: thisDate.getMonth() + 1,
+                        thisYear: thisDate.getFullYear(),
+                        processOrder: {$exists: true, "$ne": null}
+                    }
+                };
+                group = {
 
+                    month: "$thisMonth",
+                    year: "$thisYear",
+                    typeStr: "$typeStr"
+                };
+
+                break;
+            case `year`:
+                matchObject = {
+                    $match: {
+                        processOrder: {$exists: true, "$ne": null},
+                        thisYear: thisDate.getFullYear()
+                    }
+                };
+
+                group = {
+                    year: "$thisYear",
+                    typeStr: "$typeStr"
+                };
+                break;
         }
 
-        let result = await dataAnalystModel.aggregate([
-                {
-                    $match: searchConditions
-                },
-                {
-                    $group: {
-                        _id: '$itemWebType',
-                        totalAmount: {$sum: `$amount`},
-                        count: {$sum: `$count`}
-                        // avg: {$avg: '$price'}
-                    }
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        itemWebType: "$_id",
-                        count: 1,
-                        totalAmount: 1
-                    }
+
+        let chargeBillRes = await chargeBillModel.aggregate([
+            {
+                $project: {
+                    NtdAmount: "$NtdAmount",
+                    processOrder: "$processOrder",
+                    typeStr: "$typeStr",
+                    thisDay: {$dayOfMonth: '$created_at'},
+                    thisMonth: {$month: '$created_at'},
+                    thisYear: {$year: '$created_at'}
                 }
-            ]
-        );
-        let resultMap = new Map();
+            },
+            matchObject,
+            {
+                $group: {
+                    _id: group,
+                    totalPrice: {$sum: `$NtdAmount`},
+                    count: {$sum: 1}
+                }
+            }
+        ]);
 
-        resultMap.set(`淘寶/天貓/阿里巴巴代付`, {"totalAmount": 0, "count": 0});
-        resultMap.set(`支付寶儲值`, {"totalAmount": 0, "count": 0});
-        resultMap.set(`微信錢包儲值`, {"totalAmount": 0, "count": 0});
-        resultMap.set(`其他網站代購`, {"totalAmount": 0, "count": 0});
-        resultMap.set(`R幣儲值`, {"totalAmount": 0, "count": 0});
+        let dgBillRes = await dgBillModel.aggregate([
+            {
+                $project: {
+                    NtdAmount: "$NtdAmount",
+                    processOrder: "$processOrder",
+                    typeStr: "$typeStr",
+                    thisDay: {$dayOfMonth: '$created_at'},
+                    thisMonth: {$month: '$created_at'},
+                    thisYear: {$year: '$created_at'}
+                }
+            },
+            matchObject,
+            {
+                $group: {
+                    _id: group,
+                    totalPrice: {$sum: `$NtdAmount`},
+                    count: {$sum: 1}
+                }
+            }
+        ]);
+
+        chargeBillRes = chargeBillRes.concat(dgBillRes);
+
+        let dataAnalystMap = new Map(), finalArray = [];
+
+        dataAnalystMap.set('R幣儲值', {count: 0, totalAmount: 0});
+        dataAnalystMap.set('支付寶儲值', {count: 0, totalAmount: 0});
+        dataAnalystMap.set('微信錢包儲值', {count: 0, totalAmount: 0});
+        dataAnalystMap.set('其他網站代購', {count: 0, totalAmount: 0});
+        dataAnalystMap.set('淘寶/天貓/阿里巴巴代付', {count: 0, totalAmount: 0});
 
 
-        for (let resultEntityKey of result) {
-            resultMap.set(resultEntityKey.itemWebType,
-                {"totalAmount": resultEntityKey.totalAmount, "count": resultEntityKey.count});
+        for (let entity of chargeBillRes) {
+            dataAnalystMap.set(entity._id.typeStr, {
+                count: entity.count,
+                totalAmount: Math.ceil(Number(entity.totalPrice))
+            });
+
         }
-        let lastResult = [];
-        resultMap.forEach((value, key) => {
-            lastResult.push({itemWebType: key, count: value.count, totalAmount: value.totalAmount});
+        dataAnalystMap.forEach((value, key) => {
+
+            finalArray.push(Object.assign(value, {itemWebType: key}));
+
         });
-        return res.status(200).json({error_msg: 'ok', error_code: "0", data: lastResult});
+
+        return res.status(200).json({error_msg: 'OK', error_code: "0", data: finalArray});
     } catch (err) {
-        logger.error(`获取数据分析`, {req: req, error: err.message});
+        console.log(err)
+        //logger.error(`获取数据分析`, {req: req, error: err.message});
         return res.status(503).json({error_msg: err, error_code: "503"});
     }
 };
+
+// exports.getDataAnalyst = async (req, res) => {
+//     try {
+//         let searchConditions = {};
+//
+//         if (req.body['beforeDate'] && req.body['afterDate']) {
+//             if (req.body['beforeDate'] === req.body['afterDate']) {
+//                 searchConditions['dateClock'] = {
+//
+//                     $gte: new Date(req.body['afterDate'])
+//                 };
+//             } else {
+//                 searchConditions['dateClock'] = {
+//                     $lte: new Date(req.body['beforeDate']),
+//                     $gte: new Date(req.body['afterDate'])
+//                 };
+//             }
+//
+//         }
+//
+//         let result = await dataAnalystModel.aggregate([
+//                 {
+//                     $match: searchConditions
+//                 },
+//                 {
+//                     $group: {
+//                         _id: '$itemWebType',
+//                         totalAmount: {$sum: `$amount`},
+//                         count: {$sum: `$count`}
+//                         // avg: {$avg: '$price'}
+//                     }
+//                 },
+//                 {
+//                     $project: {
+//                         _id: 0,
+//                         itemWebType: "$_id",
+//                         count: 1,
+//                         totalAmount: 1
+//                     }
+//                 }
+//             ]
+//         );
+//         let resultMap = new Map();
+//
+//         resultMap.set(`淘寶/天貓/阿里巴巴代付`, {"totalAmount": 0, "count": 0});
+//         resultMap.set(`支付寶儲值`, {"totalAmount": 0, "count": 0});
+//         resultMap.set(`微信錢包儲值`, {"totalAmount": 0, "count": 0});
+//         resultMap.set(`其他網站代購`, {"totalAmount": 0, "count": 0});
+//         resultMap.set(`R幣儲值`, {"totalAmount": 0, "count": 0});
+//
+//
+//         for (let resultEntityKey of result) {
+//             resultMap.set(resultEntityKey.itemWebType,
+//                 {"totalAmount": resultEntityKey.totalAmount, "count": resultEntityKey.count});
+//         }
+//         let lastResult = [];
+//         resultMap.forEach((value, key) => {
+//             lastResult.push({itemWebType: key, count: value.count, totalAmount: value.totalAmount});
+//         });
+//         return res.status(200).json({error_msg: 'ok', error_code: "0", data: lastResult});
+//     } catch (err) {
+//         logger.error(`获取数据分析`, {req: req, error: err.message});
+//         return res.status(503).json({error_msg: err, error_code: "503"});
+//     }
+// };
 exports.returnRcoin = async (req, res) => {
 
     try {
