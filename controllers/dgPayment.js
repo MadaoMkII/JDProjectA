@@ -527,7 +527,7 @@ exports.addReplacePostageBill = async (req, res) => {
             {"filedName": `replaceTime`, "require": false},
             {"filedName": `billID`, "require": true}
         );
-        replacePostageBillEntity.status = req.body.status ? 0 : req.body.status;
+        replacePostageBillEntity.status = req.body.status ? req.body.status : 0;
         let dgBillEntity = await dgBillModel.findOneAndUpdate({billID: req.body.billID},
             {
                 $set: {
