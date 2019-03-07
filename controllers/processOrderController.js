@@ -43,7 +43,9 @@ exports.getDataAnalyst = async (req, res) => {
                         thisDay: thisDate.getDate(),
                         thisMonth: thisDate.getMonth() + 1,
                         thisYear: thisDate.getFullYear(),
-                        processOrder: {$exists: true, "$ne": null}
+                        processOrder: {$exists: true, "$ne": null},
+                        typeState: 1,
+                        dealState: 1
                     }
                 };
                 group = {
@@ -58,7 +60,9 @@ exports.getDataAnalyst = async (req, res) => {
                     $match: {
                         thisMonth: thisDate.getMonth() + 1,
                         thisYear: thisDate.getFullYear(),
-                        processOrder: {$exists: true, "$ne": null}
+                        processOrder: {$exists: true, "$ne": null},
+                        typeState: 1,
+                        dealState: 1
                     }
                 };
                 group = {
@@ -72,6 +76,8 @@ exports.getDataAnalyst = async (req, res) => {
             case `year`:
                 matchObject = {
                     $match: {
+                        typeState: 1,
+                        dealState: 1,
                         processOrder: {$exists: true, "$ne": null},
                         thisYear: thisDate.getFullYear()
                     }
@@ -84,13 +90,31 @@ exports.getDataAnalyst = async (req, res) => {
                 break;
 
             case `special`:
-                matchObject = {
-                    $match: {
-                        processOrder: {$exists: true, "$ne": null},
-                        originDate: {$lte: new Date(req.body.beforeDate), $gte: new Date(req.body.afterDate)}
-                    }
-                };
 
+                if (req.body.beforeDate === req.body.afterDate) {
+
+                    thisDate = new Date(req.body.beforeDate);
+                    matchObject = {
+                        $match: {
+                            thisDay: thisDate.getDate(),
+                            thisMonth: thisDate.getMonth() + 1,
+                            thisYear: thisDate.getFullYear(),
+                            processOrder: {$exists: true, "$ne": null},
+                            typeState: 1,
+                            dealState: 1
+                        }
+                    };
+                } else {
+                    matchObject = {
+                        $match: {
+                            processOrder: {$exists: true, "$ne": null},
+                            originDate: {
+                                $lte: new Date(new Date(req.body.beforeDate).setUTCHours(24)),
+                                $gte: new Date(new Date(req.body.afterDate).setUTCHours(0))
+                            }
+                        }
+                    };
+                }
                 group = {
                     typeStr: "$typeStr"
                 };
@@ -102,15 +126,18 @@ exports.getDataAnalyst = async (req, res) => {
         let chargeBillRes = await chargeBillModel.aggregate([
             {
                 $project: {
+                    originDate: {"$add": ["$created_at", 8 * 60 * 60 * 1000]},
+                    typeState: "$typeState",
+                    dealState: "$dealState",
                     NtdAmount: "$NtdAmount",
                     processOrder: "$processOrder",
                     typeStr: "$typeStr",
-                    thisDay: {$dayOfMonth: '$created_at'},
-                    thisMonth: {$month: '$created_at'},
-                    thisYear: {$year: '$created_at'},
-                    originDate: "$created_at"
+                    thisDay: {"$dayOfMonth": {"$add": ["$created_at", 8 * 60 * 60 * 1000]}},
+                    thisMonth: {$month: {"$add": ["$created_at", 8 * 60 * 60 * 1000]}},
+                    thisYear: {$year: {"$add": ["$created_at", 8 * 60 * 60 * 1000]}}
                 }
-            },
+            }
+            ,
             matchObject,
             {
                 $group: {
@@ -121,26 +148,30 @@ exports.getDataAnalyst = async (req, res) => {
             }
         ]);
 
-        let dgBillRes = await dgBillModel.aggregate([
-            {
-                $project: {
-                    NtdAmount: "$NtdAmount",
-                    processOrder: "$processOrder",
-                    typeStr: "$typeStr",
-                    thisDay: {$dayOfMonth: '$created_at'},
-                    thisMonth: {$month: '$created_at'},
-                    thisYear: {$year: '$created_at'}
+        let dgBillRes = await
+            dgBillModel.aggregate([
+                {
+                    $project: {
+                        originDate: "$created_at",
+                        typeState: "$typeState",
+                        dealState: "$dealState",
+                        NtdAmount: "$NtdAmount",
+                        processOrder: "$processOrder",
+                        typeStr: "$typeStr",
+                        thisDay: {"$dayOfMonth": {"$add": ["$created_at", 8 * 60 * 60 * 1000]}},
+                        thisMonth: {$month: {"$add": ["$created_at", 8 * 60 * 60 * 1000]}},
+                        thisYear: {$year: {"$add": ["$created_at", 8 * 60 * 60 * 1000]}}
+                    }
+                },
+                matchObject,
+                {
+                    $group: {
+                        _id: group,
+                        totalPrice: {$sum: `$NtdAmount`},
+                        count: {$sum: 1}
+                    }
                 }
-            },
-            matchObject,
-            {
-                $group: {
-                    _id: group,
-                    totalPrice: {$sum: `$NtdAmount`},
-                    count: {$sum: 1}
-                }
-            }
-        ]);
+            ]);
 
         chargeBillRes = chargeBillRes.concat(dgBillRes);
 
@@ -168,7 +199,7 @@ exports.getDataAnalyst = async (req, res) => {
 
         return res.status(200).json({error_msg: 'OK', error_code: "0", data: finalArray});
     } catch (err) {
-
+        console.log(err)
         logger.error(`获取数据分析`, {req: req, error: err.message});
         return res.status(503).json({error_msg: err, error_code: "503"});
     }

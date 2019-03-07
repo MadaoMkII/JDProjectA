@@ -3,10 +3,10 @@ const tool = require('./config/tools');
 const chargeBillModel = require('./modules/chargeBill').chargeBillModel;
 const dataAnalystModel = require('./modules/dataAnalyst').dataAnalystModel;
 const dgBillModel = require('./modules/dgBill').dgBillModel;
-let getDataAnalyst = async (req, res) => {
+let getDataAnalyst = async () => {
     try {
         let thisDate = new Date();
-        let option = req.query.range;
+        let option = `day`;
         let matchObject = {}, group = {};
 
         switch (option) {
@@ -16,7 +16,9 @@ let getDataAnalyst = async (req, res) => {
                         thisDay: thisDate.getDate(),
                         thisMonth: thisDate.getMonth() + 1,
                         thisYear: thisDate.getFullYear(),
-                        processOrder: {$exists: true, "$ne": null}
+                        processOrder: {$exists: true, "$ne": null},
+                        typeState: 1,
+                        dealState: 1
                     }
                 };
                 group = {
@@ -63,12 +65,14 @@ let getDataAnalyst = async (req, res) => {
         let chargeBillRes = await chargeBillModel.aggregate([
             {
                 $project: {
+                    typeState:"$typeState",
+                    dealState:"$dealState",
                     NtdAmount: "$NtdAmount",
                     processOrder: "$processOrder",
                     typeStr: "$typeStr",
-                    thisDay: {$dayOfMonth: '$created_at'},
-                    thisMonth: {$month: '$created_at'},
-                    thisYear: {$year: '$created_at'}
+                    thisDay: {"$dayOfMonth": {"$add": ["$created_at", 8 * 60 * 60 * 1000]}},
+                    thisMonth: {$month: {"$add": ["$created_at", 8 * 60 * 60 * 1000]}},
+                    thisYear: {$year: {"$add": ["$created_at", 8 * 60 * 60 * 1000]}}
                 }
             },
             matchObject,
@@ -80,16 +84,19 @@ let getDataAnalyst = async (req, res) => {
                 }
             }
         ]);
+        console.log(chargeBillRes)
 
         let dgBillRes = await dgBillModel.aggregate([
             {
                 $project: {
+                    typeState:"$typeState",
+                    dealState:"$dealState",
                     NtdAmount: "$NtdAmount",
                     processOrder: "$processOrder",
                     typeStr: "$typeStr",
-                    thisDay: {$dayOfMonth: '$created_at'},
-                    thisMonth: {$month: '$created_at'},
-                    thisYear: {$year: '$created_at'}
+                    thisDay: {"$dayOfMonth": {"$add": ["$created_at", 8 * 60 * 60 * 1000]}},
+                    thisMonth: {$month: {"$add": ["$created_at", 8 * 60 * 60 * 1000]}},
+                    thisYear: {$year: {"$add": ["$created_at", 8 * 60 * 60 * 1000]}}
                 }
             },
             matchObject,
@@ -126,14 +133,16 @@ let getDataAnalyst = async (req, res) => {
 
         });
         console.log(finalArray)
-        return res.status(200).json({error_msg: 'OK', error_code: "0", data: finalArray});
+
     } catch (err) {
-        logger.error(`获取数据分析`, {req: req, error: err.message});
-        return res.status(503).json({error_msg: err, error_code: "503"});
+        console.log(err)
     }
 };
 // 1，前端交互 扣多少
 // 2，走对公开票 增值税3个点  企业所得,10
 // 3，2.5 （现在）
 // 4，付款形式速度 需要开票时间
-getDataAnalyst();
+//getDataAnalyst();
+var now = new Date();
+
+console.log(new Date(`2019-03-11`).setUTCHours(0))
