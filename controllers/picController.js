@@ -113,7 +113,7 @@ exports.uploadImgForEndpoint = async (req, res) => {
             return res.json({
                 error_msg: `OK`,
                 error_code: "0",
-                data: returnReq.file.url
+                data: returnReq.file.url.replace(`http`,`https`)
             });
         }
     }
