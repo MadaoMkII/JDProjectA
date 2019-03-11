@@ -1,4 +1,4 @@
-var SERVICE = 'http://59.110.1.174:3000';
+var SERVICE = 'https://59.110.1.174:3000';
 function getService () {
 	return SERVICE;
 }
