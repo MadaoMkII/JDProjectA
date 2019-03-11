@@ -183,7 +183,7 @@ exports.msg_holder = async (req, res) => {
             wechat_user_info: requestResult,
             qr_info: returnData,
             openID: requestResult[`openid`],
-            profileImgUrl: requestResult[`headimgurl`],
+            profileImgUrl: requestResult[`headimgurl`].replace(`http`, `https`),
             hasRealNameAuthed: real_name_flag,
             activeStatus: true,
             nickname: requestResult[`nickname`]
