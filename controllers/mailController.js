@@ -6,7 +6,7 @@ const redis = require("redis"),
     redisClient = redis.createClient();
 const userAccountModel = require('../modules/userAccount').userAccountModel;
 const dgBillModel = require('../modules/dgBill').dgBillModel;
-
+const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 let smtpConfig = {
     host: 'hwsmtp.exmail.qq.com',
     secure: true, // upgrade later with STARTTLS
@@ -44,6 +44,10 @@ let sendEmail = async (emailAddress, massage) => {
 exports.func_send_Email = async (req, res) => {
     try {
         let billObject = await dgBillModel.findOne({billID: req.body.billID});
+
+        if (tools.isEmpty(billObject)) {
+            billObject = await chargeBillModel.findOne({billID: req.body.billID});
+        }
 
         let email_address = billObject.userInfo.email_address;
         //let email_address = "js19870219@126.com";
