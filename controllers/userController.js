@@ -276,7 +276,8 @@ exports.findUser = async (req, res) => {
             VIPLevel: 1,
             uuid: 1,
             referrer: 1,
-            "userStatus.isEmployee": 1
+            "userStatus.isEmployee": 1,
+            realIDNumber:1
         };
 
         command.searchCondition = searchModel.reqSearchConditionsAssemble(req,

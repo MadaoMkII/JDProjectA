@@ -179,7 +179,12 @@ let userAccountSchema = new mongoose.Schema({
     wechatAccounts: [wechatAccount],
     // myBills: [{type: mongoose.Schema.Types.ObjectId, ref: 'billStatement'}],
     last_login_time: Date
-}, {'timestamps': {'createdAt': 'created_at', 'updatedAt': 'updated_at'}});
+}, {
+    'timestamps': {
+        'createdAt': 'created_at', 'updatedAt': 'updated_at', toObject: {virtuals: true},
+        toJSON: {virtuals: true}
+    }
+});
 
 // userAccountSchema.virtual('VIPLevel').get(() => {
 //     return vipCoculart(this.growthPoints);

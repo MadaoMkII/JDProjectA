@@ -64,7 +64,9 @@ exports.func_send_Email = async (req, res) => {
 
         }
 
-        await sendEmail(email_address, `<!doctype html>
+        // language=HTML
+        await sendEmail(email_address, `
+<!doctype html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -119,7 +121,7 @@ exports.func_send_Email = async (req, res) => {
 		width:816px;
 		line-height:64px;
 		font-size:40px;
-		font-family: PingFangSC-Semibold;
+		font-family: PingFangSC-Semibold,serif;
         color: #333333;
 		margin-top:16px;
 	}
@@ -128,7 +130,7 @@ exports.func_send_Email = async (req, res) => {
 		width:816px;
 		line-height:56px;
 		font-size:36px;
-		font-family: PingFangSC-Regular;
+		font-family: PingFangSC-Regular,serif;
         color: #08BF69;
 		margin:16px 0 24px 0;
 	}
@@ -137,7 +139,7 @@ exports.func_send_Email = async (req, res) => {
 		width:816px;
 		line-height:32px;
 		font-size:20px;
-		font-family: PingFangSC-Regular;
+		font-family: PingFangSC-Regular,serif;
         color: #999999;
 	}
 	.content_bottom{

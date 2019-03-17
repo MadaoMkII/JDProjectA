@@ -19,7 +19,7 @@ exports.getDFpage = (req, res) => {
         advertisingID: 0
     }, (err, data) => {
         if (err) {
-            logger.error(`代付页头图`, {req: req, error: err.message});
+            logger.error(`获取代付页头图失败`, {req: req, error: err.message});
             return res.status(503).json({error_msg: err.message, error_code: "503"});
         } else {
             return res.status(200).json({error_msg: `OK`, error_code: "0", data: data});
@@ -42,12 +42,12 @@ exports.setDFpage = (req, res) => {
         new: true
     }, (err, data) => {
 
-        logger.warn("设置DF图片", {
+        logger.warn("设置付页头图图片", {
             req: req
         });
 
         if (err) {
-            logger.error(`设置DF图片`, {req: req, error: err.message});
+            logger.error(`设置付页头图图片`, {req: req, error: err.message});
             return res.status(503).json({error_code: `503`, error_msg: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
@@ -71,7 +71,7 @@ exports.setHomepage = (req, res) => {
     }, (err, data) => {
 
         if (err) {
-            logger.error(`设置首页头图`, {req: req, error: err.message});
+            logger.error(`设置首页头图失败`, {req: req, error: err.message});
             return res.status(503).json({error_code: `503`, error_msg: "advertising Error"});
         } else {
             logger.warn("设置首页头图", {
@@ -94,7 +94,7 @@ exports.getHomepage = (req, res) => {
         "L2_category": 0
     }, (err, data) => {
         if (err) {
-            logger.error(`获取头图`, {req: req, error: err.message});
+            logger.error(`获取首页头图失败`, {req: req, error: err.message});
             return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
             return res.json({error_msg: `OK`, error_code: "0", data: data});
@@ -118,7 +118,7 @@ exports.getHomepageItemsList = async (req, res) => {
         return res.json({error_msg: `OK`, error_code: "0", data: result, nofdata: count});
 
     } catch (err) {
-        logger.error(`HomepageItemsList`, {req: req, error: err.message});
+        logger.error(`获取首页商品列表失败`, {req: req, error: err.message});
         return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
     }
 };
@@ -135,7 +135,7 @@ exports.getAdvDetail = async (req, res) => {
         });
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: result});
     } catch (err) {
-        logger.error(`getAdvDetail`, {req: req, error: err.message});
+        logger.error(`获取公告详情失败`, {req: req, error: err.message});
         return res.status(503).json({error_msg: `503`, error_code: "getAdvDetail Error"});
     }
 
@@ -155,14 +155,14 @@ exports.getHomepageItems = async (req, res) => {
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: result, nofdata: count});
 
     } catch (err) {
-        logger.error(`HomepageItemsList`, {req: req, error: err.message});
+        logger.error(`获取首页商品列表失败`, {req: req, error: err.message});
         return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
     }
 };
 exports.updateHomepageItems = async (req, res) => {
     try {
         if (isNaN(req.body.price) || req.body.price < 0) {
-            return res.status(400).json({error_msg: `400`, error_code: "price must be a Number and bigger than 0"});
+            return res.status(400).json({error_msg: `400`, error_code: "price must be a Number and greater than 0"});
         }
         let updateCondition = searchModel.reqSearchConditionsAssemble(req,
             {"filedName": `referer`, "require": true},
@@ -177,7 +177,7 @@ exports.updateHomepageItems = async (req, res) => {
             {$set: updateCondition}, {new: true});
         return res.status(200).json({error_msg: `OK`, error_code: "0", data: newAdvertising});
     } catch (err) {
-        logger.error(`updateHomepageItems`, {req: req, error: err.message});
+        logger.error(`修改首页商品列表失败`, {req: req, error: err.message});
         return res.status(503).json({error_msg: `503`, error_code: "updateHomepageItems Error"});
     }
 };
@@ -199,7 +199,7 @@ exports.addHomepageItems = (req, res) => {
     advertisingObject.advertisingID = uuidv1();
     advertisingObject.save(err => {
         if (err) {
-            logger.error(`设置首页商品列表`, {req: req, error: err.message});
+            logger.error(`设置首页商品列表失败`, {req: req, error: err.message});
 
             if (err.message.toString().includes(`duplicate`)) {
                 return res.status(400).json({error_msg: `400`, error_code: "advertisingLink can not be duplicated"});
@@ -218,7 +218,7 @@ exports.delAdvertising = (req, res) => {
 
     advertisingModel.deleteOne({advertisingID: item_id}, (err) => {
         if (err) {
-            logger.error(`删除广告`, {req: req, error: err.message});
+            logger.error(`删除广告失败`, {req: req, error: err.message});
             return res.status(503).json({error_msg: `503`, error_code: "advertising Error"});
         } else {
             logger.warn("删除广告", {req: req});
