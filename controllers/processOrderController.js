@@ -199,7 +199,7 @@ exports.getDataAnalyst = async (req, res) => {
 
         return res.status(200).json({error_msg: 'OK', error_code: "0", data: finalArray});
     } catch (err) {
-        console.log(err)
+
         logger.error(`获取数据分析`, {req: req, error: err.message});
         return res.status(503).json({error_msg: err, error_code: "503"});
     }
@@ -297,7 +297,7 @@ exports.returnRcoin = async (req, res) => {
         myEvent.eventType = `Rcoin`;
         myEvent.amount = billResult.RMBAmount;
         myEvent.behavior = `bill cancel return`;
-        let amountNew = parseInt(billResult.RMBAmount) + parseInt(tools.decrypt(billUser.Rcoins));
+        let amountNew = parseInt(billResult.RMBAmount) + parseInt(billUser.Rcoins);
 
         await userModel.findOneAndUpdate({uuid: billResult.userUUid}, {
             $push: {whatHappenedToMe: myEvent},

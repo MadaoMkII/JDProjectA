@@ -31,9 +31,9 @@ let getRate = (req, res) => {
                 return res.status(403).send({error_code: 403, error_msg: `rateType wrong input`});
             }
 
-            console.log(req.user.VIPLevel);
+
             for (let rateInfoEntity of managerConfig[rateType]) {
-                console.log(rateInfoEntity.vipLevel);
+
                 if (rateInfoEntity.vipLevel === req.user.VIPLevel) {
 
                     rateObject = rateInfoEntity;
