@@ -4,7 +4,7 @@ const dgBillModel = require('../modules/dgBill').dgBillModel;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 const tools = require('../config/tools');
 const userModel = require('../modules/userAccount').userAccountModel;
-const dataAnalystModel = require('../modules/dataAnalyst').dataAnalystModel;
+//const dataAnalystModel = require('../modules/dataAnalyst').dataAnalystModel;
 const logger = require('../logging/logging').logger;
 const searchModel = require('../controllers/searchModel');
 
@@ -383,13 +383,13 @@ exports.addProcessOrder = async (req, res) => {
             });
         }
         let user_old = await userModel.findOne({uuid: chargeBill.userUUid});
-        let myDate = new Date();
-        if (tools.isEmpty(chargeBill.processOrder)) {
-            await dataAnalystModel.findOneAndUpdate({
-                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate() + 1}`),
-                itemWebType: chargeBill.typeStr
-            }, {$inc: {count: 1, amount: chargeBill.NtdAmount}}, {new: true, upsert: true});
-        }
+        //let myDate = new Date();
+        // if (tools.isEmpty(chargeBill.processOrder)) {
+        //     await dataAnalystModel.findOneAndUpdate({
+        //         dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate() + 1}`),
+        //         itemWebType: chargeBill.typeStr
+        //     }, {$inc: {count: 1, amount: chargeBill.NtdAmount}}, {new: true, upsert: true});
+        // }
 
         if (parseInt(chargeBill.RMBAmount) !== parseInt(req.body.chargeAmount)) {
 
@@ -498,13 +498,13 @@ exports.addProcessOrderForCharge = async (req, res) => {
             });
         }
 
-        let myDate = new Date();
-        if (tools.isEmpty(chargeBill.processOrder)) {
-            await dataAnalystModel.findOneAndUpdate({
-                dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate() + 1}`),
-                itemWebType: chargeBill.typeStr
-            }, {$inc: {count: 1, amount: chargeBill.NtdAmount}}, {new: true, upsert: true});
-        }
+        //let myDate = new Date();
+        // if (tools.isEmpty(chargeBill.processOrder)) {
+        //     await dataAnalystModel.findOneAndUpdate({
+        //         dateClock: new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate() + 1}`),
+        //         itemWebType: chargeBill.typeStr
+        //     }, {$inc: {count: 1, amount: chargeBill.NtdAmount}}, {new: true, upsert: true});
+        // }
         let user_old = await userModel.findOne({uuid: chargeBill.userUUid});
         let processOrderObject = new processOrderModel();
 
