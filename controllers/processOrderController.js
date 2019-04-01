@@ -107,6 +107,8 @@ exports.getDataAnalyst = async (req, res) => {
                 } else {
                     matchObject = {
                         $match: {
+                            typeState: 1,
+                            dealState: 1,
                             processOrder: {$exists: true, "$ne": null},
                             originDate: {
                                 $lte: new Date(new Date(req.body.beforeDate).setUTCHours(24)),
