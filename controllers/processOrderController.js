@@ -552,7 +552,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
             myEvent.behavior = `Rcoin recharge`;
             myEvent.pointChange = 1;
             myEvent.amount = chargeBill.RMBAmount; //也许需要加密
-            let rcoins = parseInt(req.user.Rcoins) + parseInt(chargeBill.RMBAmount);
+            let rcoins = parseInt(user_old.Rcoins) + parseInt(chargeBill.RMBAmount);
 
             userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
                 $inc: {growthPoints: 1},
