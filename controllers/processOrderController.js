@@ -547,8 +547,6 @@ exports.addProcessOrderForCharge = async (req, res) => {
             }, {new: true});
 
 
-
-
         let userResult;
         let myEvent = new myEventModel();
 
@@ -564,6 +562,19 @@ exports.addProcessOrderForCharge = async (req, res) => {
                 $push: {whatHappenedToMe: myEvent},
                 $set: {Rcoins: rcoins}
             }, {new: true});
+
+
+            if (userResult.Rcoins === "NaN") {
+
+                userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
+                    $set: {Rcoins: user_old.Rcoins}
+                }, {new: true});
+                return res.status(503).json({
+                    error_msg: `Internal Error NaN happen`,
+                    error_code: "503",
+                    data: userResult
+                });
+            }
 
         } else if (chargeBill.typeStr === `支付寶儲值` &&
             user_old.userStatus.isFirstWechatCharge === false) {
