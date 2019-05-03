@@ -485,7 +485,10 @@ exports.addProcessOrderForCharge = async (req, res) => {
 
         let chargeBill = await chargeBillModel.findOne({billID: req.body.billID});
 
+        if (parseInt(chargeBill.RMBAmount) !== parseInt(req.body.chargeAmount)) {
 
+            return res.status(400).json({error_msg: `RMBAmount input wrong`, error_code: "400"});
+        }
         if (tools.isEmpty(chargeBill) || chargeBill.typeStr !== `R幣儲值` && chargeBill.typeStr !== `微信錢包儲值` &&
             chargeBill.typeStr !== `支付寶儲值`) {
             return res.status(400).json({
@@ -544,10 +547,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
             }, {new: true});
 
 
-        if (parseInt(chargeBill.RMBAmount) !== parseInt(req.body.chargeAmount)) {
 
-            return res.status(400).json({error_msg: `RMBAmount input wrong`, error_code: "400"});
-        }
 
         let userResult;
         let myEvent = new myEventModel();
