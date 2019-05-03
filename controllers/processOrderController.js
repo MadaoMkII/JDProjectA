@@ -493,13 +493,18 @@ exports.addProcessOrderForCharge = async (req, res) => {
                 error_code: "400"
             });
         }
-        if (chargeBill.processOrder && req.user.role === `Admin`) {
+        if (!tools.isEmpty(chargeBill.processOrder)) {
             return res.status(201).json({
                 error_msg: `this bills has already been processed`,
                 error_code: "201"
             });
         }
-
+        // if (chargeBill.processOrder && !tools.isEmpty(chargeBill.processOrder.chargeAmount) ) {
+        //     return res.status(201).json({
+        //         error_msg: `this bills had chargeAmount `,
+        //         error_code: "203"
+        //     });
+        // }
         //let myDate = new Date();
         // if (tools.isEmpty(chargeBill.processOrder)) {
         //     await dataAnalystModel.findOneAndUpdate({
