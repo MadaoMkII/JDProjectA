@@ -161,12 +161,13 @@ exports.msg_holder = async (req, res) => {
 
         }
         let [, requestResult_1] = await requestFun(null, 'GET', `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${config.wechat_appID}&secret=${config.wechat_secret}`);
+        console.log("userUUidFromQr", userUUidFromQr);
 
         let token = requestResult_1[`access_token`];
         let OPENID = returnData[`fromusername`];
         let userLink = `https://api.weixin.qq.com/cgi-bin/user/info?access_token=${token}&openid=${OPENID}&lang=zh_CN`;
         let [, requestResult] = await requestFun(null, 'GET', userLink);
-
+        console.log("requestResult", requestResult);
         if (requestResult.subscribe === 0) {
             return res.status(404).json({error_msg: "this user's subscribe status is false", error_code: "404"});
         }
@@ -188,11 +189,11 @@ exports.msg_holder = async (req, res) => {
             activeStatus: true,
             nickname: requestResult[`nickname`]
         };
-
+        console.log("wechatUserInfo", wechatUserInfo);
 
         let newUser = await userModel.findOneAndUpdate({uuid: userUUidFromQr},
             {$push: {wechatAccounts: wechatUserInfo}}, {new: true});
-
+        console.log("newUser", newUser);
         return res.status(200).json({error_msg: "OK", error_code: "0", data: newUser});
     } catch (err) {
         logger.error(`微信回调`, {req: req, error: err.message});
