@@ -101,7 +101,7 @@ let requestFun = (JSONObject, method, url) => {
 exports.getQR_code_link = async (req, res) => {
 
     try {
-
+        console.log("getQR_code_link");
         let getTokenQuery = config.wechat_token_url + queryString.stringify({
             grant_type: `client_credential`,
             appid: config.wechat_appID,
@@ -143,15 +143,16 @@ exports.msg_holder = async (req, res) => {
         //     eventkey: 'qrscene_d0c04dd0-db3a-11e8-8743-a710340f75f8',
         //     ticket: 'gQES8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAycDR6UFFDTXJkMm0xTmY5cDFyYzUAAgTvHthbAwRg6gAA'
         // };
+        console.log("xml");
         let returnData = req.body.xml;
-
+        console.log("returnData");
         if (tool.isEmpty(returnData[`eventkey`])) {
             return res.status(400).json({
                 error_msg: "return value from QR code is null, please try later",
                 error_code: "400"
             });
         }
-
+        console.log("newUser", newUser);
         let userUUidFromQr = (returnData[`eventkey`]).split(`_`)[1];
         if (tool.isEmpty(userUUidFromQr)) {
             return res.status(400).json({
