@@ -300,7 +300,7 @@ app.post('/user/login', loginUser.loginUser);
 app.get('/user/logout', loginUser.logoutUser);
 
 
-server.listen(80, () => {
+server.listen(3000, () => {
     console.log("Begin Server");
 });
 
