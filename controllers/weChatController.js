@@ -132,6 +132,20 @@ exports.getQR_code_link = async (req, res) => {
         return res.status(503).json({error_msg: "code can not use ", error_code: "503"});
     }
 };
+exports.msg_holder_initial = async (req, res) => {
+
+    console.log("Is here");
+    let signature = req.query.signature;
+    let timestamp = req.query.signature;
+    let token = req.query.signature;
+    let echostr = req.query.echostr;
+    var receiveArray = [timestamp, signature, token];
+    receiveArray.sort();
+
+    console.log(receiveArray);
+
+    res.status(200).send(echostr);
+};
 exports.msg_holder = async (req, res) => {
     try {
         // let returnData = {
@@ -143,7 +157,7 @@ exports.msg_holder = async (req, res) => {
         //     eventkey: 'qrscene_d0c04dd0-db3a-11e8-8743-a710340f75f8',
         //     ticket: 'gQES8DwAAAAAAAAAAS5odHRwOi8vd2VpeGluLnFxLmNvbS9xLzAycDR6UFFDTXJkMm0xTmY5cDFyYzUAAgTvHthbAwRg6gAA'
         // };
-        console.log("xml");
+        console.log("msg_holder");
         let returnData = req.body.xml;
         console.log("returnData");
         if (tool.isEmpty(returnData[`eventkey`])) {
@@ -152,7 +166,7 @@ exports.msg_holder = async (req, res) => {
                 error_code: "400"
             });
         }
-        console.log("newUser", newUser);
+        console.log("newUser");
         let userUUidFromQr = (returnData[`eventkey`]).split(`_`)[1];
         if (tool.isEmpty(userUUidFromQr)) {
             return res.status(400).json({

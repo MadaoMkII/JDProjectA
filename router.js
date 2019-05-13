@@ -143,7 +143,7 @@ app.get('/alipay/QRcode', isAuthenticated('User'), alipayController.get_alipay_Q
 app.get('/wechat/getQRcodeUrl', isAuthenticated('User'), weChatController.getQR_code_link);
 app.post('/wechat/transfersMoney', weChatController.transfers_money);
 
-app.post('/receive', weChatController.msg_holder);
+app.get('/wechat/receive', weChatController.msg_holder_initial);
 
 app.post('/wechat/checkToken', weChatController.msg_holder);
 app.post('/recharge/returnRcoin', isAuthenticated('Admin'), processOrderController.returnRcoin);
