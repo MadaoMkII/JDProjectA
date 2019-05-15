@@ -299,7 +299,7 @@ exports.returnRcoin = async (req, res) => {
         myEvent.eventType = `Rcoin`;
         myEvent.amount = billResult.RMBAmount;
         myEvent.behavior = `bill cancel return`;
-        let amountNew = parseInt(billResult.RMBAmount) + parseInt(billUser.Rcoins);
+        let amountNew = Number(billResult.RMBAmount) + Number(billUser.Rcoins);
 
         await userModel.findOneAndUpdate({uuid: billResult.userUUid}, {
             $push: {whatHappenedToMe: myEvent},
