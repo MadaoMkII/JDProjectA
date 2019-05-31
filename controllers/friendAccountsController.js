@@ -13,7 +13,7 @@ class AccountsController {
     constructor() {
         this.todayDate = {};
         let myDate = new Date();
-        this.todayDate = new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate() + 1}`);
+        this.todayDate = new Date(`${myDate.getFullYear()}-${myDate.getMonth() + 1}-${myDate.getDate()}`);
     };
 
     async init() {
