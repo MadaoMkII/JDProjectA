@@ -393,7 +393,7 @@ exports.addProcessOrder = async (req, res) => {
         //     }, {$inc: {count: 1, amount: chargeBill.NtdAmount}}, {new: true, upsert: true});
         // }
 
-        if (parseInt(chargeBill.RMBAmount) !== parseInt(req.body.chargeAmount)) {
+        if (Number(chargeBill.RMBAmount) !== Number(req.body.chargeAmount)) {
 
             return res.status(400).json({error_msg: `RMBAmount input wrong`, error_code: "400"});
         }
@@ -485,7 +485,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
 
         let chargeBill = await chargeBillModel.findOne({billID: req.body.billID});
 
-        if (parseInt(chargeBill.RMBAmount) !== parseInt(req.body.chargeAmount)) {
+        if (Number(chargeBill.RMBAmount) !== Number(req.body.chargeAmount)) {
 
             return res.status(400).json({error_msg: `RMBAmount input wrong`, error_code: "400"});
         }
@@ -555,26 +555,19 @@ exports.addProcessOrderForCharge = async (req, res) => {
             myEvent.behavior = `Rcoin recharge`;
             myEvent.pointChange = 1;
             myEvent.amount = chargeBill.RMBAmount; //也许需要加密
-            let rcoins = parseInt(user_old.Rcoins) + parseInt(chargeBill.RMBAmount);
+            let rcoins = Number(user_old.Rcoins) + Number(chargeBill.RMBAmount);
 
+            if (isNaN(rcoins)) {
+
+                return res.status(500).json({error_msg: `NAN`, error_code: "500"});
+            }
+            user_old.findOneAndUpdate({uuid: chargeBill.userUUid}, {$set: user_old});
             userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
                 $inc: {growthPoints: 1},
                 $push: {whatHappenedToMe: myEvent},
                 $set: {Rcoins: rcoins}
             }, {new: true});
 
-
-            if (userResult.Rcoins === "NaN") {
-
-                userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
-                    $set: {Rcoins: user_old.Rcoins}
-                }, {new: true});
-                return res.status(503).json({
-                    error_msg: `Internal Error NaN happen`,
-                    error_code: "503",
-                    data: userResult
-                });
-            }
 
         } else if (chargeBill.typeStr === `支付寶儲值` &&
             user_old.userStatus.isFirstWechatCharge === false) {

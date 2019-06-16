@@ -1,6 +1,8 @@
 const dgBillModel = require('../modules/dgBill').dgBillModel;
 const userModel = require('../modules/userAccount').userAccountModel;
+const userAccount_backupModel = require('../modules/userAccount').userAccount_backupModel;
 const searchModel = require('../controllers/searchModel');
+const mailController = require('../controllers/mailController');
 const manageSettingController = require('../controllers/manageSettingController');
 const rechargeController = require('../controllers/rechargeController');
 const tool = require('../config/tools');
@@ -346,11 +348,20 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.chargeInfo.chargeMethod = `Rcoin`;
         billObject.typeState = 1;
 
+        if (!isNaN(req.user.Rcoins)) {
 
-        let recentRcoins = Number.parseInt(req.user.Rcoins) - Number.parseInt(billObject.RMBAmount);
-        let newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
-            {$set: {Rcoins: recentRcoins}}, {new: true});
-        req.user = newUser;
+            await userAccount_backupModel.findOneAndUpdate({uuid: req.user.uuid},
+                {$set: req.user}, {new: true});
+            let recentRcoins = Number(req.user.Rcoins) - Number(billObject.RMBAmount);
+
+            let newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+                {$set: {Rcoins: recentRcoins}}, {new: true});
+            req.user = newUser;
+
+        } else {
+            mailController.sendEmail("595369018@qq.com", req.body.toString());
+            throw new Error(`NaN error`);
+        }
 
         let userObject = {};
         userObject.tel_number = req.user.tel_number;

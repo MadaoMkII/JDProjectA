@@ -1,5 +1,27 @@
 const tool = require('./config/tools');
 //
-// console.log(tool.decrypt("ada6140b6ac26e494b189cb983e7e192$91cf4a2096aa74c5ae8f22038480d4ac$a811503d22e6dd7f17c48361d655fe64a0feddf77ba6f4e15ed5ed98c9262cc2"));
-// console.log(tool.encrypt(28.5))
-console.log(Number("29.6")+0.4)
+console.log(tool.decrypt("632f0be607655a592bbb51483108b81d$e4288aaa6f5d95aeadd10f974ce97ddb$85c1db1f68fee7d69e9e2ed865c6d173cf6eef797195567355643e4183fbcad4"));
+console.log(tool.encrypt(8495.99))
+//console.log(Number("29.6")+0.4)
+
+
+const dgBillModel = require('./modules/dgBill').dgBillModel;
+
+
+let x = async () => {
+
+    let orders = await dgBillModel.find({
+        "userInfo.email_address": "alan@fersonal.com",
+        "chargeInfo.chargeMethod": "Rcoin",
+        "typeState": 1,
+        "dealState": 1
+    });
+
+    let amount=0;
+    for (let one of orders) {
+
+        amount = amount+Number(one.RMBAmount)
+    }
+
+};
+console.log(new Date().getDate())
