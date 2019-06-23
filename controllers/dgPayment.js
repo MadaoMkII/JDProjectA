@@ -19,6 +19,65 @@ const friendAccountsController = require('../controllers/friendAccountsControlle
 //
 //     return res.status(200).send({error_code: 0, error_msg: `OK`, data: friendArray[index]});
 // };
+exports.closeMyBill = async (req, res) => {
+    try {
+        let inputBillID = req.body.billID;
+        if (tool.isEmpty(inputBillID)) {
+            return res.status(400).json({
+                "error_code": 400,
+                "error_msg": "billID can not be empty"
+            });
+        }
+        let billObj;
+        if (/^(CHAR)/.test(inputBillID)) {
+
+            billObj = await chargeBillModel.findOne({billID: req.body.billID, userUUid: req.user.uuid});
+            if (!tool.isEmpty(billObj) && billObj.typeState === 2 && billObj.dealState === 2) {
+
+                await chargeBillModel.findOneAndUpdate({
+                    billID: inputBillID,
+                    userUUid: req.user.uuid
+                }, {$set: {dealState: 0}}, {new: true});
+            } else {
+                return res.status(400).json({
+                    "error_code": 400,
+                    "error_msg": "billID status is not correct"
+                });
+            }
+
+
+        } else if (/^(DF)/.test(inputBillID) || /^(DG)/.test(inputBillID)) {
+            billObj = await dgBillModel.findOne({billID: req.body.billID, userUUid: req.user.uuid});
+            if (!tool.isEmpty(billObj) && billObj.typeState === 2 && billObj.dealState === 2) {
+
+                await dgBillModel.findOneAndUpdate({
+                    billID: inputBillID,
+                    userUUid: req.user.uuid
+                }, {$set: {dealState: 0}}, {new: true});
+            } else {
+                return res.status(400).json({
+                    "error_code": 400,
+                    "error_msg": "billID status is not correct"
+                });
+            }
+
+        } else {
+
+            return res.status(400).json({
+                "error_code": 400,
+                "error_msg": "billID not correct"
+            });
+        }
+
+        return res.status(200).json({
+            "error_code": 0,
+            "error_msg": "OK"
+        });
+    } catch (err) {
+        logger.error(`closeMyBill`, {req: req, error: err.message});
+        return res.status(503).send({error_code: 503, error_msg: `ERROR`});
+    }
+};
 
 let getRate = (req, res) => {
 

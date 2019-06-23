@@ -133,7 +133,7 @@ app.use(function (req, res, next) {
 // app.get('/check', bankCardController.check);
 // app.get('/testing1', bankCardController.getCardRequest);
 // app.post('/cardReceive', bankCardController.receiveCardRequest);
-
+app.post('/bills/closeMyBill', isAuthenticated('User'), dgPayment.closeMyBill);
 app.get('/bills/getFriendAccount', friendAccountsController.getFriendAccount);
 
 app.get('/payback/getFavorites', paybackController.getFavorites);
