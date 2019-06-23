@@ -406,19 +406,20 @@ exports.addDGRcoinsBill = async (req, res) => {
         billObject.chargeInfo = {};
         billObject.chargeInfo.chargeMethod = `Rcoin`;
         billObject.typeState = 1;
-
+        let newUser;
         if (!isNaN(req.user.Rcoins)) {
 
             await userAccount_backupModel.findOneAndUpdate({uuid: req.user.uuid},
                 {$set: req.user}, {new: true});
             let recentRcoins = Number(req.user.Rcoins) - Number(billObject.RMBAmount);
 
-            let newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
+            newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},
                 {$set: {Rcoins: recentRcoins}}, {new: true});
             req.user = newUser;
 
         } else {
-            mailController.sendEmail("595369018@qq.com", req.body.toString());
+            mailController.sendEmail("595369018@qq.com", 'NaN出现！ ID是' + req.user.email_address);
+            logger.error(`addDGRcoinsBillNaN`, {req: req, error: `NaN出现！`});
             throw new Error(`NaN error`);
         }
 
