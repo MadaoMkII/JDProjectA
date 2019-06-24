@@ -410,7 +410,7 @@ exports.addDGRcoinsBill = async (req, res) => {
         if (!isNaN(req.user.Rcoins)) {
 
             await userAccount_backupModel.findOneAndUpdate({uuid: req.user.uuid},
-                {$set: req.user}, {new: true});
+                {$set: req.user}, {new: true, upsert: true});
             let recentRcoins = Number(req.user.Rcoins) - Number(billObject.RMBAmount);
 
             newUser = await userModel.findOneAndUpdate({uuid: req.user.uuid},

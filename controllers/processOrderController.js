@@ -7,6 +7,7 @@ const userModel = require('../modules/userAccount').userAccountModel;
 //const dataAnalystModel = require('../modules/dataAnalyst').dataAnalystModel;
 const logger = require('../logging/logging').logger;
 const searchModel = require('../controllers/searchModel');
+const userAccount_backupModel = require('../modules/userAccount').userAccount_backupModel;
 
 exports.getAlreadySolved = async (req, res) => {
 
@@ -561,7 +562,7 @@ exports.addProcessOrderForCharge = async (req, res) => {
 
                 return res.status(500).json({error_msg: `NAN`, error_code: "500"});
             }
-            user_old.findOneAndUpdate({uuid: chargeBill.userUUid}, {$set: user_old});
+            await userAccount_backupModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {$set: user_old}, {upsert: true});
             userResult = await userModel.findOneAndUpdate({uuid: chargeBill.userUUid}, {
                 $inc: {growthPoints: 1},
                 $push: {whatHappenedToMe: myEvent},
