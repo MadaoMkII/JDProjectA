@@ -1,6 +1,6 @@
 const tool = require('./config/tools');
 //
-console.log(tool.decrypt("b5e5d26365dd167496003bb95aeebddc$dbb5dae180810c473f0ba82465236495$cc692bb4981ed8b72921a73491187ef03bdc120c58d3f7c2e536e47344608f90"));
+console.log(tool.decrypt("fcfab4c384030fcc9ad570701b2cce2c$30f23192de2ee042b593a7dd66ca31ab$84b24acced37f0e750b8196c219b93ff462183ce45ffcf24637093b5995dd32e"));
 //console.log(tool.encrypt(5500.58))
 //console.log(Number("29.6")+0.4)
 var str = "CHARAL10701000534821";
