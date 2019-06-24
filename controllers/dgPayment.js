@@ -357,7 +357,7 @@ exports.addDGRcoinsBill = async (req, res) => {
     try {
 
         if (isNaN(req.body.RMBAmount)) {
-            return res.status(503).send({error_code: 503, error_msg: `you should type Number as RmbAmount`});
+            return res.status(400).send({error_code: 400, error_msg: `you should type Number as RmbAmount`});
         }
         let billObject = new dgBillModel();
         billObject.itemInfo = {};

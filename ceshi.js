@@ -5,6 +5,8 @@ console.log(tool.decrypt("fcfab4c384030fcc9ad570701b2cce2c$30f23192de2ee042b593a
 //console.log(Number("29.6")+0.4)
 var str = "CHARAL10701000534821";
 console.log(/^(CHAR)/.test(str));
+
+console.log(isNaN('asd'));
 console.log(320+420+372+238+105);
 // const dgBillModel = require('./modules/dgBill').dgBillModel;
 //
