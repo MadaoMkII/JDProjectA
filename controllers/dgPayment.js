@@ -32,7 +32,7 @@ exports.closeMyBill = async (req, res) => {
         if (/^(CHAR)/.test(inputBillID)) {
 
             billObj = await chargeBillModel.findOne({billID: req.body.billID, userUUid: req.user.uuid});
-            if (!tool.isEmpty(billObj) && billObj.typeState === 2 && billObj.dealState === 2) {
+            if (!tool.isEmpty(billObj) && billObj.dealState === 2) {
 
                 await chargeBillModel.findOneAndUpdate({
                     billID: inputBillID,
@@ -48,7 +48,7 @@ exports.closeMyBill = async (req, res) => {
 
         } else if (/^(DF)/.test(inputBillID) || /^(DG)/.test(inputBillID)) {
             billObj = await dgBillModel.findOne({billID: req.body.billID, userUUid: req.user.uuid});
-            if (!tool.isEmpty(billObj) && billObj.typeState === 2 && billObj.dealState === 2) {
+            if (!tool.isEmpty(billObj)  && billObj.dealState === 2) {
 
                 await dgBillModel.findOneAndUpdate({
                     billID: inputBillID,
