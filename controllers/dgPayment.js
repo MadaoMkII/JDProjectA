@@ -9,7 +9,7 @@ const tool = require('../config/tools');
 const logger = require('../logging/logging').logger;
 const chargeBillModel = require('../modules/chargeBill').chargeBillModel;
 const friendAccountsController = require('../controllers/friendAccountsController');
-
+const myEventModel = require('../modules/userAccount').myEventModel;
 
 // exports.getFriendAccount = async (req, res) => {
 //     let setting = await manageSettingController.findCurrentSetting();
@@ -48,8 +48,26 @@ exports.closeMyBill = async (req, res) => {
 
         } else if (/^(DF)/.test(inputBillID) || /^(DG)/.test(inputBillID)) {
             billObj = await dgBillModel.findOne({billID: req.body.billID, userUUid: req.user.uuid});
-            if (!tool.isEmpty(billObj)  && billObj.dealState === 2) {
 
+            if (!tool.isEmpty(billObj) && billObj.dealState === 2) {
+
+                if (!tool.isEmpty(billObj.chargeInfo)) {
+                    if (billObj.chargeInfo.chargeMethod === "Rcoin") {
+                        let myEvent = new myEventModel();
+                        myEvent.eventType = `Rcoin`;
+                        myEvent.amount = billObj.RMBAmount;
+                        myEvent.behavior = `bill cancel return by user`;
+                        let amountNew = (Number(billObj.RMBAmount) + Number(req.user.Rcoins)).toFixed(2);
+
+                        userAccount_backupModel.findOneAndUpdate({uuid: req.user.userUUid},
+                            {$set: req.user}, {upsert: true});
+                        await userModel.findOneAndUpdate({uuid: billObj.userUUid}, {
+                            $push: {whatHappenedToMe: myEvent},
+                            $set: {Rcoins: amountNew}
+                        }, {new: true});
+
+                    }
+                }
                 await dgBillModel.findOneAndUpdate({
                     billID: inputBillID,
                     userUUid: req.user.uuid
@@ -74,6 +92,7 @@ exports.closeMyBill = async (req, res) => {
             "error_msg": "OK"
         });
     } catch (err) {
+
         logger.error(`closeMyBill`, {req: req, error: err.message});
         return res.status(503).send({error_code: 503, error_msg: `ERROR`});
     }

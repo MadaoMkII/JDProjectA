@@ -295,7 +295,9 @@ exports.returnRcoin = async (req, res) => {
 
         }
         let billUser = await userModel.findOne({uuid: billResult.userUUid});
-
+        if (tools.isEmpty(billUser.chargeInfo) || billUser.chargeInfo.chargeMethod !== "Rcoin") {
+            return res.status(400).json({error_msg: 'This bill type is wrong', error_code: "400"});
+        }
         let myEvent = new myEventModel();
         myEvent.eventType = `Rcoin`;
         myEvent.amount = billResult.RMBAmount;
