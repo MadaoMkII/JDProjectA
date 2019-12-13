@@ -31,7 +31,7 @@
     "multer-gridfs-storage": "^3.0.1",
     "node-taobao-topclient": "^0.1.7",
     "nodemailer": "^4.6.8",
-    "npm": "^6.4.1",
+    "npm": "^6.13.4",
     "npm-registry-fetch": "^3.8.0",
     "package.json": "^2.0.1",
     "passport": "^0.4.0",
